@@ -1,0 +1,17 @@
+{
+ "xpPerLevel":[0,50,120,220,350,520,720,1000],
+ "levelNames":["Apprendista","Tecnico","Tecnico esperto","Integratore","Integratore senior","Esperto di campo","Architetto","Maestro dei bus"],
+ "quiz":{"questions":10,"pointsPerDifficulty":10,"streakBonus":5},
+ "match":{"pointsPerPair":8,"penaltyWrong":2},
+ "scenario":{"pointsCorrect":25,"pointsPartial":10},
+ "badges":[
+  {"id":"first_quiz","icon":"🎯","name":"Primo quiz","desc":"Completa un quiz."},
+  {"id":"quiz_90","icon":"🏅","name":"Quasi perfetto","desc":"Ottieni almeno il 90% in un quiz."},
+  {"id":"streak5","icon":"🔥","name":"Serie da 5","desc":"5 risposte corrette consecutive."},
+  {"id":"matcher","icon":"🧩","name":"Collegatore","desc":"Completa un esercizio di abbinamento senza errori."},
+  {"id":"feasibility","icon":"📐","name":"Progettista","desc":"Risolvi 3 scenari di fattibilità."},
+  {"id":"explorer","icon":"🧭","name":"Esploratore","desc":"Apri la scheda di tutti i protocolli."},
+  {"id":"animator","icon":"🎬","name":"Regista","desc":"Avvia l'animazione di almeno 4 protocolli."},
+  {"id":"pro","icon":"🛠","name":"Professional","desc":"Ottieni 100 XP in modalità Professional."}
+ ]
+}

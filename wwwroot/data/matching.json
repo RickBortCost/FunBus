@@ -1,0 +1,43 @@
+{"exercises":[
+{"id":"m_b1","level":"beginner","title":"Protocollo ↔ descrizione semplice","hint":"Collega ogni protocollo alla sua descrizione.","pairs":[
+ ["EtherCAT","Un 'treno' di dati che attraversa tutti i dispositivi"],
+ ["MQTT","Messaggi pubblicati su argomenti e recapitati da un broker"],
+ ["PROFIBUS","Bus di campo a due fili con master e slave"],
+ ["S7","Dialogo di PC e HMI con i PLC Siemens"],
+ ["ADS","Il protocollo di TwinCAT (Beckhoff)"],
+ ["OPC UA","Standard sicuro con modello dati per integrare OT e IT"]]},
+{"id":"m_b2","level":"beginner","title":"Protocollo ↔ modello di comunicazione","hint":"Master/slave, client/server o publish/subscribe?","pairs":[
+ ["PROFIBUS","Master che interroga gli slave"],
+ ["EtherCAT","Master unico che invia un frame a tutti gli slave"],
+ ["MQTT","Publish/subscribe tramite broker"],
+ ["S7","Client che chiede, PLC che risponde"],
+ ["PROFINET","Controllore e dispositivi (IO-Controller / IO-Device)"],
+ ["EtherNet/IP","Produttore e consumatore con connessioni I/O"]]},
+{"id":"m_b3","level":"beginner","title":"Topologia ↔ protocollo","hint":"Collega la forma della rete al protocollo più tipico.","pairs":[
+ ["Bus con terminatori ai due estremi","PROFIBUS"],
+ ["Linea in cui il frame passa in ogni nodo","EtherCAT"],
+ ["Stella attorno a un broker","MQTT"],
+ ["Anello DLR","EtherNet/IP"],
+ ["Anello ridondante MRP","PROFINET"]]},
+{"id":"m_p1","level":"professional","title":"Protocollo ↔ porta o EtherType","hint":"Associa il protocollo all'identificativo di trasporto.","pairs":[
+ ["PROFINET RT","EtherType 0x8892"],
+ ["EtherCAT","EtherType 0x88A4"],
+ ["S7comm","TCP 102 (ISO-on-TCP)"],
+ ["ADS","TCP 48898"],
+ ["MQTT","TCP 1883 / 8883 (TLS)"],
+ ["OPC UA","opc.tcp 4840"],
+ ["EtherNet/IP I/O","UDP 2222"]]},
+{"id":"m_p2","level":"professional","title":"Topologia / ridondanza ↔ protocollo","hint":"Associa meccanismo e rete.","pairs":[
+ ["MRP (Media Redundancy Protocol)","PROFINET"],
+ ["DLR (Device Level Ring)","EtherNet/IP"],
+ ["Cable redundancy con secondo porto sul master","EtherCAT"],
+ ["Bus RS-485 con max 32 stazioni per segmento","PROFIBUS DP"],
+ ["Cluster/bridge di broker","MQTT"]]},
+{"id":"m_p3","level":"professional","title":"Campo del frame ↔ protocollo","hint":"Riconosci il protocollo dal campo.","pairs":[
+ ["Working Counter","EtherCAT"],
+ ["Start delimiter 0x68 + LE/LEr","PROFIBUS"],
+ ["TPKT + COTP + Protocol ID 0x32","S7comm"],
+ ["Invoke ID e AMS NetId","ADS"],
+ ["Packet Identifier e Remaining Length","MQTT"],
+ ["Session Handle (24 byte di header)","EtherNet/IP"]]}
+]}

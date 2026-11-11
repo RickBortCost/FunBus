@@ -1,0 +1,48 @@
+{
+ "rtLabels":{"none":"nessuna garanzia","soft":"soft real-time (priorità, non garantito matematicamente)","det":"deterministico (ciclo calcolabile)","hard":"hard real-time (sincronizzato, jitter minimo)"},
+ "topoLabels":{"line":"a linea","star":"a stella","ring":"ad anello","tree":"ad albero","bus":"a bus RS-485"},
+ "capLabels":{
+  "motion":"motion multi-asse sincronizzato","pubsub":"modello publish/subscribe","notify":"notifiche on-change (push dal server)","wan":"collegamenti WAN/Internet o linee instabili",
+  "security":"sicurezza integrata (autenticazione/cifratura)","itint":"modello dati semantico per l'integrazione IT","vendorNeutral":"interoperabilità multi-costruttore",
+  "safety":"sicurezza funzionale (safety) sullo stesso bus","redundancy":"ridondanza di cablaggio","siemensData":"accesso ai dati di un PLC Siemens S7",
+  "siemensIO":"periferia decentrata per controllore Siemens","plcBeckhoff":"integrazione nativa con TwinCAT","plcRockwell":"integrazione nativa con PLC Rockwell/Logix"
+ },
+ "matrix":{
+  "profinet":{"cycleMinUs":250,"cycleNote":"IRT: send clock da 31,25 µs, cicli pratici ≥ 250 µs; RT tipico ≥ 1 ms (dipende da controllore e dispositivi).","rt":"hard","rtNote":"Hard real-time solo in IRT; in RT è soft.","maxNodes":512,"nodesNote":"Stima indicativa: dipende dalla CPU/controllore.",
+   "caps":{"motion":"yes","security":"partial","vendorNeutral":"yes","safety":"yes","redundancy":"yes","siemensIO":"yes"},
+   "notes":{"security":"Le Security Class dipendono dalla versione della specifica e dai dispositivi.","redundancy":"MRP (recupero ~200 ms) o MRPD in IRT (senza perdita)."}},
+  "profibus":{"cycleMinUs":1000,"cycleNote":"≈1–10 ms in funzione di numero di slave, byte I/O e baud rate.","rt":"det","rtNote":"Ciclo calcolabile ma non isocrono in DP-V0/V1; DP-V2 offre isocronia.","maxNodes":126,"nodesNote":"126 indirizzi, 32 stazioni per segmento (ripetitori per estendere).",
+   "caps":{"motion":"partial","vendorNeutral":"yes","safety":"yes","redundancy":"partial","siemensIO":"yes"},
+   "notes":{"motion":"DP-V2 isocrono / PROFIdrive, ma con cicli dell'ordine dei ms.","redundancy":"Ridondanza di master/fibra specifica del costruttore."}},
+  "s7":{"cycleMinUs":10000,"cycleNote":"Richiesta/risposta aciclica; latenza tipica decine di ms, nessun ciclo garantito.","rt":"none","rtNote":"TCP: ritrasmissioni e carico possono variare i tempi.","maxNodes":64,"nodesNote":"Stima: numero di connessioni limitato dalle risorse della CPU.",
+   "caps":{"security":"partial","safety":"no","redundancy":"partial","siemensData":"yes"},
+   "notes":{"security":"S7CommPlus (S7-1200/1500) aggiunge integrità; S7comm classico no.","redundancy":"Delegata alla rete IP (RSTP/MRP).","notify":"Solo polling (Read Var)."}},
+  "ethercat":{"cycleMinUs":31,"cycleNote":"Da ~31 µs con pochi nodi; 100 µs–1 ms tipico.","rt":"hard","rtNote":"Distributed Clocks, jitter ≪ 1 µs.","maxNodes":65535,"nodesNote":"Limite teorico; in pratica dipende da master e dati per slave.",
+   "caps":{"motion":"yes","vendorNeutral":"yes","safety":"yes","redundancy":"yes","plcBeckhoff":"yes"},
+   "notes":{"redundancy":"Cable redundancy con secondo porto del master (l'anello fisico).","plcBeckhoff":"Master EtherCAT nativo in TwinCAT."}},
+  "ads":{"cycleMinUs":10000,"cycleNote":"Non ciclico; dipende da task TwinCAT e rete.","rt":"none","rtNote":"TCP, non deterministico.","maxNodes":100,"nodesNote":"Stima: dipende dal router AMS e dalle route configurate.",
+   "caps":{"notify":"yes","security":"partial","vendorNeutral":"partial","redundancy":"partial","plcBeckhoff":"yes"},
+   "notes":{"security":"ADS Secure (TLS) nelle versioni recenti; altrimenti solo route ADS.","vendorNeutral":"Specifica pubblicata ma ecosistema Beckhoff."}},
+  "mqtt":{"cycleMinUs":10000,"cycleNote":"Event-driven; latenze da ms a secondi, nessun ciclo.","rt":"none","rtNote":"QoS garantisce la consegna, non il tempo.","maxNodes":100000,"nodesNote":"Dipende dal broker (cluster).",
+   "caps":{"pubsub":"yes","notify":"yes","wan":"yes","security":"partial","itint":"partial","vendorNeutral":"yes","redundancy":"partial","siemensData":"partial","plcBeckhoff":"partial","plcRockwell":"partial"},
+   "notes":{"security":"TLS e autenticazione sono a carico di broker e client.","itint":"Solo con convenzioni come Sparkplug B.","siemensData":"Richiede librerie/firmware o gateway.","plcBeckhoff":"Funzione opzionale TwinCAT (TF6701).","plcRockwell":"Tramite gateway o moduli opzionali."}},
+  "opcua":{"cycleMinUs":10000,"cycleNote":"Client/server: tipicamente ≥ 10–100 ms. PubSub+TSN può scendere in profili dedicati.","rt":"none","rtNote":"Il client/server non è deterministico.","maxNodes":10000,"nodesNote":"Stima: dipende dal server e dai limiti di sessione.",
+   "caps":{"pubsub":"yes","notify":"yes","wan":"partial","security":"yes","itint":"yes","vendorNeutral":"yes","safety":"partial","redundancy":"partial","siemensData":"partial","plcBeckhoff":"partial","plcRockwell":"partial"},
+   "notes":{"wan":"Possibile via HTTPS/PubSub su MQTT, ma più pesante di MQTT.","safety":"OPC UA Safety (Part 15) con adozione limitata.","siemensData":"Server OPC UA sulle CPU S7-1500 a seconda di firmware/licenza.","plcBeckhoff":"Server OPC UA opzionale in TwinCAT.","plcRockwell":"Tramite gateway (es. FactoryTalk Linx) o moduli."}},
+  "enip":{"cycleMinUs":1000,"cycleNote":"RPI tipico 2–100 ms; fino a ~1 ms su dispositivi dedicati.","rt":"soft","rtNote":"Soft real-time; CIP Sync/Motion (PTP) per il motion.","maxNodes":256,"nodesNote":"Stima: limiti di connessioni del controllore/scanner.",
+   "caps":{"motion":"yes","pubsub":"partial","notify":"partial","security":"partial","vendorNeutral":"yes","safety":"yes","redundancy":"yes","plcRockwell":"yes"},
+   "notes":{"pubsub":"Producer/consumer implicito, non un broker.","notify":"Connessioni I/O COS (change of state).","security":"CIP Security (TLS/DTLS) solo su dispositivi che la supportano.","redundancy":"DLR (Device Level Ring)."}}
+ },
+ "scenarios":[
+  {"id":"sb1","level":"beginner","title":"Sensori nel mondo","text":"Hai sensori di temperatura in 20 stabilimenti in paesi diversi. I dati devono arrivare a un cloud via Internet, anche con connessioni lente o instabili.","req":{"caps":["wan","pubsub"]}},
+  {"id":"sb2","level":"beginner","title":"Robot sincronizzato","text":"Un robot ha 30 azionamenti che devono muoversi in perfetto sincronismo, aggiornati ogni millisecondo.","req":{"maxCycleUs":1000,"rtMin":"hard","nodes":30,"caps":["motion"]}},
+  {"id":"sb3","level":"beginner","title":"Vecchio impianto","text":"In un vecchio impianto c'è già un cavo a bus RS-485 posato. Servono 40 punti I/O con aggiornamento ogni 20 ms. Non si vuole ricablare.","req":{"maxCycleUs":20000,"topo":"bus","nodes":40}},
+  {"id":"sb4","level":"beginner","title":"PC e PLC Siemens","text":"Un PC deve leggere e scrivere variabili in un DB di un PLC Siemens S7-1500. Non servono tempi garantiti, bastano 100 ms.","req":{"maxCycleUs":100000,"caps":["siemensData"]}},
+  {"id":"sb5","level":"beginner","title":"Macchine di costruttori diversi","text":"Una fabbrica ha macchine di costruttori diversi. I dati devono arrivare al sistema MES in modo standard, con significato chiaro e in sicurezza.","req":{"caps":["itint","security","vendorNeutral"]}},
+  {"id":"sp1","level":"professional","title":"50 assi, 1 ms, linea","text":"50 assi, ciclo 1 ms con sincronizzazione sub-µs, cablaggio a linea (nessuno switch centrale).","req":{"maxCycleUs":1000,"rtMin":"hard","topo":"line","nodes":50,"caps":["motion"]}},
+  {"id":"sp2","level":"professional","title":"Periferia Siemens in anello con safety","text":"Controllore Siemens con 120 dispositivi di periferia decentrata, ciclo 2 ms, anello ridondante e sicurezza funzionale (PROFIsafe-like) sullo stesso cavo.","req":{"maxCycleUs":2000,"rtMin":"soft","topo":"ring","nodes":120,"caps":["siemensIO","safety","redundancy"]}},
+  {"id":"sp3","level":"professional","title":"TwinCAT: notifiche on-change","text":"Un supervisore PC sulla stessa rete deve ricevere variabili da un controllore TwinCAT solo quando cambiano (niente polling), con integrazione nativa Beckhoff.","req":{"maxCycleUs":100000,"caps":["plcBeckhoff","notify"]}},
+  {"id":"sp4","level":"professional","title":"2000 sensori via LTE","text":"2000 sensori a batteria via LTE, report ogni 10 s, rete instabile, topic gerarchici, consegna affidabile verso una piattaforma IIoT.","req":{"maxCycleUs":10000000,"nodes":2000,"caps":["wan","pubsub","notify"]}},
+  {"id":"sp5","level":"professional","title":"Packaging con Rockwell","text":"Linea di packaging con PLC Rockwell: I/O distribuito, motion e safety sulla stessa rete, RPI 2 ms.","req":{"maxCycleUs":2000,"rtMin":"soft","caps":["plcRockwell","motion","safety"]}}
+ ]
+}
