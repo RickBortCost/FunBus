@@ -35,9 +35,22 @@ function applyTheme() {
   document.documentElement.dataset.theme = t;
 }
 
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function splash(pct, msg) {
+  document.getElementById('spFill').style.width = pct + '%';
+  document.getElementById('spPct').textContent = pct;
+  if (msg) document.getElementById('spMsg').textContent = msg;
+}
+
 async function init() {
+  const t0 = Date.now();
+  splash(5, 'Caricamento impostazioni');
   await loadState();
-  try { await loadData(); } catch (e) { app.textContent = 'Impossibile caricare i contenuti JSON: ' + e.message; return; }
+  splash(15, 'Caricamento contenuti');
+  let done = 0;
+  try { await loadData(n => { done++; splash(15 + Math.round((done / 6) * 70), `Contenuti: ${n}`); }); }
+  catch (e) { document.getElementById('splash').classList.add('hide'); app.textContent = 'Impossibile caricare i contenuti JSON: ' + e.message; return; }
+  splash(90, 'Preparazione interfaccia');
   applyTheme();
   document.querySelectorAll('[data-level]').forEach(b => b.addEventListener('click', () => { S.level = b.dataset.level; S.levelChosen = true; save(); render(); }));
   document.getElementById('themeBtn').addEventListener('click', () => {
@@ -45,7 +58,11 @@ async function init() {
   });
   window.addEventListener('hashchange', () => render(true));
   render();
-  fetch('/api/version').then(r => r.ok ? r.text() : '').then(v => { if (v && v.length < 20) document.getElementById('ver').textContent = `FunBus v${v}`; }).catch(() => {});
+  splash(100, 'Pronto');
+  await wait(Math.max(300, 1500 - (Date.now() - t0)));
+  document.getElementById('splash').classList.add('hide');
+  setTimeout(() => document.getElementById('splash').remove(), 600);
+  fetch('/api/version').then(r => r.ok ? r.text() : '').then(v => { if (v && v.length < 20) document.getElementById('ver').textContent = `FunBus v${v} · Autore: Riccardo Bortolussi`; }).catch(() => {});
   const ping = () => fetch('/api/ping').catch(() => {});
   ping(); setInterval(ping, 20000);
 }
