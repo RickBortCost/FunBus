@@ -11,14 +11,15 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <!-- Versione mostrata nelle proprietà dell'exe e nell'app. Sovrascrivibile: -p:Version=x.y.z -->
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
     <FileVersion>$(Version).0</FileVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Product>FunBus</Product>
-    <Company>FunBus</Company>
+    <Company>Riccardo Bortolussi</Company>
+    <Authors>Riccardo Bortolussi</Authors>
     <Title>FunBus</Title>
     <Description>FunBus - app didattica sui bus di campo e protocolli industriali</Description>
-    <Copyright>Copyright (c) FunBus</Copyright>
+    <Copyright>Copyright (c) Riccardo Bortolussi</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
