@@ -503,6 +503,146 @@
    ],
    "a": 1,
    "e": "Discovery and basic Configuration Protocol: identify, set name, set IP."
+  },
+  {
+   "id": "b17",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale protocollo è famoso per la sua semplicità: si leggono e scrivono 'registri' numerati?",
+   "o": [
+    "Modbus TCP",
+    "EtherCAT",
+    "OPC UA",
+    "PROFINET IRT"
+   ],
+   "a": 0,
+   "e": "Modbus TCP espone una tabella di registri: facile, ma senza significato incorporato."
+  },
+  {
+   "id": "b18",
+   "level": "beginner",
+   "d": 1,
+   "q": "CANopen è molto usato in...",
+   "o": [
+    "Macchine mobili e veicoli",
+    "Solo nel cloud",
+    "Reti Wi-Fi domestiche",
+    "Siti web"
+   ],
+   "a": 0,
+   "e": "CAN è robusto a disturbi e vibrazioni, tipico di macchine mobili."
+  },
+  {
+   "id": "b19",
+   "level": "beginner",
+   "d": 2,
+   "q": "A cosa serve soprattutto IO-Link?",
+   "o": [
+    "Collegare sensori e attuatori semplici e configurarli da remoto",
+    "Collegare PLC tra loro via Internet",
+    "Sostituire il cloud",
+    "Cifrare le password"
+   ],
+   "a": 0,
+   "e": "IO-Link porta comunicazione e parametri fino al singolo sensore."
+  },
+  {
+   "id": "b20",
+   "level": "beginner",
+   "d": 2,
+   "q": "In IO-Link, quanti dispositivi si collegano a una singola porta del master?",
+   "o": [
+    "Uno",
+    "Fino a 32",
+    "Centinaia",
+    "Nessuno"
+   ],
+   "a": 0,
+   "e": "È un collegamento punto-punto: un dispositivo per porta."
+  },
+  {
+   "id": "p21",
+   "level": "professional",
+   "d": 1,
+   "q": "Qual è la porta TCP di Modbus TCP?",
+   "o": [
+    "502",
+    "102",
+    "4840",
+    "1883"
+   ],
+   "a": 0,
+   "e": "502 (802 per Modbus/TCP Security). 102 = S7, 4840 = OPC UA, 1883 = MQTT."
+  },
+  {
+   "id": "p22",
+   "level": "professional",
+   "d": 2,
+   "q": "Una risposta Modbus con function code 0x83 significa...",
+   "o": [
+    "Eccezione sulla funzione 0x03",
+    "Lettura riuscita",
+    "Scrittura riuscita",
+    "Fine della connessione"
+   ],
+   "a": 0,
+   "e": "Il bit alto (0x80) segnala un'eccezione; l'exception code spiega il motivo."
+  },
+  {
+   "id": "p23",
+   "level": "professional",
+   "d": 2,
+   "q": "Qual è il COB-ID predefinito del messaggio SYNC in CANopen?",
+   "o": [
+    "0x080",
+    "0x000",
+    "0x180",
+    "0x700"
+   ],
+   "a": 0,
+   "e": "0x080 SYNC; 0x000 NMT; 0x180+ID TPDO1; 0x700+ID heartbeat."
+  },
+  {
+   "id": "p24",
+   "level": "professional",
+   "d": 2,
+   "q": "Quanti nodi può avere al massimo una rete CANopen (Node-ID)?",
+   "o": [
+    "127",
+    "32",
+    "247",
+    "65535"
+   ],
+   "a": 0,
+   "e": "Node-ID da 1 a 127."
+  },
+  {
+   "id": "p25",
+   "level": "professional",
+   "d": 3,
+   "q": "Qual è la velocità COM3 di IO-Link?",
+   "o": [
+    "230,4 kbit/s",
+    "4,8 kbit/s",
+    "38,4 kbit/s",
+    "1 Mbit/s"
+   ],
+   "a": 0,
+   "e": "COM1 4,8, COM2 38,4, COM3 230,4 kbit/s."
+  },
+  {
+   "id": "p26",
+   "level": "professional",
+   "d": 3,
+   "q": "Chi vince l'arbitraggio su un bus CAN quando due nodi trasmettono insieme?",
+   "o": [
+    "Il frame con ID più basso",
+    "Quello arrivato per ultimo",
+    "Quello più lungo",
+    "Il master NMT sempre"
+   ],
+   "a": 0,
+   "e": "L'ID dominante (più basso) prosegue senza perdita di tempo; l'altro si ritira."
   }
  ]
 }

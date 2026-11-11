@@ -14,5 +14,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: IndustrialProtocolsLab-win-x64
-          path: publish/IndustrialProtocolsLab.exe
+          name: FunBus-win-x64
+          path: publish/FunBus.exe

@@ -7,6 +7,9 @@ on:
       tag:
         description: 'Tag da creare (es. v1.0.0)'
         required: true
+      notes:
+        description: 'Descrizione della versione (markdown)'
+        required: false
 permissions:
   contents: write
 jobs:
@@ -17,9 +20,12 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - run: dotnet publish -c Release -r win-x64 -o publish
-      - name: Crea release
+      - name: Compila e crea release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ inputs.tag || github.ref_name }}" --target "${{ github.sha }}" publish/IndustrialProtocolsLab.exe --title "${{ inputs.tag || github.ref_name }}" --generate-notes
+          NOTES: ${{ inputs.notes }}
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          dotnet publish -c Release -r win-x64 -o publish -p:Version="${tag#v}"
+          gh release create "$tag" --target "${{ github.sha }}" publish/FunBus.exe --title "FunBus $tag" --notes "${NOTES:-Nuova versione di FunBus.}"
