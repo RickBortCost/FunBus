@@ -13,7 +13,25 @@ const G = {
   iolink: '<circle cx="10" cy="24" r="6"/><path d="M16 24H30"/><rect x="30" y="16" width="12" height="16" rx="2"/>'
 };
 
+// Se esiste logos/<id>.svg (o .png) viene usato il logo ufficiale, altrimenti il pittogramma.
 export function logo(p, size = 40) {
+  const box = document.createElement('span');
+  box.style.cssText = `display:inline-flex;flex:none;align-items:center;justify-content:center;width:${size}px;height:${size}px`;
+  box.append(pictogram(p, size));
+  const tryLoad = exts => {
+    if (!exts.length) return;
+    const img = new Image();
+    img.alt = `Logo ${p.name}`;
+    img.style.cssText = `max-width:${size}px;max-height:${size}px;object-fit:contain;background:#fff;border-radius:6px;padding:2px`;
+    img.onload = () => box.replaceChildren(img);
+    img.onerror = () => tryLoad(exts.slice(1));
+    img.src = `logos/${p.id}.${exts[0]}`;
+  };
+  tryLoad(['svg', 'png']);
+  return box;
+}
+
+function pictogram(p, size) {
   const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   s.setAttribute('viewBox', '0 0 48 48'); s.setAttribute('width', size); s.setAttribute('height', size);
   s.setAttribute('role', 'img'); s.setAttribute('aria-label', `Pittogramma ${p.name}`);
