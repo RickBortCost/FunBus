@@ -1,0 +1,200 @@
+{
+ "items": [
+  {
+   "id": "d1",
+   "title": "Frame Modbus TCP",
+   "hex": "00 01 00 00 00 06 01 03 00 6B 00 03",
+   "q": [
+    {
+     "q": "Qual è il function code?",
+     "o": [
+      "0x03 Read Holding Registers",
+      "0x06 Write Single Register",
+      "0x01 Read Coils",
+      "0x10 Write Multiple Registers"
+     ],
+     "a": 0,
+     "e": "Il byte dopo l'Unit ID (0x01) è 0x03."
+    },
+    {
+     "q": "Qual è l'indirizzo di partenza?",
+     "o": [
+      "0x006B (107)",
+      "0x0003",
+      "0x0001",
+      "0x0006"
+     ],
+     "a": 0,
+     "e": "Start address = 00 6B."
+    },
+    {
+     "q": "Quanti registri vengono richiesti?",
+     "o": [
+      "3",
+      "6",
+      "107",
+      "1"
+     ],
+     "a": 0,
+     "e": "Quantity = 00 03."
+    }
+   ]
+  },
+  {
+   "id": "d2",
+   "title": "Frame PROFIBUS SD2",
+   "hex": "68 05 05 68 03 02 7D 01 02 85 16",
+   "q": [
+    {
+     "q": "Qual è l'indirizzo di destinazione (DA)?",
+     "o": [
+      "3",
+      "2",
+      "5",
+      "0x7D"
+     ],
+     "a": 0,
+     "e": "Dopo i due 0x68 e le lunghezze: DA = 03, SA = 02."
+    },
+    {
+     "q": "Cosa indica l'ultimo byte 0x16?",
+     "o": [
+      "End Delimiter",
+      "Checksum",
+      "Function code",
+      "Start delimiter"
+     ],
+     "a": 0,
+     "e": "0x16 è l'ED."
+    },
+    {
+     "q": "Quanti byte dati utili ci sono?",
+     "o": [
+      "2 (01 02)",
+      "5",
+      "1",
+      "0"
+     ],
+     "a": 0,
+     "e": "LE = 5 = DA + SA + FC + 2 byte dati."
+    }
+   ]
+  },
+  {
+   "id": "d3",
+   "title": "Frame CAN (COB-ID)",
+   "hex": "COB-ID 0x181 | DLC 2 | Dati 12 34",
+   "q": [
+    {
+     "q": "Che messaggio CANopen è?",
+     "o": [
+      "TPDO1 del nodo 1",
+      "SYNC",
+      "Heartbeat del nodo 1",
+      "RPDO1 del nodo 1"
+     ],
+     "a": 0,
+     "e": "0x180 + Node-ID 1 = TPDO1."
+    },
+    {
+     "q": "Di quale nodo è?",
+     "o": [
+      "1",
+      "0x181",
+      "2",
+      "24"
+     ],
+     "a": 0,
+     "e": "0x181 − 0x180 = 1."
+    }
+   ]
+  },
+  {
+   "id": "d4",
+   "title": "Pacchetto MQTT",
+   "hex": "30 07 00 03 61 2F 62 32 31",
+   "q": [
+    {
+     "q": "Che tipo di pacchetto è?",
+     "o": [
+      "PUBLISH",
+      "CONNECT",
+      "SUBSCRIBE",
+      "PUBACK"
+     ],
+     "a": 0,
+     "e": "0x3 nei 4 bit alti = PUBLISH."
+    },
+    {
+     "q": "Qual è il QoS?",
+     "o": [
+      "0",
+      "1",
+      "2",
+      "Non determinabile"
+     ],
+     "a": 0,
+     "e": "Flag 0x0 → QoS 0 (nessun Packet Id)."
+    },
+    {
+     "q": "Qual è il topic?",
+     "o": [
+      "a/b",
+      "21",
+      "0003",
+      "b21"
+     ],
+     "a": 0,
+     "e": "Topic length 3: 61 2F 62 = 'a/b'. Payload '21'."
+    }
+   ]
+  },
+  {
+   "id": "d5",
+   "title": "Frame Modbus RTU",
+   "hex": "01 06 00 10 00 2A CRC_L CRC_H",
+   "q": [
+    {
+     "q": "Cosa fa questo frame?",
+     "o": [
+      "Scrive il valore 42 nel registro 16 dello slave 1",
+      "Legge 42 registri",
+      "Scrive 16 registri",
+      "È un broadcast"
+     ],
+     "a": 0,
+     "e": "FC 0x06 = Write Single Register; registro 0x0010 = 16; valore 0x002A = 42."
+    }
+   ]
+  },
+  {
+   "id": "d6",
+   "title": "Telegramma KNX",
+   "hex": "BC 11 05 09 01 E1 00 81 …",
+   "q": [
+    {
+     "q": "Quale servizio è (APCI)?",
+     "o": [
+      "GroupValue_Write",
+      "GroupValue_Read",
+      "GroupValue_Response",
+      "Memory_Read"
+     ],
+     "a": 0,
+     "e": "APCI 0x80 = GroupValue_Write (0x81 con dato 1)."
+    },
+    {
+     "q": "Il destinatario è…",
+     "o": [
+      "Un group address (1/1/1)",
+      "Un indirizzo individuale",
+      "Un indirizzo broadcast MAC",
+      "Non determinabile"
+     ],
+     "a": 0,
+     "e": "Il bit 7 del byte E1 vale 1 → group address; 09 01 = 1/1/1."
+    }
+   ]
+  }
+ ]
+}

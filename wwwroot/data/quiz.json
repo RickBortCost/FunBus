@@ -643,6 +643,160 @@
    ],
    "a": 0,
    "e": "L'ID dominante (più basso) prosegue senza perdita di tempo; l'altro si ritira."
+  },
+  {
+   "id": "b21",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale bus porta alimentazione e dati sullo stesso cavo giallo?",
+   "o": [
+    "AS-Interface",
+    "EtherCAT",
+    "MQTT",
+    "OPC UA"
+   ],
+   "a": 0,
+   "e": "AS-i usa un cavo giallo piatto con dati e alimentazione."
+  },
+  {
+   "id": "b22",
+   "level": "beginner",
+   "d": 1,
+   "q": "KNX e BACnet sono usati soprattutto per...",
+   "o": [
+    "Automazione degli edifici",
+    "Robot industriali",
+    "Servizi cloud",
+    "Stampanti"
+   ],
+   "a": 0,
+   "e": "Luci, clima, accessi e supervisione degli edifici."
+  },
+  {
+   "id": "b23",
+   "level": "beginner",
+   "d": 2,
+   "q": "HART permette di...",
+   "o": [
+    "Aggiungere comunicazione digitale a un anello 4–20 mA esistente",
+    "Sostituire Ethernet",
+    "Collegare sensori via Wi-Fi sempre",
+    "Cifrare l'MQTT"
+   ],
+   "a": 0,
+   "e": "HART sovrappone un segnale FSK al 4–20 mA."
+  },
+  {
+   "id": "b24",
+   "level": "beginner",
+   "d": 2,
+   "q": "In Modbus RTU, quanti cavi servono tipicamente per un bus RS-485?",
+   "o": [
+    "Due (più schermo)",
+    "Otto",
+    "Uno",
+    "Nessuno"
+   ],
+   "a": 0,
+   "e": "RS-485 half-duplex a 2 fili."
+  },
+  {
+   "id": "p27",
+   "level": "professional",
+   "d": 2,
+   "q": "Su quale porta UDP lavora BACnet/IP?",
+   "o": [
+    "47808",
+    "3671",
+    "502",
+    "5094"
+   ],
+   "a": 0,
+   "e": "47808 (0xBAC0). 3671 = KNX IP, 502 = Modbus TCP, 5094 = HART-IP."
+  },
+  {
+   "id": "p28",
+   "level": "professional",
+   "d": 2,
+   "q": "Quanti bit ha la master call AS-i?",
+   "o": [
+    "14",
+    "7",
+    "8",
+    "32"
+   ],
+   "a": 0,
+   "e": "Master call a 14 bit, risposta dello slave a 7 bit."
+  },
+  {
+   "id": "p29",
+   "level": "professional",
+   "d": 3,
+   "q": "Come si delimita la fine di un frame Modbus RTU?",
+   "o": [
+    "Con un silenzio di almeno 3,5 caratteri",
+    "Con il carattere 0x16",
+    "Con CRLF",
+    "Con la lunghezza LE/LEr"
+   ],
+   "a": 0,
+   "e": "RTU usa silenzi tra frame; 0x16 è PROFIBUS."
+  },
+  {
+   "id": "p30",
+   "level": "professional",
+   "d": 3,
+   "q": "Qual è l'APCI di GroupValue_Write in KNX?",
+   "o": [
+    "0x80",
+    "0x00",
+    "0x40",
+    "0xC0"
+   ],
+   "a": 0,
+   "e": "0x00 Read, 0x40 Response, 0x80 Write."
+  },
+  {
+   "id": "p31",
+   "level": "professional",
+   "d": 3,
+   "q": "Qual è la modulazione di HART sul 4–20 mA?",
+   "o": [
+    "FSK Bell 202 a 1200 bit/s",
+    "Manchester a 10 Mbit/s",
+    "PWM a 1 Mbit/s",
+    "OFDM"
+   ],
+   "a": 0,
+   "e": "1200 Hz = 1, 2200 Hz = 0, ±0,5 mA."
+  },
+  {
+   "id": "p32",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale servizio BACnet recupera il Present_Value di un oggetto?",
+   "o": [
+    "ReadProperty",
+    "Who-Is",
+    "I-Am",
+    "SubscribeCOV (solo)"
+   ],
+   "a": 0,
+   "e": "ReadProperty è il servizio confermato 12."
+  },
+  {
+   "id": "p33",
+   "level": "professional",
+   "d": 2,
+   "q": "Qual è la lunghezza massima del CRC di Modbus RTU e come si trasmette?",
+   "o": [
+    "16 bit, byte basso per primo",
+    "32 bit, byte alto per primo",
+    "8 bit",
+    "16 bit, byte alto per primo"
+   ],
+   "a": 0,
+   "e": "CRC-16 (0xA001) trasmesso low byte first."
   }
  ]
 }

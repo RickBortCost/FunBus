@@ -2273,5 +2273,836 @@
     ]
    }
   }
+ },
+ "modbusrtu": {
+  "title": "Modbus RTU: polling su RS-485",
+  "nodes": [
+   {
+    "id": "m",
+    "label": "Master",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "bus",
+    "label": "Bus RS-485",
+    "x": 340,
+    "y": 150
+   },
+   {
+    "id": "s1",
+    "label": "Slave 1",
+    "x": 610,
+    "y": 60
+   },
+   {
+    "id": "s2",
+    "label": "Slave 2",
+    "x": 610,
+    "y": 240
+   }
+  ],
+  "links": [
+   [
+    "m",
+    "bus"
+   ],
+   [
+    "bus",
+    "s1"
+   ],
+   [
+    "bus",
+    "s2"
+   ]
+  ],
+  "loopFrom": 0,
+  "steps": [
+   {
+    "from": "m",
+    "to": "s1",
+    "label": "FC03 → slave 1",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "rtu",
+    "note": {
+     "b": "Il master chiede i registri allo slave 1. Gli altri ascoltano ma non rispondono.",
+     "p": "Richiesta RTU: indirizzo 1, FC 0x03, start e quantità, CRC-16. Tutti gli slave ricevono, solo quello con l'indirizzo giusto risponde."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "m",
+    "label": "Risposta",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Lo slave 1 risponde con i valori.",
+     "p": "Risposta: indirizzo, FC, byte count, dati, CRC. Il master attende fino al timeout."
+    }
+   },
+   {
+    "from": "m",
+    "to": "s2",
+    "label": "FC06 → slave 2",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Poi tocca allo slave 2: scrittura di un valore.",
+     "p": "Write Single Register: indirizzo 2, FC 0x06, registro e valore."
+    }
+   },
+   {
+    "from": "s2",
+    "to": "m",
+    "label": "Eco",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Lo slave 2 conferma.",
+     "p": "Eco della richiesta come conferma."
+    }
+   },
+   {
+    "from": "m",
+    "to": [
+     "s1",
+     "s2"
+    ],
+    "label": "Broadcast (addr 0)",
+    "t": "evento",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il master può anche parlare a tutti insieme, ma nessuno risponde.",
+     "p": "Indirizzo 0: broadcast solo per scritture; nessuna risposta, il master attende un tempo di turnaround."
+    }
+   }
+  ],
+  "frames": {
+   "rtu": {
+    "title": "Frame Modbus RTU",
+    "fields": [
+     {
+      "n": "Silenzio",
+      "s": "≥ 3,5 car.",
+      "v": "idle",
+      "d": "Il frame inizia dopo almeno 3,5 tempi di carattere di silenzio."
+     },
+     {
+      "n": "Indirizzo",
+      "s": "1 B",
+      "v": "1…247",
+      "d": "Indirizzo dello slave; 0 = broadcast."
+     },
+     {
+      "n": "Function",
+      "s": "1 B",
+      "v": "0x03",
+      "d": "Stesso function code di Modbus TCP."
+     },
+     {
+      "n": "Start address",
+      "s": "2 B",
+      "v": "0x006B",
+      "d": "Primo registro (high byte, low byte)."
+     },
+     {
+      "n": "Quantity",
+      "s": "2 B",
+      "v": "0x0003",
+      "d": "Numero di registri."
+     },
+     {
+      "n": "CRC-16",
+      "s": "2 B",
+      "v": "low byte first",
+      "d": "CRC con polinomio 0xA001, trasmesso con il byte basso per primo."
+     },
+     {
+      "n": "Silenzio",
+      "s": "≥ 3,5 car.",
+      "v": "idle",
+      "d": "Il silenzio finale delimita la fine del frame."
+     }
+    ]
+   }
+  }
+ },
+ "asi": {
+  "title": "AS-Interface: ciclo di polling",
+  "nodes": [
+   {
+    "id": "m",
+    "label": "Master / Gateway",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "bus",
+    "label": "Cavo giallo",
+    "x": 340,
+    "y": 150
+   },
+   {
+    "id": "s1",
+    "label": "Slave 1",
+    "x": 610,
+    "y": 50
+   },
+   {
+    "id": "s2",
+    "label": "Slave 2",
+    "x": 610,
+    "y": 150
+   },
+   {
+    "id": "s3",
+    "label": "Slave 3",
+    "x": 610,
+    "y": 250
+   }
+  ],
+  "links": [
+   [
+    "m",
+    "bus"
+   ],
+   [
+    "bus",
+    "s1"
+   ],
+   [
+    "bus",
+    "s2"
+   ],
+   [
+    "bus",
+    "s3"
+   ]
+  ],
+  "loopFrom": 0,
+  "steps": [
+   {
+    "from": "m",
+    "to": "s1",
+    "label": "Master call A1",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "asi_call",
+    "note": {
+     "b": "Il master chiama lo slave 1 e gli invia i dati di uscita.",
+     "p": "Master call a 14 bit: ST, SB, indirizzo (5 bit), dati (5 bit), parità, EB."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "m",
+    "label": "Risposta 7 bit",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Lo slave 1 risponde con i suoi ingressi.",
+     "p": "Slave response a 7 bit: ST, 4 bit di dati, parità, EB, dopo la pausa slave."
+    }
+   },
+   {
+    "from": "m",
+    "to": "s2",
+    "label": "Master call A2",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Poi lo slave 2.",
+     "p": "Polling sequenziale a ciclo fisso."
+    }
+   },
+   {
+    "from": "s2",
+    "to": "m",
+    "label": "Risposta",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Risposta dello slave 2.",
+     "p": "7 bit di risposta."
+    }
+   },
+   {
+    "from": "m",
+    "to": "s3",
+    "label": "Master call A3",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "E lo slave 3.",
+     "p": "Fino a 31 (o 62) slave nel ciclo; ≈ 5 ms per 31 slave."
+    }
+   },
+   {
+    "from": "s3",
+    "to": "m",
+    "label": "Risposta",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Risposta dello slave 3: il giro è completo.",
+     "p": "Fine ciclo, il polling riparte."
+    }
+   },
+   {
+    "from": "m",
+    "to": "s2",
+    "label": "Parametri / chiamata evento",
+    "t": "evento",
+    "color": "#c0392b",
+    "note": {
+     "b": "Ogni tanto il master cambia un parametro o verifica uno slave guasto.",
+     "p": "Chiamate speciali (parametri, reset, indirizzo): interrompono brevemente il polling."
+    }
+   }
+  ],
+  "frames": {
+   "asi_call": {
+    "title": "Master call AS-i (14 bit)",
+    "fields": [
+     {
+      "n": "ST",
+      "s": "1 bit",
+      "v": "0",
+      "d": "Start bit."
+     },
+     {
+      "n": "SB",
+      "s": "1 bit",
+      "v": "1",
+      "d": "Select bit: 1 = chiamata dati, 0 = chiamata speciale."
+     },
+     {
+      "n": "A4–A0",
+      "s": "5 bit",
+      "v": "indirizzo",
+      "d": "Indirizzo dello slave (1–31)."
+     },
+     {
+      "n": "I4–I0",
+      "s": "5 bit",
+      "v": "dati",
+      "d": "4 bit di uscita + bit di informazione (es. selezione slave A/B)."
+     },
+     {
+      "n": "PB",
+      "s": "1 bit",
+      "v": "parità",
+      "d": "Parità pari."
+     },
+     {
+      "n": "EB",
+      "s": "1 bit",
+      "v": "1",
+      "d": "End bit."
+     }
+    ]
+   }
+  }
+ },
+ "bacnet": {
+  "title": "BACnet/IP: discovery, lettura e COV",
+  "nodes": [
+   {
+    "id": "w",
+    "label": "Supervisore (BMS)",
+    "x": 100,
+    "y": 150
+   },
+   {
+    "id": "sw",
+    "label": "Switch",
+    "x": 380,
+    "y": 150
+   },
+   {
+    "id": "c1",
+    "label": "Centralina HVAC",
+    "x": 640,
+    "y": 60
+   },
+   {
+    "id": "c2",
+    "label": "Sensore sala",
+    "x": 640,
+    "y": 240
+   }
+  ],
+  "links": [
+   [
+    "w",
+    "sw"
+   ],
+   [
+    "sw",
+    "c1"
+   ],
+   [
+    "sw",
+    "c2"
+   ]
+  ],
+  "loopFrom": 3,
+  "steps": [
+   {
+    "from": "w",
+    "to": [
+     "c1",
+     "c2"
+    ],
+    "label": "Who-Is (broadcast)",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il supervisore chiede a tutti: «chi c'è?»",
+     "p": "Who-Is (servizio non confermato 8) in broadcast UDP 47808; con BBMD inoltrato tra sottoreti."
+    }
+   },
+   {
+    "from": "c1",
+    "to": "w",
+    "label": "I-Am",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Le centraline rispondono presentandosi.",
+     "p": "I-Am con Device Instance, vendor ID, max APDU e segmentazione."
+    }
+   },
+   {
+    "from": "c2",
+    "to": "w",
+    "label": "I-Am",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Anche il sensore risponde.",
+     "p": "Il supervisore costruisce la tabella dei dispositivi."
+    }
+   },
+   {
+    "from": "w",
+    "to": "c1",
+    "label": "ReadProperty AI1",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "bacnet",
+    "note": {
+     "b": "Il supervisore chiede la temperatura corrente.",
+     "p": "ReadProperty (confermato 12) dell'oggetto Analog Input 1, proprietà Present_Value (85)."
+    }
+   },
+   {
+    "from": "c1",
+    "to": "w",
+    "label": "ComplexACK 22,4",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "La centralina risponde con il valore.",
+     "p": "ComplexACK con Present_Value (real)."
+    }
+   },
+   {
+    "from": "w",
+    "to": "c2",
+    "label": "SubscribeCOV",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il supervisore chiede di essere avvisato quando cambia.",
+     "p": "SubscribeCOV con lifetime e processo ID; il sensore invia notifiche quando il valore cambia oltre l'incremento."
+    }
+   },
+   {
+    "from": "c2",
+    "to": "w",
+    "label": "COV notification",
+    "t": "ciclo",
+    "color": "#c0392b",
+    "note": {
+     "b": "Il sensore avvisa: «la temperatura è cambiata».",
+     "p": "UnconfirmedCOVNotification (o confermata) con Present_Value e Status_Flags."
+    }
+   }
+  ],
+  "frames": {
+   "bacnet": {
+    "title": "ReadProperty su BACnet/IP",
+    "fields": [
+     {
+      "n": "BVLC type",
+      "s": "1 B",
+      "v": "0x81",
+      "d": "BACnet/IP."
+     },
+     {
+      "n": "BVLC function",
+      "s": "1 B",
+      "v": "0x0A",
+      "d": "0x0A Original-Unicast-NPDU, 0x0B Original-Broadcast-NPDU."
+     },
+     {
+      "n": "BVLC length",
+      "s": "2 B",
+      "v": "lunghezza",
+      "d": "Lunghezza totale del messaggio."
+     },
+     {
+      "n": "NPDU ver",
+      "s": "1 B",
+      "v": "0x01",
+      "d": "Versione di rete."
+     },
+     {
+      "n": "NPDU control",
+      "s": "1 B",
+      "v": "0x04",
+      "d": "Flag: risposta attesa, destinazione/sorgente presenti."
+     },
+     {
+      "n": "APDU type",
+      "s": "1 B",
+      "v": "0x00",
+      "d": "Confirmed-Request."
+     },
+     {
+      "n": "Max APDU",
+      "s": "1 B",
+      "v": "0x05",
+      "d": "Segmentazione e dimensione massima accettata."
+     },
+     {
+      "n": "Invoke ID",
+      "s": "1 B",
+      "v": "0x01",
+      "d": "Abbina la risposta alla richiesta."
+     },
+     {
+      "n": "Service",
+      "s": "1 B",
+      "v": "0x0C",
+      "d": "ReadProperty."
+     },
+     {
+      "n": "Object ID",
+      "s": "4 B",
+      "v": "AI,1",
+      "d": "Tipo (10 bit) + istanza (22 bit)."
+     },
+     {
+      "n": "Property ID",
+      "s": "1 B",
+      "v": "85",
+      "d": "Present_Value."
+     }
+    ]
+   }
+  }
+ },
+ "knx": {
+  "title": "KNX: telegramma a gruppo",
+  "nodes": [
+   {
+    "id": "sw",
+    "label": "Interruttore",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "bus",
+    "label": "Linea KNX TP",
+    "x": 340,
+    "y": 150
+   },
+   {
+    "id": "l1",
+    "label": "Lampada",
+    "x": 610,
+    "y": 50
+   },
+   {
+    "id": "l2",
+    "label": "Dimmer",
+    "x": 610,
+    "y": 150
+   },
+   {
+    "id": "pr",
+    "label": "Sensore presenza",
+    "x": 610,
+    "y": 250
+   }
+  ],
+  "links": [
+   [
+    "sw",
+    "bus"
+   ],
+   [
+    "bus",
+    "l1"
+   ],
+   [
+    "bus",
+    "l2"
+   ],
+   [
+    "bus",
+    "pr"
+   ]
+  ],
+  "loopFrom": 0,
+  "steps": [
+   {
+    "from": "sw",
+    "to": [
+     "l1",
+     "l2"
+    ],
+    "label": "Write 1/1/1 = ON",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "knx",
+    "note": {
+     "b": "L'interruttore invia «ON» al gruppo 1/1/1.",
+     "p": "GroupValue_Write (APCI 0x80) al group address 1/1/1, trasmesso una sola volta sul bus."
+    }
+   },
+   {
+    "from": "l1",
+    "to": "sw",
+    "label": "ACK",
+    "t": "ciclo",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "La lampada conferma di aver ricevuto.",
+     "p": "ACK a livello 2 (carattere 0xCC), inviato da almeno un dispositivo destinatario."
+    }
+   },
+   {
+    "from": "pr",
+    "to": "sw",
+    "label": "Read 1/1/2",
+    "t": "ciclo",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il sensore chiede lo stato del gruppo 1/1/2.",
+     "p": "GroupValue_Read (APCI 0x00): chi ha il valore risponde con GroupValue_Response."
+    }
+   },
+   {
+    "from": "l2",
+    "to": "pr",
+    "label": "Response",
+    "t": "ciclo",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il dimmer risponde con lo stato.",
+     "p": "GroupValue_Response (APCI 0x40) con valore."
+    }
+   }
+  ],
+  "frames": {
+   "knx": {
+    "title": "Telegramma KNX TP1",
+    "fields": [
+     {
+      "n": "Control",
+      "s": "1 B",
+      "v": "0xBC",
+      "d": "Priorità e flag di ripetizione; 0xBC è un frame standard a bassa priorità."
+     },
+     {
+      "n": "Source",
+      "s": "2 B",
+      "v": "1.1.5",
+      "d": "Indirizzo individuale (area.linea.dispositivo)."
+     },
+     {
+      "n": "Destination",
+      "s": "2 B",
+      "v": "1/1/1",
+      "d": "Group address."
+     },
+     {
+      "n": "Addr type+hop+len",
+      "s": "1 B",
+      "v": "0xE1",
+      "d": "Bit 7: 1 = group address; bit 6–4 hop count; bit 3–0 lunghezza dati."
+     },
+     {
+      "n": "TPCI/APCI",
+      "s": "2 B",
+      "v": "0x0081",
+      "d": "APCI 0x80 = GroupValue_Write; i 6 bit bassi possono contenere il dato."
+     },
+     {
+      "n": "Dati",
+      "s": "0–14 B",
+      "v": "ON",
+      "d": "Valore (es. 1 bit)."
+     },
+     {
+      "n": "Checksum",
+      "s": "1 B",
+      "v": "XOR invertito",
+      "d": "XOR dei byte precedenti, invertito."
+     }
+    ]
+   }
+  }
+ },
+ "hart": {
+  "title": "HART: dialogo su anello 4–20 mA",
+  "nodes": [
+   {
+    "id": "h",
+    "label": "Host / Master",
+    "x": 100,
+    "y": 150
+   },
+   {
+    "id": "l",
+    "label": "Anello 4–20 mA",
+    "x": 380,
+    "y": 150
+   },
+   {
+    "id": "t",
+    "label": "Trasmettitore",
+    "x": 650,
+    "y": 150
+   }
+  ],
+  "links": [
+   [
+    "h",
+    "l"
+   ],
+   [
+    "l",
+    "t"
+   ]
+  ],
+  "loopFrom": 2,
+  "steps": [
+   {
+    "from": "h",
+    "to": "t",
+    "label": "Cmd 0 (identità)",
+    "t": "setup",
+    "color": "#8e44ad",
+    "frame": "hart",
+    "note": {
+     "b": "L'host chiede allo strumento: «chi sei?»",
+     "p": "Command 0: Read Unique Identifier, con indirizzo di polling 0."
+    }
+   },
+   {
+    "from": "t",
+    "to": "h",
+    "label": "Risposta + ID",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Lo strumento risponde con il suo codice.",
+     "p": "Risposta con produttore, tipo, revisione, ID univoco: usato poi per indirizzare a 5 byte."
+    }
+   },
+   {
+    "from": "h",
+    "to": "t",
+    "label": "Cmd 3 (variabili)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "L'host legge le misure e la corrente del loop.",
+     "p": "Command 3: Read Dynamic Variables, corrente + PV, SV, TV, QV."
+    }
+   },
+   {
+    "from": "t",
+    "to": "h",
+    "label": "Risposta dati",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Lo strumento risponde con i valori.",
+     "p": "Response code a 2 byte (comunicazione + stato dispositivo) e dati."
+    }
+   },
+   {
+    "from": "t",
+    "to": "h",
+    "label": "4–20 mA continuo",
+    "t": "evento",
+    "color": "#2980b9",
+    "note": {
+     "b": "Intanto il segnale analogico non si ferma mai.",
+     "p": "Il segnale FSK ha media nulla e non altera il valore 4–20 mA letto dal PLC."
+    }
+   }
+  ],
+  "frames": {
+   "hart": {
+    "title": "Frame HART",
+    "fields": [
+     {
+      "n": "Preambolo",
+      "s": "5–20 B",
+      "v": "0xFF",
+      "d": "Sincronizzazione del ricevitore."
+     },
+     {
+      "n": "Delimitatore",
+      "s": "1 B",
+      "v": "0x02 / 0x06",
+      "d": "0x02 STX master→slave, 0x06 ACK slave→master."
+     },
+     {
+      "n": "Indirizzo",
+      "s": "1 o 5 B",
+      "v": "polling / ID",
+      "d": "Indirizzo breve (0–63) o lungo (ID univoco)."
+     },
+     {
+      "n": "Comando",
+      "s": "1 B",
+      "v": "0…3",
+      "d": "Comandi universali: 0 identità, 1 PV, 2 corrente e %, 3 variabili dinamiche."
+     },
+     {
+      "n": "Byte count",
+      "s": "1 B",
+      "v": "n",
+      "d": "Lunghezza di dati (e response code)."
+     },
+     {
+      "n": "Response code",
+      "s": "2 B",
+      "v": "solo risposta",
+      "d": "Stato di comunicazione e del dispositivo."
+     },
+     {
+      "n": "Dati",
+      "s": "0–N B",
+      "v": "valori",
+      "d": "Parametri o misure."
+     },
+     {
+      "n": "Checksum",
+      "s": "1 B",
+      "v": "XOR",
+      "d": "XOR longitudinale dei byte."
+     }
+    ]
+   }
+  }
  }
 }

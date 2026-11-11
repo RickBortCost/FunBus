@@ -1,0 +1,144 @@
+{
+ "terms": [
+  {
+   "t": "Bus di campo",
+   "b": "Il cavo e le regole con cui sensori, attuatori e controllori si scambiano dati, al posto di un cavo per ogni segnale.",
+   "p": "Rete di comunicazione per I/O e dispositivi di campo con mezzo condiviso, metodo di accesso e modello di dati definiti (IEC 61158)."
+  },
+  {
+   "t": "Master / Slave",
+   "b": "Chi comanda (master) e chi risponde solo se interrogato (slave).",
+   "p": "Il master avvia ogni scambio; lo slave risponde quando indirizzato. Es.: PROFIBUS, Modbus RTU, EtherCAT."
+  },
+  {
+   "t": "Client / Server",
+   "b": "Il client chiede, il server risponde con i dati.",
+   "p": "Modello richiesta/risposta su connessione; il server espone dati (es. S7, ADS, OPC UA, Modbus TCP)."
+  },
+  {
+   "t": "Publish / Subscribe",
+   "b": "Chi pubblica non sa chi riceve; chi si iscrive riceve ciò che gli interessa.",
+   "p": "Disaccoppiamento tra produttori e consumatori tramite topic e broker (MQTT) o multicast (OPC UA PubSub, producer/consumer)."
+  },
+  {
+   "t": "Broker",
+   "b": "Il 'postino' che riceve i messaggi MQTT e li consegna agli iscritti.",
+   "p": "Server centrale MQTT che gestisce sessioni, sottoscrizioni, QoS e messaggi retained."
+  },
+  {
+   "t": "Determinismo",
+   "b": "I tempi di scambio sono prevedibili e garantiti.",
+   "p": "Latenza e jitter limitati e calcolabili; si distingue soft, deterministico e hard real-time."
+  },
+  {
+   "t": "Tempo ciclo",
+   "b": "Ogni quanto vengono scambiati i dati.",
+   "p": "Periodo del ciclo di scambio dei dati di processo; limita la reattività dell'impianto."
+  },
+  {
+   "t": "Jitter",
+   "b": "La variazione del tempo di arrivo dei dati.",
+   "p": "Deviazione della latenza rispetto al valore nominale: nel motion deve essere sub-µs (EtherCAT DC, IRT)."
+  },
+  {
+   "t": "Latenza",
+   "b": "Il ritardo tra invio e ricezione.",
+   "p": "Tempo end-to-end di un messaggio; somma di trasmissione, propagazione, elaborazione e attese."
+  },
+  {
+   "t": "RPI",
+   "b": "Ogni quanto un dispositivo EtherNet/IP invia i suoi dati.",
+   "p": "Requested Packet Interval: intervallo di produzione dei dati su una connessione I/O implicita."
+  },
+  {
+   "t": "PDO / SDO",
+   "b": "In CANopen: PDO sono i dati veloci di processo, SDO i parametri.",
+   "p": "Process Data Object (producer/consumer, max 8 byte) e Service Data Object (client/server su Object Dictionary)."
+  },
+  {
+   "t": "Object Dictionary",
+   "b": "La tabella degli oggetti di un dispositivo CANopen.",
+   "p": "Indice 16 bit + sub-indice 8 bit; descritto da file EDS/DCF."
+  },
+  {
+   "t": "Frame / Telegramma",
+   "b": "Il pacchetto di dati che viaggia sul cavo.",
+   "p": "Unità di trasmissione con header, payload e controllo errori (CRC/FCS/checksum)."
+  },
+  {
+   "t": "CRC / FCS",
+   "b": "Un codice di controllo che scopre gli errori di trasmissione.",
+   "p": "Cyclic Redundancy Check / Frame Check Sequence: calcolato sul frame e verificato dal ricevitore."
+  },
+  {
+   "t": "Topologia",
+   "b": "La forma della rete: linea, stella, anello, albero.",
+   "p": "Disposizione fisica dei nodi; influisce su ridondanza, cablaggio e ritardi."
+  },
+  {
+   "t": "Anello ridondante",
+   "b": "Un anello che continua a funzionare anche se un cavo si rompe.",
+   "p": "MRP e DLR ripristinano la comunicazione dopo la rottura; recuperi tipici da ms a centinaia di ms."
+  },
+  {
+   "t": "Terminazione",
+   "b": "La resistenza ai due capi di un bus seriale.",
+   "p": "120 Ω su CAN/RS-485 per evitare riflessioni del segnale."
+  },
+  {
+   "t": "Switch",
+   "b": "L'apparecchio che smista i dati in una rete Ethernet.",
+   "p": "Dispositivo L2 che inoltra i frame per MAC; negli industriali con VLAN, QoS e IGMP snooping."
+  },
+  {
+   "t": "VLAN / PCP",
+   "b": "Corsie separate e prioritarie sulla rete Ethernet.",
+   "p": "IEEE 802.1Q: VLAN ID e Priority Code Point (PROFINET RT usa PCP 6)."
+  },
+  {
+   "t": "Multicast / Broadcast",
+   "b": "Un messaggio inviato a molti dispositivi insieme.",
+   "p": "Indirizzi L2/L3 di gruppo; il multicast richiede IGMP snooping per non inondare la rete."
+  },
+  {
+   "t": "OSI",
+   "b": "Il modello a strati che descrive la comunicazione.",
+   "p": "7 livelli: i fieldbus tipicamente definiscono L1, L2 e L7."
+  },
+  {
+   "t": "TSN",
+   "b": "Ethernet con tempi garantiti per applicazioni in tempo reale.",
+   "p": "Time-Sensitive Networking (IEEE 802.1): sincronizzazione 802.1AS e traffico schedulato 802.1Qbv."
+  },
+  {
+   "t": "Safety",
+   "b": "Sicurezza funzionale: portare la macchina in stato sicuro in caso di guasto.",
+   "p": "PROFIsafe, FSoE, CIP Safety, CANopen Safety: canale 'black channel' con CRC e timeout, certificati secondo IEC 61508."
+  },
+  {
+   "t": "IODD / GSD / GSDML / EDS / ESI",
+   "b": "I file che descrivono un dispositivo per il suo bus.",
+   "p": "IO-Link: IODD; PROFIBUS: GSD; PROFINET: GSDML; EtherNet/IP: EDS; EtherCAT: ESI."
+  },
+  {
+   "t": "Working Counter",
+   "b": "Il contatore EtherCAT che dice quanti slave hanno elaborato il dato.",
+   "p": "Incrementato dagli slave sul datagram; il master lo confronta con il valore atteso."
+  },
+  {
+   "t": "QoS (MQTT)",
+   "b": "Quanto è garantita la consegna di un messaggio MQTT.",
+   "p": "0 al più una volta, 1 almeno una, 2 esattamente una."
+  },
+  {
+   "t": "Heartbeat / Watchdog",
+   "b": "Un segnale periodico 'sono vivo' o un timer che scatta se manca.",
+   "p": "Rilevamento di nodi o connessioni perse (CANopen heartbeat, PROFINET watchdog, EtherNet/IP timeout)."
+  },
+  {
+   "t": "Gateway",
+   "b": "Il traduttore tra due protocolli.",
+   "p": "Collega reti diverse (es. Modbus TCP↔RTU, IO-Link master↔PROFINET, AS-i↔PROFIBUS)."
+  }
+ ]
+}

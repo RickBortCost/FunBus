@@ -1,4 +1,5 @@
-import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, protoByName, defProgress } from './core.js';
+import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress } from './core.js';
+import { exportProgress, importProgress } from './extra.js';
 
 const lvKey = () => (isPro() ? 'professional' : 'beginner');
 
@@ -10,17 +11,20 @@ export function hub(app) {
     h('div', { class: 'grid' },
       h('a', { class: 'card', href: '#/test/quiz' }, h('h3', {}, '❓ Quiz'), h('p', { class: 'muted' }, 'Domande a punti con feedback immediato e serie di risposte corrette.')),
       h('a', { class: 'card', href: '#/test/match' }, h('h3', {}, '🧩 Collega le schede'), h('p', { class: 'muted' }, 'Abbina protocolli, caratteristiche e topologie.')),
+      h('a', { class: 'card', href: '#/test/ripasso' }, h('h3', {}, '🔁 Ripasso errori'), h('p', { class: 'muted' }, `Rivedi le domande sbagliate (${(S.progress.wrong || []).length}).`)),
+      h('a', { class: 'card', href: '#/test/frame' }, h('h3', {}, '🔍 Decodifica il frame'), h('p', { class: 'muted' }, 'Leggi un frame in esadecimale e rispondi (Professional).')),
       h('a', { class: 'card', href: '#/test/scenari' }, h('h3', {}, '📐 Scenari di fattibilità'), h('p', { class: 'muted' }, 'Scegli il protocollo giusto per un requisito e scopri perché.'))));
 }
 
 /* ---------- QUIZ ---------- */
-export function quiz(app) {
+export function quiz(app, ctx, review = false) {
   const cfg = S.data.game.quiz;
-  const pool = S.data.quiz.questions.filter(q => q.level === lvKey());
+  S.progress.wrong ||= [];
+  const pool = S.data.quiz.questions.filter(q => q.level === lvKey() && (!review || S.progress.wrong.includes(q.id)));
   const qs = shuffle(pool).slice(0, cfg.questions).sort((a, b) => a.d - b.d);
   let i = 0, score = 0, ok = 0, streak = 0, best = 0;
   const box = h('div');
-  app.append(h('a', { href: '#/test' }, '← Test'), h('h1', {}, 'Quiz'), box);
+  app.append(h('a', { href: '#/test' }, '← Test'), h('h1', {}, review ? 'Ripasso errori' : 'Quiz'), box);
 
   const next = () => { i++; i < qs.length ? ask() : end(); };
   const ask = () => {
@@ -35,6 +39,8 @@ export function quiz(app) {
         e.currentTarget.classList.add(right ? 'right' : 'wrong');
         if (!right) opts.querySelectorAll('button')[order.findIndex(x => x.k === q.a)].classList.add('right');
         let pts = 0;
+        const w = S.progress.wrong; const wi = w.indexOf(q.id);
+        if (right && wi >= 0) w.splice(wi, 1); if (!right && wi < 0) w.push(q.id);
         if (right) { ok++; streak++; best = Math.max(best, streak); pts = q.d * cfg.pointsPerDifficulty + (streak >= 3 ? cfg.streakBonus : 0); score += pts; } else streak = 0;
         fb.replaceChildren(h('div', { class: 'fb ' + (right ? 'ok' : 'ko') }, h('strong', {}, right ? `Corretto! +${pts} punti${streak >= 3 ? ' (bonus serie)' : ''}` : 'Non esatto. '), ' ', q.e));
         nextBtn.style.display = '';
@@ -56,7 +62,7 @@ export function quiz(app) {
       h('p', {}, `Punti guadagnati: ${score} XP · Miglior serie: ${best}`),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => location.reload() }, 'Rigioca'), h('a', { class: 'btn', href: '#/test' }, 'Torna ai test'))));
   };
-  qs.length ? ask() : box.append(h('p', {}, 'Nessuna domanda disponibile per questo livello.'));
+  qs.length ? ask() : box.append(h('p', {}, review ? 'Nessun errore da ripassare: ottimo!' : 'Nessuna domanda disponibile per questo livello.'));
 }
 
 /* ---------- COLLEGA LE SCHEDE ---------- */
@@ -195,5 +201,35 @@ export function profilo(app, { rerender }) {
       h('li', {}, `Abbinamenti completati: ${Object.keys(p.matchDone).length}`),
       h('li', {}, `Scenari risolti: ${p.scenariosSolved.length}`),
       h('li', {}, `Schede aperte: ${p.visited.length}/${S.data.protocols.protocols.length}`)),
-    h('button', { onclick: () => { if (confirm('Azzerare tutti i progressi?')) { S.progress = defProgress(); save(); rerender(); } } }, 'Azzera progressi'));
+    h('div', { class: 'row', style: 'margin-top:1rem' },
+      h('a', { class: 'btn', href: '#/certificato' }, '🎓 Certificato'),
+      h('button', { onclick: exportProgress }, '⬇ Esporta progressi'),
+      h('label', { class: 'btn' }, '⬆ Importa progressi', h('input', { type: 'file', accept: 'application/json', style: 'display:none', onchange: e => e.target.files[0] && importProgress(e.target.files[0], () => { save(); rerender(); }) }))),
+    h('button', { style: 'margin-top:1rem', onclick: () => { if (confirm('Azzerare tutti i progressi?')) { S.progress = defProgress(); save(); rerender(); } } }, 'Azzera progressi'));
+}
+
+/* ---------- DECODIFICA FRAME ---------- */
+export function frame(app) {
+  const box = h('div');
+  app.append(h('a', { href: '#/test' }, '← Test'), h('h1', {}, 'Decodifica il frame'), box);
+  if (!isPro()) { box.append(h('p', {}, 'Questo esercizio è per il livello Professional: cambia livello dal selettore in alto.')); return; }
+  const items = shuffle(S.data.decode.items);
+  let i = 0, qi = 0, ok = 0, total = 0;
+  const next = () => { qi++; if (qi >= items[i].q.length) { i++; qi = 0; } i < items.length ? ask() : end(); };
+  const ask = () => {
+    const it = items[i], q = it.q[qi], order = shuffle(q.o.map((t, k) => ({ t, k })));
+    const fb = h('div'), nb = h('button', { class: 'primary', style: 'display:none', onclick: next }, 'Avanti →');
+    const opts = h('div', { class: 'opts' }, order.map(o => h('button', { onclick: e => {
+      opts.querySelectorAll('button').forEach(b => (b.disabled = true));
+      const right = o.k === q.a; total++;
+      e.currentTarget.classList.add(right ? 'right' : 'wrong');
+      if (!right) opts.querySelectorAll('button')[order.findIndex(x => x.k === q.a)].classList.add('right'); else ok++;
+      if (right) addXP(12);
+      fb.replaceChildren(h('div', { class: 'fb ' + (right ? 'ok' : 'ko') }, right ? 'Corretto! +12 XP. ' : 'Non esatto. ', q.e));
+      nb.style.display = ''; nb.focus();
+    } }, o.t)));
+    box.replaceChildren(h('p', { class: 'muted' }, `${it.title} · domanda ${qi + 1}/${it.q.length}`), h('div', { class: 'hex' }, it.hex), h('h2', {}, q.q), opts, fb, nb);
+  };
+  const end = () => box.replaceChildren(h('div', { class: 'card' }, h('h2', {}, `Risultato: ${ok}/${total}`), h('a', { class: 'btn', href: '#/test' }, 'Torna ai test')));
+  ask();
 }

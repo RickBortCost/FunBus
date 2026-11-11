@@ -1244,6 +1244,555 @@
     "b": "Esempio: una macchina ha 8 sensori di prossimità su un modulo IO-Link collegato in rete al PLC. Dal PLC cambi la distanza di intervento di un sensore e, se uno si guasta, il nuovo sensore riceve subito le stesse impostazioni.",
     "p": "Esempio: a COM2 (38,4 kbit/s) con 2 byte di process data in e out, il ciclo minimo è dell'ordine di 2–3 ms; i parametri ISDU (es. soglia di commutazione) viaggiano a richiesta, senza fermare lo scambio ciclico."
    }
+  },
+  {
+   "id": "modbusrtu",
+   "name": "Modbus RTU",
+   "color": "#138d75",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Il Modbus 'classico' su cavo RS-485: un master interroga fino a decine di slave.",
+    "p": "Modbus seriale (RTU) su RS-485/RS-232: master/slave con frame delimitati dal silenzio di 3,5 caratteri e CRC-16."
+   },
+   "analogy": "Come un insegnante che chiama gli studenti per numero di registro: uno alla volta risponde, gli altri ascoltano in silenzio.",
+   "card": {
+    "purpose": {
+     "b": "Leggere e scrivere registri di strumenti, inverter e contatori su un semplice bus seriale.",
+     "p": "Stesso modello dati di Modbus TCP (coil, discrete input, registri a 16 bit) su linea seriale, con indirizzo di slave 1–247."
+    },
+    "osi": {
+     "b": "Definisce dati e regole di dialogo; il cavo è RS-485.",
+     "p": "L7 (Modbus Application Protocol) + L2 (framing RTU/CRC); L1 RS-485 o RS-232. Nessun L3–L6."
+    },
+    "medium": {
+     "b": "Cavo a due fili (RS-485) o RS-232.",
+     "p": "RS-485 a 2 fili half-duplex (o 4 fili), terminazione 120 Ω ai due estremi; RS-232 solo punto-punto."
+    },
+    "speed": "9,6 … 115,2 kbit/s tipico (19,2 kbit/s è il valore di default richiesto dalla specifica)",
+    "topology": {
+     "b": "Un bus: tutti gli strumenti sullo stesso cavo.",
+     "p": "Bus lineare; fino a 32 carichi per segmento RS-485 senza ripetitori; indirizzi 1–247 (0 = broadcast); lunghezza tipica fino a 1200 m."
+    },
+    "model": {
+     "b": "Un master chiede, uno slave risponde.",
+     "p": "Master/slave: solo il master inizia lo scambio; il broadcast (indirizzo 0) non ha risposta; timeout di risposta gestito dal master."
+    },
+    "determinism": {
+     "b": "Prevedibile in pratica, ma non garantito.",
+     "p": "Il protocollo non garantisce tempi; il ciclo di polling è calcolabile da baud rate, numero di slave e lunghezza dei dati."
+    },
+    "cycle": {
+     "b": "Da decine a centinaia di millisecondi.",
+     "p": "Un frame da 8 byte a 19,2 kbit/s richiede ≈ 5–6 ms (11 bit per carattere); un polling di 20 slave supera facilmente i 100 ms."
+    }
+   },
+   "pros": [
+    "Semplicissimo ed economico",
+    "Cablaggio RS-485 su lunghe distanze",
+    "Supportato da moltissimi strumenti",
+    "Specifica aperta"
+   ],
+   "cons": [
+    "Lento, solo polling",
+    "Nessuna sicurezza",
+    "Un solo master",
+    "Massimo 247 indirizzi, 32 stazioni per segmento"
+   ],
+   "usecases": [
+    "Contatori di energia e analizzatori",
+    "Inverter e regolatori",
+    "Retrofit di impianti con cablaggio RS-485"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "Modbus over Serial Line V1.02 (Modbus Organization)"
+    ],
+    [
+     "Frame RTU",
+     "Address 1 B | Function 1 B | Data n B | CRC-16 2 B (low byte first)"
+    ],
+    [
+     "Delimitazione",
+     "Silenzio ≥ 3,5 tempi di carattere tra i frame, max 1,5 tra i caratteri"
+    ],
+    [
+     "Carattere",
+     "11 bit: start, 8 dati, parità pari (o 2 stop senza parità), stop"
+    ],
+    [
+     "Dimensione",
+     "ADU massima 256 byte"
+    ]
+   ],
+   "notes": [
+    "Parità, bit di stop e baud rate vanno impostati identici su tutti i dispositivi; molti strumenti accettano impostazioni non standard."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "none",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave"
+    ]
+   },
+   "story": {
+    "b": [
+     "Modbus RTU è il Modbus di una volta: un doppino RS-485 percorre il quadro e il master chiede a ogni strumento (numerato da 1) i suoi registri.",
+     "Per sapere dove finisce un messaggio non c'è un carattere di fine: basta un breve silenzio sul cavo. Per questo i tempi tra i caratteri contano."
+    ],
+    "p": [
+     "Il frame RTU è compatto: indirizzo, function code, dati e CRC-16 (polinomio 0xA001, byte basso per primo). La fine del frame si riconosce dal silenzio di almeno 3,5 caratteri.",
+     "La stessa PDU di Modbus TCP viaggia dentro: per questo i gateway TCP↔RTU sono comuni, usando l'Unit ID come indirizzo di slave."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un quadro con 12 contatori d'energia collegati con un cavo a due fili. Il PC li interroga uno per volta ogni minuto e salva i consumi.",
+    "p": "Esempio: 12 slave, richiesta 8 byte + risposta 9 byte a 19,2 kbit/s: ≈ (8+9)×11/19200 ≈ 9,7 ms più il tempo di risposta di ogni slave: un giro completo supera i 150 ms."
+   }
+  },
+  {
+   "id": "asi",
+   "name": "AS-Interface",
+   "color": "#d4ac0d",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Un solo cavo giallo che porta alimentazione e dati a sensori e attuatori semplici.",
+    "p": "AS-i (IEC 62026-2): bus a due fili non schermato con alimentazione e dati, master/slave ciclico con slave da 4 bit."
+   },
+   "analogy": "Come una prolunga con le prese: il cavo giallo porta energia e informazioni, e basta 'pungere' il cavo per attaccare un sensore.",
+   "card": {
+    "purpose": {
+     "b": "Collegare sensori e attuatori semplici (finecorsa, pulsanti, elettrovalvole) con un solo cavo.",
+     "p": "Livello sensori/attuatori: ogni slave scambia pochi bit (4 bit in/out nelle versioni classiche); il gateway lo porta a PROFINET, PROFIBUS e altri."
+    },
+    "osi": {
+     "b": "Definisce cavo, segnali e dati.",
+     "p": "L1/L2 (modulazione APM, polling ciclico), applicazione minimale; nessun IP."
+    },
+    "medium": {
+     "b": "Cavo giallo piatto a due fili, non schermato, che porta anche l'alimentazione.",
+     "p": "Cavo a profilo piatto con connessione a perforazione; 24–31 V (circa 30 V) su dati e alimentazione; lunghezza 100 m, estendibile con repeater/extender."
+    },
+    "speed": "≈ 167 kbit/s (AS-i 2/3); ASi-5 offre velocità superiori",
+    "topology": {
+     "b": "Libera: linea, stella o albero.",
+     "p": "Topologia libera senza terminazioni: linea, stella, albero; fino a 31 slave (v2.0) o 62 slave A/B (v2.1 e successive) per master."
+    },
+    "model": {
+     "b": "Un master interroga gli slave a turno.",
+     "p": "Master/slave con polling ciclico: master call a 14 bit, slave response a 7 bit."
+    },
+    "determinism": {
+     "b": "Sì: il ciclo è fisso.",
+     "p": "Deterministico: il ciclo dipende solo dal numero di slave."
+    },
+    "cycle": {
+     "b": "Pochi millisecondi.",
+     "p": "≈ 5 ms con 31 slave (v2.0), ≈ 10 ms con 62 slave A/B (v2.1); le versioni più recenti variano."
+    }
+   },
+   "pros": [
+    "Un solo cavo per alimentazione e dati",
+    "Installazione rapidissima (perforazione)",
+    "Topologia libera",
+    "Ciclo deterministico",
+    "Sicurezza ASIsafe"
+   ],
+   "cons": [
+    "Pochi dati per slave (4 bit nelle versioni classiche)",
+    "Un solo master per rete, 100 m di cavo",
+    "Potenza di alimentazione limitata"
+   ],
+   "usecases": [
+    "Nastri trasportatori e logistica",
+    "Sensori e valvole in quadri e macchine",
+    "Interfaccia verso PLC tramite gateway"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 62026-2 / EN 50295; AS-International Association"
+    ],
+    [
+     "Master call",
+     "14 bit: ST, SB, A4–A0, I4–I0, PB, EB"
+    ],
+    [
+     "Slave response",
+     "7 bit: ST, I3–I0, PB, EB"
+    ],
+    [
+     "Cavo",
+     "Giallo (dati + potenza); nero per potenza ausiliaria a 24 V"
+    ],
+    [
+     "Slave",
+     "Indirizzi 1–31, versione A/B per 62 slave"
+    ]
+   ],
+   "notes": [
+    "Capacità (numero di slave, dati per slave, ciclo) dipendono dalla specifica (v2.0, v2.1, v3.0, ASi-5) e dal master."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "bus",
+     "line",
+     "star",
+     "tree"
+    ],
+    "model": [
+     "master-slave"
+    ]
+   },
+   "story": {
+    "b": [
+     "AS-Interface è il bus più semplice per i sensori sulle macchine: un cavo giallo piatto porta insieme energia e dati e i moduli si agganciano ovunque, perforando il cavo.",
+     "Ogni slave dà pochi bit (acceso/spento, quattro ingressi o uscite). Il master li interroga uno dopo l'altro: il giro completo è sempre uguale."
+    ],
+    "p": [
+     "Il master invia una call a 14 bit con indirizzo e dati; lo slave risponde con 7 bit. La codifica APM garantisce l'alimentazione continua sul cavo, e il ciclo è fisso: 5 ms per 31 slave.",
+     "Il gateway AS-i verso PROFINET o PROFIBUS espone i bit degli slave nell'immagine di processo del PLC. Sicurezza funzionale con ASIsafe sullo stesso cavo."
+    ]
+   },
+   "example": {
+    "b": "Esempio: su un nastro trasportatore, 20 sensori di presenza e 10 elettrovalvole sono agganciati allo stesso cavo giallo: niente quadri intermedi né cablaggio punto-punto.",
+    "p": "Esempio: 31 slave con ciclo di 5 ms: ogni master call dura ≈ 14 bit a 167 kbit/s ≈ 84 µs più pausa e risposta, quindi ≈ 150 µs per slave, circa 5 ms per l'intero giro."
+   }
+  },
+  {
+   "id": "bacnet",
+   "name": "BACnet/IP",
+   "color": "#34495e",
+   "family": "Automazione edifici",
+   "tagline": {
+    "b": "Il protocollo standard per riscaldamento, condizionamento e impianti degli edifici.",
+    "p": "BACnet (ISO 16484-5 / ASHRAE 135) su UDP/IP porta 47808 (0xBAC0): oggetti e proprietà, servizi come ReadProperty e SubscribeCOV."
+   },
+   "analogy": "Come un registro dei dispositivi dell'edificio: ognuno ha una scheda con il suo valore, e puoi chiedergli di avvisarti quando cambia.",
+   "card": {
+    "purpose": {
+     "b": "Far dialogare termostati, centraline, sensori e sistemi di supervisione di un edificio.",
+     "p": "Modello a oggetti (Analog Input, Binary Output, Schedule…) con proprietà (Present_Value, Status_Flags) e servizi di lettura, scrittura, allarmi e sottoscrizione COV."
+    },
+    "osi": {
+     "b": "Livello applicativo su rete IP.",
+     "p": "L7 (BACnet APDU) con NPDU di rete e BVLC su UDP/IP; esistono anche BACnet MS/TP (RS-485) e BACnet/SC."
+    },
+    "medium": {
+     "b": "Rete Ethernet normale.",
+     "p": "Ethernet/IP; MS/TP su RS-485 per i dispositivi di campo; BACnet/SC su TLS e WebSocket."
+    },
+    "speed": "10/100/1000 Mbit/s (IP); MS/TP 9,6–115,2 kbit/s",
+    "topology": {
+     "b": "Qualsiasi rete IP.",
+     "p": "Reti IP con router e BBMD (BACnet Broadcast Management Device) per il broadcast tra sottoreti."
+    },
+    "model": {
+     "b": "Dispositivi paritari che si interrogano e si avvisano.",
+     "p": "Peer-to-peer con client/server; sottoscrizioni COV per gli aggiornamenti on-change; Who-Is/I-Am per il discovery."
+    },
+    "determinism": {
+     "b": "No: pensato per l'edificio, non per il tempo reale.",
+     "p": "Non deterministico (UDP/IP)."
+    },
+    "cycle": {
+     "b": "Secondi o frazioni di secondo.",
+     "p": "Tipicamente 100 ms–secondi; COV riduce il polling."
+    }
+   },
+   "pros": [
+    "Standard internazionale per l'automazione di edifici",
+    "Modello dati con oggetti standard",
+    "Discovery automatico (Who-Is)",
+    "Sicurezza con BACnet/SC"
+   ],
+   "cons": [
+    "Non adatto al tempo reale",
+    "Il broadcast richiede BBMD tra sottoreti",
+    "Implementazioni con funzioni (BIBB) diverse tra costruttori"
+   ],
+   "usecases": [
+    "HVAC e climatizzazione",
+    "Illuminazione e controllo accessi",
+    "Supervisione di edifici (BMS)"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ISO 16484-5, ASHRAE 135"
+    ],
+    [
+     "Porta",
+     "UDP 47808 (0xBAC0)"
+    ],
+    [
+     "Header BVLC",
+     "Type 0x81 | Function (0x0A unicast, 0x0B broadcast) | Length"
+    ],
+    [
+     "Servizi",
+     "Who-Is, I-Am, ReadProperty (12), WriteProperty (15), SubscribeCOV (5)"
+    ],
+    [
+     "Proprietà tipica",
+     "Present_Value (85)"
+    ]
+   ],
+   "notes": [
+    "Le funzioni supportate da ogni dispositivo sono dichiarate nel PICS (Protocol Implementation Conformance Statement) e nei BIBB."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server",
+     "pub-sub"
+    ]
+   },
+   "story": {
+    "b": [
+     "BACnet è il linguaggio degli impianti degli edifici. Ogni dispositivo si presenta come un insieme di oggetti: 'Temperatura sala 1', 'Valvola riscaldamento'.",
+     "Un sistema di supervisione chiede il valore corrente oppure si iscrive per ricevere un avviso quando cambia."
+    ],
+    "p": [
+     "I dispositivi sono identificati da Device Instance; gli oggetti da tipo + istanza. ReadProperty usa il Present_Value (property 85); SubscribeCOV invia notifiche quando il valore cambia oltre un incremento.",
+     "Su reti IP il discovery usa Who-Is in broadcast, spesso inoltrato da un BBMD. BACnet/SC sostituisce UDP con connessioni TLS sicure."
+    ]
+   },
+   "example": {
+    "b": "Esempio: il sistema dell'edificio chiede a una centralina 'quanto vale la temperatura sala riunioni?' e si iscrive per essere avvisato se supera 26 °C.",
+    "p": "Esempio: SubscribeCOV per AnalogInput 3 con COV increment 0,5 °C e lifetime 300 s: il dispositivo notifica solo variazioni significative e la sottoscrizione va rinnovata."
+   }
+  },
+  {
+   "id": "knx",
+   "name": "KNX",
+   "color": "#1a5276",
+   "family": "Automazione edifici",
+   "tagline": {
+    "b": "Il bus per luci, tapparelle e clima negli edifici, anche su un semplice doppino.",
+    "p": "KNX (ISO/IEC 14543-3, EN 50090): bus di campo per l'edificio su doppino TP1 a 9600 bit/s, anche su IP, RF e powerline."
+   },
+   "analogy": "Un citofono condominiale: premi un tasto e il messaggio arriva a tutti quelli iscritti a quel 'gruppo', senza bisogno di un capo.",
+   "card": {
+    "purpose": {
+     "b": "Controllare luci, tapparelle, riscaldamento e accessi in un edificio.",
+     "p": "Telegrammi event-driven indirizzati a group address; configurazione con ETS; profili funzionali (Datapoint Types)."
+    },
+    "osi": {
+     "b": "Definisce cavo, accesso e comandi.",
+     "p": "L1/L2 (TP1 CSMA/CA, telegramma), L3 (routing), L7 (APCI): stack completo KNX; KNX IP su UDP 3671."
+    },
+    "medium": {
+     "b": "Doppino intrecciato che porta anche alimentazione (29 V).",
+     "p": "TP1 (twisted pair a 9600 bit/s con alimentazione bus), PL110 (powerline), RF, KNX IP."
+    },
+    "speed": "9,6 kbit/s (TP1); IP 10/100 Mbit/s",
+    "topology": {
+     "b": "Linee collegate a gerarchia (aree e linee).",
+     "p": "Linea fino a 64 dispositivi per segmento, accoppiatori di linea/area; topologia ad albero senza anelli."
+    },
+    "model": {
+     "b": "I dispositivi scrivono su 'gruppi' e chi è iscritto riceve.",
+     "p": "Group addressing: ogni telegramma ha un group address (es. 1/1/1); i dispositivi con quell'indirizzo reagiscono (publish/subscribe)."
+    },
+    "determinism": {
+     "b": "No: accesso al bus a priorità.",
+     "p": "CSMA/CA non distruttivo con priorità; latenza non garantita."
+    },
+    "cycle": {
+     "b": "Decine di millisecondi per telegramma.",
+     "p": "Un telegramma da 14 byte a 9600 bit/s dura ≈ 25–30 ms; il traffico è guidato dagli eventi, non ciclico."
+    }
+   },
+   "pros": [
+    "Standard mondiale per edifici",
+    "Cavo unico con alimentazione",
+    "Interoperabilità certificata tra costruttori",
+    "Configurazione ETS"
+   ],
+   "cons": [
+    "Banda molto bassa",
+    "Non adatto a processi veloci",
+    "Topologia ad albero con limiti"
+   ],
+   "usecases": [
+    "Domotica e smart building",
+    "Illuminazione e tapparelle",
+    "Clima e sicurezza degli edifici"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ISO/IEC 14543-3, EN 50090, EN 13321-1"
+    ],
+    [
+     "Telegramma TP1",
+     "Control 1 B | Source 2 B | Destination 2 B | Address type + hop + length 1 B | TPCI/APCI 2 B | Dati 0–14 B | Checksum 1 B"
+    ],
+    [
+     "Indirizzi",
+     "Individuale (area.linea.dispositivo) e di gruppo (es. 1/1/1)"
+    ],
+    [
+     "Servizi",
+     "GroupValue_Read, GroupValue_Response (0x40), GroupValue_Write (0x80)"
+    ],
+    [
+     "KNX IP",
+     "UDP 3671, multicast 224.0.23.12"
+    ]
+   ],
+   "notes": [
+    "Le prestazioni dipendono dal mezzo (TP, PL, RF, IP); i limiti di dispositivi per linea dipendono da alimentatori e repeater."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "none",
+    "topo": [
+     "bus",
+     "line",
+     "tree"
+    ],
+    "model": [
+     "pub-sub"
+    ]
+   },
+   "story": {
+    "b": [
+     "In KNX non c'è un capo: l'interruttore manda un messaggio a un 'gruppo' e tutte le lampade iscritte a quel gruppo si accendono. È come un annuncio in un auditorium.",
+     "Il cavo verde del bus porta anche l'alimentazione ai moduli. Non serve configurarli uno per uno a mano: lo fa ETS."
+    ],
+    "p": [
+     "Il telegramma TP1 contiene indirizzo individuale sorgente, group address di destinazione, APCI (GroupValue_Write 0x80) e dati fino a 14 byte, con checksum. L'accesso è CSMA/CA con priorità non distruttiva.",
+     "La topologia è gerarchica: dispositivi in linee, linee in aree, collegate da accoppiatori che filtrano i telegrammi per group address."
+    ]
+   },
+   "example": {
+    "b": "Esempio: premi l'interruttore del corridoio: invia 'ON' al gruppo 1/1/1; le due lampade e il sensore di presenza iscritti a quel gruppo reagiscono insieme.",
+    "p": "Esempio: GroupValue_Write ON (1 bit) su 1/1/1 da 1.1.5: l'attuatore 1.1.12 conferma con ACK L2; se serve, GroupValue_Read riceve una GroupValue_Response con lo stato."
+   }
+  },
+  {
+   "id": "hart",
+   "name": "HART",
+   "color": "#a04000",
+   "family": "Interfaccia strumenti di processo",
+   "tagline": {
+    "b": "Il segnale digitale che viaggia sopra il classico anello analogico 4–20 mA.",
+    "p": "HART (IEC 61158 type 20): FSK a 1200 bit/s sovrapposto al segnale 4–20 mA, master/slave; HART-IP e WirelessHART nelle versioni recenti."
+   },
+   "analogy": "Una conversazione sussurrata sopra la musica: la musica (4–20 mA) continua, e a bassa voce (HART) due strumenti si scambiano informazioni.",
+   "card": {
+    "purpose": {
+     "b": "Leggere variabili, diagnostica e parametri di strumenti di campo sullo stesso cavo del segnale analogico.",
+     "p": "Configurazione e diagnostica di trasmettitori e valvole; comandi universali (0–3), di pratica comune e specifici del dispositivo."
+    },
+    "osi": {
+     "b": "Definisce segnali e messaggi.",
+     "p": "L1 (FSK Bell 202), L2 (frame con preambolo e checksum), L7 (comandi); HART-IP su TCP/UDP 5094."
+    },
+    "medium": {
+     "b": "Il normale cavo a due fili dell'anello 4–20 mA.",
+     "p": "Doppino 4–20 mA con modulazione FSK ±0,5 mA a 1200/2200 Hz; WirelessHART su IEEE 802.15.4."
+    },
+    "speed": "1200 bit/s (FSK); WirelessHART 250 kbit/s",
+    "topology": {
+     "b": "Punto-punto o multidrop sullo stesso cavo.",
+     "p": "Point-to-point (con 4–20 mA) o multidrop (corrente fissa a 4 mA, fino a 63 strumenti nelle versioni recenti)."
+    },
+    "model": {
+     "b": "Un master chiede, lo strumento risponde.",
+     "p": "Master/slave con fino a 2 master (primario e secondario)."
+    },
+    "determinism": {
+     "b": "No: è lento e non pensato per il tempo reale.",
+     "p": "Non deterministico; il segnale analogico 4–20 mA resta però continuo."
+    },
+    "cycle": {
+     "b": "Circa due-tre risposte al secondo.",
+     "p": "≈ 2–3 transazioni al secondo in point-to-point; molto più lento in multidrop."
+    }
+   },
+   "pros": [
+    "Riusa i cavi 4–20 mA esistenti",
+    "Diagnostica e parametri senza cambiare il cablaggio",
+    "Standard universale degli strumenti di processo",
+    "Ibrido analogico/digitale"
+   ],
+   "cons": [
+    "Molto lento",
+    "Larghezza di banda minima",
+    "Nessuna sicurezza nativa",
+    "Compatibilità tra versioni HART 5/6/7"
+   ],
+   "usecases": [
+    "Trasmettitori di pressione, temperatura, portata",
+    "Posizionatori per valvole",
+    "Gestione degli asset in impianti di processo"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "HART Communication Foundation (FieldComm Group); IEC 61158 type 20"
+    ],
+    [
+     "Modulazione",
+     "FSK Bell 202: 1200 Hz = 1, 2200 Hz = 0"
+    ],
+    [
+     "Frame",
+     "Preambolo 5–20 × 0xFF | Delimitatore (0x02 master→slave, 0x06 slave→master) | Indirizzo | Comando | Byte count | [Response code] | Dati | Checksum"
+    ],
+    [
+     "Comandi universali",
+     "0 identità, 1 variabile primaria, 2 corrente e % del range, 3 variabili dinamiche"
+    ],
+    [
+     "HART-IP",
+     "TCP/UDP 5094"
+    ]
+   ],
+   "notes": [
+    "Numero massimo di dispositivi in multidrop e funzioni disponibili dipendono dalla revisione HART (5, 6, 7) e dal dispositivo."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "none",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave"
+    ]
+   },
+   "story": {
+    "b": [
+     "In molti impianti i trasmettitori comunicano con un segnale analogico 4–20 mA. HART aggiunge, sullo stesso cavo, una conversazione digitale: puoi leggere il tag dello strumento, la diagnostica e cambiare il campo di misura.",
+     "Il vantaggio principale è non cambiare il cablaggio esistente."
+    ],
+    "p": [
+     "La modulazione FSK ±0,5 mA ha media nulla, quindi non disturba il valore analogico. Il master invia un comando (es. 0 per l'identità) e lo strumento risponde con response code e dati.",
+     "In multidrop la corrente è fissa a 4 mA e gli strumenti si distinguono per l'indirizzo di polling (0–63)."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un trasmettitore di pressione in un impianto chimico: il PLC legge il 4–20 mA, mentre il tecnico da una cassetta di campo legge con HART la sua diagnostica.",
+    "p": "Esempio: Command 3 (Read Dynamic Variables) restituisce corrente di loop e fino a 4 variabili (PV, SV, TV, QV) con le loro unità; il ciclo di una transazione dura ≈ 400–500 ms."
+   }
   }
  ],
  "intro": {
