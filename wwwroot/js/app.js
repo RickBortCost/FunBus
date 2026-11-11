@@ -45,6 +45,7 @@ async function init() {
   });
   window.addEventListener('hashchange', () => render(true));
   render();
+  fetch('/api/version').then(r => r.ok ? r.text() : '').then(v => { if (v && v.length < 20) document.getElementById('ver').textContent = `FunBus v${v}`; }).catch(() => {});
   const ping = () => fetch('/api/ping').catch(() => {});
   ping(); setInterval(ping, 20000);
 }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
-namespace IndustrialProtocolsLab;
+namespace FunBus;
 
 public static class Program
 {
@@ -22,8 +22,9 @@ public static class Program
         var contentDir = Path.Combine(exeDir, "content");
         var stateDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "IndustrialProtocolsLab");
+            "FunBus");
         Directory.CreateDirectory(stateDir);
+        MigrateOldState(stateDir);
         var stateFile = Path.Combine(stateDir, "state.json");
 
         var embedded = new ManifestEmbeddedFileProvider(typeof(Program).Assembly, "wwwroot");
@@ -62,6 +63,12 @@ public static class Program
                 return Results.Ok();
             });
 
+            var version = (typeof(Program).Assembly
+                .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute)?.InformationalVersion ?? "dev";
+            version = version.Split('+')[0];
+            app.MapGet("/api/version", () => Results.Text(version, "text/plain"));
+
             app.MapGet("/api/state", () =>
                 File.Exists(stateFile)
                     ? Results.Text(File.ReadAllText(stateFile, Encoding.UTF8), "application/json")
@@ -98,6 +105,17 @@ public static class Program
         {
             File.WriteAllText(Path.Combine(stateDir, "error.log"), ex.ToString());
         }
+    }
+
+    private static void MigrateOldState(string stateDir)
+    {
+        try
+        {
+            var dst = Path.Combine(stateDir, "state.json");
+            var old = Path.Combine(Path.GetDirectoryName(stateDir)!, "IndustrialProtocolsLab", "state.json");
+            if (!File.Exists(dst) && File.Exists(old)) File.Copy(old, dst);
+        }
+        catch { /* ignora */ }
     }
 
     private static int PickPort(string[] args)

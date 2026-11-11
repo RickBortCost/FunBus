@@ -1,5 +1,6 @@
 import { S, h, T, isPro, mark, protoById, save } from './core.js';
 import { createSim } from './sim.js';
+import { logo } from './logos.js';
 
 const FIELDS = () => S.data.protocols.fields;
 
@@ -15,7 +16,7 @@ export function home(app, { rerender }) {
         h('button', { class: 'primary', onclick: () => choose('professional') }, 'Professional — livello fisico/data link, frame, cicli, topologie, diagnostica'))));
   }
   app.append(
-    h('h1', {}, 'Industrial Protocols Lab'),
+    h('h1', {}, 'FunBus'),
     h('p', {}, 'Impara i protocolli industriali con schede, animazioni, confronti e test a punti. Tutto è simulato, nessun hardware richiesto.'),
     ...box,
     h('h2', {}, 'Protocolli'),
@@ -28,7 +29,7 @@ export function home(app, { rerender }) {
 function protocolGrid() {
   return h('div', { class: 'grid' }, S.data.protocols.protocols.map(p =>
     h('a', { class: 'card', href: `#/protocolli/${p.id}`, style: `--pc:${p.color}` },
-      h('h3', {}, p.name),
+      h('div', { class: 'row' }, logo(p, 36), h('h3', { style: 'margin:0' }, p.name)),
       h('p', { class: 'muted' }, T(p.tagline)),
       h('span', { class: 'tag' }, p.family))));
 }
@@ -61,7 +62,7 @@ export function protocol(app, { id, cleanups }) {
   };
   app.append(
     h('a', { href: '#/protocolli' }, '← Tutti i protocolli'),
-    h('h1', { style: `border-left:6px solid ${p.color};padding-left:.6rem` }, p.name),
+    h('div', { class: 'row' }, logo(p, 56), h('h1', { style: 'margin:0' }, p.name)),
     h('p', {}, T(p.tagline)),
     h('span', { class: 'tag' }, p.family),
     tabs, body);

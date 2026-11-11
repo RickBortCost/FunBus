@@ -1,7 +1,8 @@
 import { S, h, T, isPro } from './core.js';
+import { logo } from './logos.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
-const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP' };
+const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto' };
 const RT = { hard: 'hard real-time', det: 'deterministico', soft: 'soft real-time', none: 'non real-time' };
 const MODEL = { 'master-slave': 'master/slave', 'client-server': 'client/server', 'pub-sub': 'pub/sub o producer/consumer' };
 const TOPO = { line: 'linea', star: 'stella', ring: 'anello', tree: 'albero', bus: 'bus' };
@@ -48,7 +49,7 @@ export function compare(app) {
     if (!ps.length) { out.replaceChildren(h('p', { class: 'muted' }, 'Nessun protocollo corrisponde ai filtri.')); return; }
     const rows = ROWS.filter(r => r.lv.includes(lv));
     const thead = h('thead', {}, h('tr', {}, h('th', {}, ''), ps.map(p => h('th', { style: `border-top:4px solid ${p.color}` },
-      h('label', {}, h('input', { type: 'checkbox', checked: sel.has(p.id), onchange: e => { e.target.checked ? sel.add(p.id) : sel.delete(p.id); render(); } }), ' ', h('a', { href: `#/protocolli/${p.id}` }, p.name))))));
+      h('div', {}, logo(p, 28)), h('label', {}, h('input', { type: 'checkbox', checked: sel.has(p.id), onchange: e => { e.target.checked ? sel.add(p.id) : sel.delete(p.id); render(); } }), ' ', h('a', { href: `#/protocolli/${p.id}` }, p.name))))));
     const tbody = h('tbody', {}, rows.map(r => {
       const diff = r.cat && r.hl?.includes(lv) && ps.length > 1 && new Set(ps.map(p => String(r.cat(p)))).size > 1;
       return h('tr', { class: diff ? 'diff' : '' }, h('td', {}, r.label), ps.map(p => h('td', {}, r.get(p))));

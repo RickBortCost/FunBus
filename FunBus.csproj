@@ -5,11 +5,20 @@
     <OutputType>WinExe</OutputType>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>IndustrialProtocolsLab</AssemblyName>
-    <RootNamespace>IndustrialProtocolsLab</RootNamespace>
+    <AssemblyName>FunBus</AssemblyName>
+    <RootNamespace>FunBus</RootNamespace>
     <InvariantGlobalization>true</InvariantGlobalization>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <ApplicationIcon Condition="Exists('app.ico')">app.ico</ApplicationIcon>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <!-- Versione mostrata nelle proprietà dell'exe e nell'app. Sovrascrivibile: -p:Version=x.y.z -->
+    <Version>1.2.0</Version>
+    <FileVersion>$(Version).0</FileVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Product>FunBus</Product>
+    <Company>FunBus</Company>
+    <Title>FunBus</Title>
+    <Description>FunBus - app didattica sui bus di campo e protocolli industriali</Description>
+    <Copyright>Copyright (c) FunBus</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">

@@ -913,6 +913,337 @@
     "b": "Esempio: in uno stabilimento con PLC Logix, 40 moduli I/O e un azionamento, lo scanner apre una connessione con ognuno specificando un RPI di 10 ms (e 2 ms per l'azionamento). Per anelli ridondanti si usa un anello DLR con switch compatibili.",
     "p": "Esempio: un adapter con RPI 5 ms e timeout multiplier ×4: se non arrivano frame per 20 ms la connessione cade e il PLC segnala la perdita del modulo; con un RPI più basso la rilevazione è più rapida ma il carico di rete cresce."
    }
+  },
+  {
+   "id": "modbus",
+   "name": "Modbus TCP",
+   "color": "#16a085",
+   "family": "Protocollo applicativo su TCP/IP",
+   "tagline": {
+    "b": "Il protocollo più semplice e diffuso per leggere e scrivere valori in strumenti e PLC.",
+    "p": "Modbus Application Protocol su TCP/IP (porta 502) con header MBAP: function code e registri a 16 bit in modello client/server."
+   },
+   "analogy": "Come un armadietto con cassetti numerati: chiedi 'dammi il contenuto dei cassetti da 100 a 103' oppure 'metti 25 nel cassetto 200'. Il significato dei cassetti lo spiega il manuale del dispositivo.",
+   "card": {
+    "purpose": {
+     "b": "Leggere e scrivere valori (registri) di contatori, inverter, regolatori e PLC in modo semplicissimo.",
+     "p": "Accesso a coil e discrete input (1 bit) e input/holding register (16 bit) tramite function code; molto usato per contatori, inverter, sensori e gateway verso reti Modbus RTU."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra TCP/IP.",
+     "p": "L7 (Modbus Application Protocol) su TCP porta 502 con header MBAP; la variante seriale (RTU/ASCII) usa RS-232/RS-485."
+    },
+    "medium": {
+     "b": "Normale rete Ethernet.",
+     "p": "Ethernet 10/100/1000; la stessa semantica viaggia su RS-485 (Modbus RTU) tramite gateway."
+    },
+    "speed": "10/100/1000 Mbit/s (Ethernet); RTU tipico 9,6–115,2 kbit/s",
+    "topology": {
+     "b": "Qualsiasi rete Ethernet.",
+     "p": "Dipende dall'infrastruttura IP; i gateway usano l'Unit ID per instradare verso linee RTU (indirizzi 1–247, tipicamente 32 stazioni per segmento RS-485)."
+    },
+    "model": {
+     "b": "Un client chiede, il server risponde.",
+     "p": "Client/server (storicamente master/slave): una richiesta, una risposta; il Transaction ID permette più richieste in volo; PDU massimo 253 byte."
+    },
+    "determinism": {
+     "b": "No: nessuna garanzia sui tempi.",
+     "p": "Non deterministico (TCP); su reti dedicate è prevedibile in pratica ma senza garanzie."
+    },
+    "cycle": {
+     "b": "Nessun ciclo: il client interroga quando serve (polling).",
+     "p": "Polling del client; tipicamente 10–1000 ms per scansione, in funzione del numero di richieste e dispositivi."
+    }
+   },
+   "pros": [
+    "Semplicissimo e supportato da quasi ogni dispositivo",
+    "Specifica aperta, senza licenze",
+    "Facile da implementare e da diagnosticare",
+    "Gateway verso reti Modbus RTU esistenti"
+   ],
+   "cons": [
+    "Nessuna sicurezza nativa (Modbus/TCP Security con TLS è poco diffuso)",
+    "Solo polling: niente notifiche né sincronizzazione",
+    "Registri senza significato: la mappa dipende dal dispositivo",
+    "Nessun determinismo"
+   ],
+   "usecases": [
+    "Contatori di energia e analizzatori di rete",
+    "Inverter e regolatori di temperatura",
+    "Integrazione in SCADA e building automation"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "Modbus Application Protocol V1.1b3 e Modbus Messaging on TCP/IP Implementation Guide (Modbus Organization)"
+    ],
+    [
+     "Porta",
+     "TCP 502 (Modbus/TCP Security: 802)"
+    ],
+    [
+     "Header MBAP",
+     "Transaction ID 2 B, Protocol ID 2 B (=0), Length 2 B, Unit ID 1 B"
+    ],
+    [
+     "Function code",
+     "0x01 Read Coils, 0x02 Read Discrete Inputs, 0x03 Read Holding Registers, 0x04 Read Input Registers, 0x05/0x06 Write Single, 0x0F/0x10 Write Multiple"
+    ],
+    [
+     "Eccezioni",
+     "function code + 0x80 con codice 01 illegal function, 02 illegal data address, 03 illegal data value, 04 server failure"
+    ]
+   ],
+   "notes": [
+    "Numerazione dei registri (base 0 o base 1, es. 40001) e ordine di byte/word nei valori a 32 bit variano tra costruttori: verificare la mappa del dispositivo."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server"
+    ]
+   },
+   "story": {
+    "b": [
+     "Modbus TCP è il 'linguaggio di base' degli strumenti: quasi ogni contatore, inverter o regolatore lo parla. Il dispositivo ha una tabella di registri numerati e il client può leggerli o scriverli.",
+     "Non dice cosa rappresenta un registro: lo spiega solo il manuale. Per questo è facilissimo da usare ma poco 'intelligente'."
+    ],
+    "p": [
+     "Il modello dati è piatto: coil e discrete input a 1 bit, input e holding register a 16 bit. Ogni richiesta porta un function code e l'indirizzo di partenza; la risposta ripete il function code o, in caso di errore, lo restituisce con il bit alto (0x80 + FC) più un exception code.",
+     "Sul TCP l'header MBAP sostituisce l'indirizzo e il CRC del Modbus RTU: Transaction ID per accoppiare le risposte, Protocol ID a 0, Length e Unit ID, utile quando un gateway inoltra su RS-485."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un PC legge ogni secondo la potenza di un contatore di energia: 'dammi 2 registri a partire dal 3000'. I due registri formano un numero con la virgola, come spiegato nel manuale del contatore.",
+    "p": "Esempio: lettura di 2 holding register dall'indirizzo 3000 (FC 0x03) da un analizzatore di rete: i due registri a 16 bit formano un float a 32 bit; l'ordine delle word (big/little endian) va verificato sul manuale, altrimenti il valore risulta sbagliato."
+   }
+  },
+  {
+   "id": "canopen",
+   "name": "CANopen",
+   "color": "#b7950b",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Il bus a due fili robusto di macchine, veicoli e dispositivi medicali.",
+    "p": "Livello applicativo CiA 301 su CAN (ISO 11898): Object Dictionary, PDO, SDO, NMT, SYNC, heartbeat e profili di dispositivo."
+   },
+   "analogy": "Una riunione dove tutti possono parlare ma, se due iniziano insieme, parla chi ha la voce più 'prioritaria' senza interrompere nessuno. Il bus è sempre in ascolto e i messaggi urgenti passano per primi.",
+   "card": {
+    "purpose": {
+     "b": "Collegare sensori, azionamenti e controllori su un bus semplice e molto robusto.",
+     "p": "Applicazione standard (CiA 301) sopra CAN: Object Dictionary, PDO per i dati di processo, SDO per i parametri, NMT per gli stati, SYNC/EMCY/heartbeat; profili CiA 401 (I/O) e 402 (azionamenti)."
+    },
+    "osi": {
+     "b": "Usa il bus CAN e aggiunge le regole applicative.",
+     "p": "L1/L2 da ISO 11898 (CAN), L7 CANopen (CiA 301); i livelli 3–6 non esistono."
+    },
+    "medium": {
+     "b": "Cavo a due fili intrecciati con resistenze ai due estremi.",
+     "p": "CAN differenziale CAN_H/CAN_L (ISO 11898-2), terminazione 120 Ω ai due estremi; connettori D-Sub 9, M12 e altri."
+    },
+    "speed": "10 kbit/s … 1 Mbit/s (CAN FD con CANopen FD: fase dati oltre 1 Mbit/s)",
+    "topology": {
+     "b": "Un bus a linea con terminatori.",
+     "p": "Bus lineare con derivazioni corte; lunghezza legata al bitrate (≈ 25 m a 1 Mbit/s, ≈ 500 m a 125 kbit/s, ≈ 5 km a 10 kbit/s); fino a 127 nodi (Node-ID 1–127)."
+    },
+    "model": {
+     "b": "Tutti possono parlare: vince il messaggio più importante.",
+     "p": "Multi-master con arbitraggio CSMA/CR sull'identificatore (ID più basso = priorità più alta). Producer/consumer per i PDO, client/server per gli SDO, master NMT per la gestione degli stati."
+    },
+    "determinism": {
+     "b": "Buono per i messaggi con priorità alta.",
+     "p": "Latenza limitata e calcolabile per ogni priorità (analisi di schedulabilità CAN); SYNC per i PDO sincroni. Non offre la sincronizzazione di EtherCAT o IRT."
+    },
+    "cycle": {
+     "b": "Da 1 a pochi millisecondi.",
+     "p": "SYNC tipico 1–10 ms; un frame da 8 byte a 1 Mbit/s dura ≈ 110–135 µs (con bit stuffing); il carico del bus limita il numero di PDO per ciclo."
+    }
+   },
+   "pros": [
+    "Molto robusto ai disturbi, ideale per macchine mobili",
+    "Cablaggio a bus semplice e componenti economici",
+    "Priorità dei messaggi e rilevazione errori integrata",
+    "Profili standard (CiA 402 per azionamenti)",
+    "Safety con CANopen Safety (EN 50325-5)"
+   ],
+   "cons": [
+    "Banda limitata e frame da 8 byte",
+    "Massimo 127 nodi, lunghezza ridotta alle alte velocità",
+    "Sincronizzazione meno precisa di EtherCAT o IRT",
+    "Object Dictionary e file EDS/DCF richiedono competenza"
+   ],
+   "usecases": [
+    "Macchine mobili e veicoli (agricoli, movimento terra)",
+    "Dispositivi medicali",
+    "Ascensori, imballaggio, robotica leggera"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "CiA 301 (CANopen), ISO 11898-1/-2 (CAN)"
+    ],
+    [
+     "COB-ID",
+     "11 bit: 4 bit function code + 7 bit Node-ID"
+    ],
+    [
+     "COB-ID principali",
+     "NMT 0x000, SYNC 0x080, EMCY 0x080+ID, TPDO1 0x180+ID, RPDO1 0x200+ID, SDO tx 0x580+ID, SDO rx 0x600+ID, Heartbeat 0x700+ID"
+    ],
+    [
+     "Object Dictionary",
+     "Indice 16 bit + sub-indice 8 bit (es. 0x1000 Device Type)"
+    ],
+    [
+     "Descrizione",
+     "EDS/DCF (testo)"
+    ]
+   ],
+   "notes": [
+    "Bitrate, lunghezze massime e supporto a CAN FD (CiA 1301) dipendono da cavo, transceiver e implementazione."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave",
+     "pub-sub"
+    ]
+   },
+   "story": {
+    "b": [
+     "CANopen nasce nelle automobili e nelle macchine mobili: ambienti con vibrazioni e disturbi dove il cavo deve funzionare sempre. Sullo stesso doppino tutti i nodi ascoltano tutto e prendono solo ciò che li riguarda.",
+     "Il 'direttore' (master NMT) accende i dispositivi e, se serve, scandisce il ritmo con un messaggio SYNC. Poi ogni nodo trasmette i suoi dati nei suoi messaggi (PDO)."
+    ],
+    "p": [
+     "Ogni nodo espone un Object Dictionary: gli SDO leggono e scrivono i parametri (client/server, lenti), i PDO trasportano i dati di processo in frame da max 8 byte (producer/consumer, veloci), l'NMT governa gli stati (pre-operational, operational, stopped).",
+     "L'identificatore a 11 bit combina function code e Node-ID: determina chi vince l'arbitraggio. Con SYNC, i PDO sincroni si campionano insieme; heartbeat o node guarding rilevano i nodi persi."
+    ]
+   },
+   "example": {
+    "b": "Esempio: su un escavatore, la pompa, il joystick e i sensori di posizione condividono un solo cavo a due fili. Il joystick manda i comandi con un messaggio prioritario e la pompa risponde con la pressione, anche in mezzo a polvere e vibrazioni.",
+    "p": "Esempio: 20 nodi a 250 kbit/s con SYNC a 5 ms: un frame da 8 byte dura ≈ 0,5 ms, quindi nel ciclo entrano al massimo una decina di PDO; il carico del bus (≈ 50 %) va calcolato per garantire le latenze dei messaggi a priorità più bassa."
+   }
+  },
+  {
+   "id": "iolink",
+   "name": "IO-Link",
+   "color": "#27ae60",
+   "family": "Interfaccia sensori punto-punto",
+   "tagline": {
+    "b": "Il collegamento 'intelligente' per sensori e attuatori semplici, con parametri da remoto.",
+    "p": "Interfaccia punto-punto IEC 61131-9 (SDCI) tra IO-Link Master e Device, con dati di processo ciclici e parametri/diagnostica aciclici."
+   },
+   "analogy": "Come un cavetto USB per sensori: colleghi il sensore, il master lo riconosce, ne legge la 'scheda' e può regolarlo o sostituirlo con le stesse impostazioni.",
+   "card": {
+    "purpose": {
+     "b": "Collegare sensori e attuatori semplici all'automazione e configurarli da remoto.",
+     "p": "Interfaccia punto-punto (IEC 61131-9, SDCI): dati di processo ciclici, parametri e diagnostica aciclici (ISDU), eventi; il master si integra in un fieldbus superiore."
+    },
+    "osi": {
+     "b": "Definisce cavo, segnali e dati tra master e dispositivo.",
+     "p": "L1 (24 V, linea C/Q, COM1/2/3), L2 (M-sequence), L7 (process data, ISDU, eventi). Non usa IP; il master è il gateway verso PROFINET, EtherCAT e altri."
+    },
+    "medium": {
+     "b": "Cavo a 3 o 5 fili non schermato con connettore M12 o M8.",
+     "p": "3 fili (L+, L−, C/Q), fino a 20 m, non schermato, connettori M12/M8; port class A (3 pin) e B (alimentazione ausiliaria)."
+    },
+    "speed": "COM1 4,8 kbit/s; COM2 38,4 kbit/s; COM3 230,4 kbit/s",
+    "topology": {
+     "b": "Punto-punto: un cavo per ogni dispositivo, a stella dal master.",
+     "p": "Un solo device per porta del master (tipicamente 4–8 porte); i master si collegano al fieldbus con la sua topologia (linea, stella, anello)."
+    },
+    "model": {
+     "b": "Il master interroga il dispositivo.",
+     "p": "Master/device: il master apre ogni scambio e il device risponde nella stessa M-sequence."
+    },
+    "determinism": {
+     "b": "Sì: il ciclo è fisso per ogni porta.",
+     "p": "Ciclo per porta deterministico (min cycle time dichiarato dal device nell'IODD); la latenza complessiva dipende dal fieldbus e dal ciclo del master."
+    },
+    "cycle": {
+     "b": "Da frazioni di millisecondo a qualche ms.",
+     "p": "Min cycle time da 400 µs (COM3) a 132,8 ms; tipico 2–5 ms secondo device e quantità di dati."
+    }
+   },
+   "pros": [
+    "Parametrizzazione e sostituzione automatica del sensore (Data Storage)",
+    "Cablaggio standard economico, non schermato",
+    "Diagnostica fino all'ultimo sensore",
+    "Descrizione dei dispositivi con file IODD",
+    "Indipendente dal fieldbus a monte"
+   ],
+   "cons": [
+    "Solo punto-punto: serve un master ogni 4–8 dispositivi",
+    "Lunghezza massima 20 m",
+    "Dati di processo limitati (fino a 32 byte per direzione)",
+    "Non è un bus a sé: richiede un fieldbus superiore"
+   ],
+   "usecases": [
+    "Sensori di prossimità, fotocellule, sensori di pressione smart",
+    "Isole di valvole e attuatori semplici",
+    "Cambio formato e riconfigurazione da remoto"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 61131-9 (SDCI), IO-Link Community"
+    ],
+    [
+     "Velocità",
+     "COM1 4,8 / COM2 38,4 / COM3 230,4 kbit/s"
+    ],
+    [
+     "Messaggio",
+     "M-sequence: master (MC, CKT, PDout, OD) → device (PDin, OD, CKS)"
+    ],
+    [
+     "Descrizione",
+     "IODD (XML)"
+    ],
+    [
+     "Avvio",
+     "Wake-up del master → Startup → Preoperate → Operate"
+    ]
+   ],
+   "notes": [
+    "Le versioni V1.0 e V1.1 differiscono (Data Storage, ISDU estesi): verificare la compatibilità master/device. IO-Link Safety e IO-Link Wireless sono estensioni con requisiti propri."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "star"
+    ],
+    "model": [
+     "master-slave"
+    ]
+   },
+   "story": {
+    "b": [
+     "IO-Link porta l'intelligenza fino all'ultimo sensore: ogni sensore ha un cavo dedicato verso un modulo (il master) e può comunicare non solo 'acceso/spento', ma anche valore, stato e parametri.",
+     "Quando un sensore si rompe, lo sostituisci e il master gli riscrive le impostazioni del vecchio: niente più tarature a mano."
+    ],
+    "p": [
+     "Il master avvia la comunicazione con un impulso di wake-up, legge identificazione e parametri (ISDU) in Preoperate e poi passa in Operate: da lì scambia process data a ciclo fisso con ogni device, con on-request data in coda alla stessa M-sequence.",
+     "Il master è un gateway: raccoglie i process data delle sue porte e li espone al PLC tramite PROFINET, EtherCAT, EtherNet/IP o altri fieldbus. I device si descrivono con file IODD."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una macchina ha 8 sensori di prossimità su un modulo IO-Link collegato in rete al PLC. Dal PLC cambi la distanza di intervento di un sensore e, se uno si guasta, il nuovo sensore riceve subito le stesse impostazioni.",
+    "p": "Esempio: a COM2 (38,4 kbit/s) con 2 byte di process data in e out, il ciclo minimo è dell'ordine di 2–3 ms; i parametri ISDU (es. soglia di commutazione) viaggiano a richiesta, senza fermare lo scambio ciclico."
+   }
   }
  ],
  "intro": {

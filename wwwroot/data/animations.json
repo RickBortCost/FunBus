@@ -1690,5 +1690,588 @@
     ]
    }
   }
+ },
+ "modbus": {
+  "title": "Modbus TCP: lettura registri, scrittura ed eccezione",
+  "nodes": [
+   {
+    "id": "c",
+    "label": "Client (SCADA)",
+    "x": 110,
+    "y": 150
+   },
+   {
+    "id": "sw",
+    "label": "Switch",
+    "x": 400,
+    "y": 150
+   },
+   {
+    "id": "s",
+    "label": "Server (contatore)",
+    "x": 690,
+    "y": 150
+   }
+  ],
+  "links": [
+   [
+    "c",
+    "sw"
+   ],
+   [
+    "sw",
+    "s"
+   ]
+  ],
+  "loopFrom": 1,
+  "steps": [
+   {
+    "from": "c",
+    "to": "s",
+    "label": "TCP connect :502",
+    "t": "setup",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il client apre il collegamento con il dispositivo.",
+     "p": "Handshake TCP verso la porta 502. Il client può mantenere la connessione aperta e riusarla per molte richieste."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "Read Holding Regs (03)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "mb_adu",
+    "note": {
+     "b": "Il client chiede: «dammi i registri da 100 a 102».",
+     "p": "Richiesta FC 0x03: Start Address e Quantity (max 125 registri). Il Transaction ID permette di abbinare la risposta."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "Risposta + valori",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Il dispositivo risponde con i valori dei registri.",
+     "p": "Risposta FC 0x03: Byte Count e N×2 byte di dati (big endian per ogni registro)."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "Write Single Reg (06)",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il client scrive un nuovo valore in un registro.",
+     "p": "FC 0x06: indirizzo e valore a 16 bit; la risposta è l'eco della richiesta."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "Eco conferma",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il dispositivo conferma ripetendo la richiesta.",
+     "p": "Eco identico alla richiesta: segnala che il valore è stato scritto."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "Read indirizzo 9999",
+    "t": "evento",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Se il client chiede un registro che non esiste...",
+     "p": "Richiesta con indirizzo fuori mappa."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "Eccezione 0x83 / 02",
+    "t": "evento",
+    "color": "#c0392b",
+    "note": {
+     "b": "...il dispositivo risponde con un errore.",
+     "p": "Function code 0x83 (0x03 + 0x80) e exception code 02 (Illegal Data Address). Altri: 01 funzione non valida, 03 valore non valido, 04 guasto del server."
+    }
+   }
+  ],
+  "frames": {
+   "mb_adu": {
+    "title": "Richiesta Modbus TCP (ADU) — Read Holding Registers",
+    "fields": [
+     {
+      "n": "Transaction ID",
+      "s": "2 B",
+      "v": "0x0001",
+      "d": "Scelto dal client e ripetuto nella risposta, permette più richieste in volo."
+     },
+     {
+      "n": "Protocol ID",
+      "s": "2 B",
+      "v": "0x0000",
+      "d": "Sempre 0 per Modbus."
+     },
+     {
+      "n": "Length",
+      "s": "2 B",
+      "v": "0x0006",
+      "d": "Numero di byte che seguono (Unit ID + PDU)."
+     },
+     {
+      "n": "Unit ID",
+      "s": "1 B",
+      "v": "0x01",
+      "d": "Identifica lo slave dietro un gateway verso RTU; 0xFF o 0x00 nei dispositivi TCP puri."
+     },
+     {
+      "n": "Function code",
+      "s": "1 B",
+      "v": "0x03",
+      "d": "Read Holding Registers. 0x83 = eccezione sulla stessa funzione."
+     },
+     {
+      "n": "Start address",
+      "s": "2 B",
+      "v": "0x0064",
+      "d": "Indirizzo del primo registro (offset base 0: il registro '40101' è 0x0064)."
+     },
+     {
+      "n": "Quantity",
+      "s": "2 B",
+      "v": "0x0003",
+      "d": "Numero di registri da leggere (massimo 125)."
+     }
+    ]
+   }
+  }
+ },
+ "canopen": {
+  "title": "CANopen: NMT, SDO, SYNC e PDO",
+  "nodes": [
+   {
+    "id": "m",
+    "label": "Master (NMT)",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "bus",
+    "label": "Bus CAN",
+    "x": 340,
+    "y": 150
+   },
+   {
+    "id": "n1",
+    "label": "Nodo 1",
+    "x": 610,
+    "y": 60
+   },
+   {
+    "id": "n2",
+    "label": "Nodo 2",
+    "x": 610,
+    "y": 240
+   }
+  ],
+  "links": [
+   [
+    "m",
+    "bus"
+   ],
+   [
+    "bus",
+    "n1"
+   ],
+   [
+    "bus",
+    "n2"
+   ]
+  ],
+  "loopFrom": 3,
+  "steps": [
+   {
+    "from": "m",
+    "to": [
+     "n1",
+     "n2"
+    ],
+    "label": "NMT Start (0x000)",
+    "t": "setup",
+    "color": "#8e44ad",
+    "frame": "can_std",
+    "note": {
+     "b": "Il master dice a tutti: «iniziate a lavorare».",
+     "p": "NMT Start Remote Node: COB-ID 0x000, dati [0x01, Node-ID] (0 = tutti i nodi). I nodi passano da Pre-operational a Operational."
+    }
+   },
+   {
+    "from": "m",
+    "to": "n1",
+    "label": "SDO read 0x1000",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il master legge un'informazione del nodo (per esempio il tipo di dispositivo).",
+     "p": "SDO upload: COB-ID 0x600+Node-ID, comando 0x40, indice 0x1000 sub 0 (Device Type)."
+    }
+   },
+   {
+    "from": "n1",
+    "to": "m",
+    "label": "SDO risposta",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il nodo risponde.",
+     "p": "COB-ID 0x580+Node-ID, comando 0x43 (4 byte validi) con il valore dell'oggetto."
+    }
+   },
+   {
+    "from": "m",
+    "to": [
+     "n1",
+     "n2"
+    ],
+    "label": "SYNC (0x080)",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Un 'via' comune: tutti campionano gli ingressi nello stesso istante.",
+     "p": "Frame SYNC senza dati, COB-ID 0x080 (priorità alta). I PDO sincroni vengono campionati/trasmessi in risposta."
+    }
+   },
+   {
+    "from": "n1",
+    "to": "m",
+    "label": "TPDO1 (0x181)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "can_std",
+    "note": {
+     "b": "Il nodo 1 manda i suoi dati.",
+     "p": "TPDO1 con COB-ID 0x180+1, fino a 8 byte di dati di processo. Chiunque sul bus (non solo il master) può riceverlo."
+    }
+   },
+   {
+    "from": "n2",
+    "to": "m",
+    "label": "TPDO1 (0x182)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Poi il nodo 2.",
+     "p": "COB-ID 0x182; se due nodi trasmettono insieme, vince l'ID più basso (arbitraggio bit-a-bit)."
+    }
+   },
+   {
+    "from": "m",
+    "to": "n1",
+    "label": "RPDO1 (0x201)",
+    "t": "ciclo",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il master invia un comando al nodo 1.",
+     "p": "RPDO1 del nodo 1: COB-ID 0x200+1, dati di uscita (es. riferimento di velocità)."
+    }
+   },
+   {
+    "from": "n1",
+    "to": "m",
+    "label": "Heartbeat (0x701)",
+    "t": "ciclo",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il nodo segnala periodicamente: «sono vivo».",
+     "p": "Heartbeat producer: COB-ID 0x700+Node-ID con 1 byte di stato NMT (0x05 = operational)."
+    }
+   }
+  ],
+  "frames": {
+   "can_std": {
+    "title": "Frame CAN 2.0A (base, 11 bit)",
+    "fields": [
+     {
+      "n": "SOF",
+      "s": "1 bit",
+      "v": "0",
+      "d": "Start Of Frame (dominante): sincronizza i nodi."
+     },
+     {
+      "n": "COB-ID",
+      "s": "11 bit",
+      "v": "es. 0x181",
+      "d": "Identificatore: 4 bit di function code + 7 bit di Node-ID. Determina la priorità nell'arbitraggio."
+     },
+     {
+      "n": "RTR",
+      "s": "1 bit",
+      "v": "0",
+      "d": "Remote Transmission Request: 0 per frame dati."
+     },
+     {
+      "n": "IDE+r0",
+      "s": "2 bit",
+      "v": "0 0",
+      "d": "IDE = 0 identifica il formato base; r0 riservato."
+     },
+     {
+      "n": "DLC",
+      "s": "4 bit",
+      "v": "0…8",
+      "d": "Numero di byte dati."
+     },
+     {
+      "n": "Dati",
+      "s": "0…8 B",
+      "v": "PDO/SDO",
+      "d": "Payload. In un PDO sono le variabili mappate; in un SDO: comando, indice, sub-indice, dati."
+     },
+     {
+      "n": "CRC",
+      "s": "15 bit + 1",
+      "v": "CRC-15",
+      "d": "Controllo errori (con delimitatore)."
+     },
+     {
+      "n": "ACK",
+      "s": "2 bit",
+      "v": "slot + delim",
+      "d": "Chi riceve correttamente porta a livello dominante lo slot ACK."
+     },
+     {
+      "n": "EOF+IFS",
+      "s": "7+3 bit",
+      "v": "recessivi",
+      "d": "Fine frame e spazio tra frame."
+     }
+    ]
+   }
+  }
+ },
+ "iolink": {
+  "title": "IO-Link: wake-up, parametri, process data",
+  "nodes": [
+   {
+    "id": "plc",
+    "label": "PLC (fieldbus)",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "m",
+    "label": "IO-Link Master",
+    "x": 340,
+    "y": 150
+   },
+   {
+    "id": "d1",
+    "label": "Sensore",
+    "x": 620,
+    "y": 60
+   },
+   {
+    "id": "d2",
+    "label": "Attuatore",
+    "x": 620,
+    "y": 240
+   }
+  ],
+  "links": [
+   [
+    "plc",
+    "m"
+   ],
+   [
+    "m",
+    "d1"
+   ],
+   [
+    "m",
+    "d2"
+   ]
+  ],
+  "loopFrom": 4,
+  "steps": [
+   {
+    "from": "m",
+    "to": "d1",
+    "label": "Wake-up",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il master 'sveglia' il sensore.",
+     "p": "Wake-up request: impulso del master sulla linea C/Q; il device passa dalla modalità SIO alla comunicazione IO-Link e il master prova COM3, COM2, COM1."
+    }
+   },
+   {
+    "from": "m",
+    "to": "d1",
+    "label": "Leggi Vendor ID (ISDU)",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il master legge l'identità del sensore.",
+     "p": "Fase Preoperate: lettura parametri di identificazione e Min Cycle Time tramite canale pagina/ISDU; verifica rispetto al progetto."
+    }
+   },
+   {
+    "from": "d1",
+    "to": "m",
+    "label": "Identificazione",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il sensore risponde presentandosi.",
+     "p": "Risposta con Vendor ID, Device ID e versione IO-Link; Data Storage eventualmente ripristina i parametri."
+    }
+   },
+   {
+    "from": "m",
+    "to": "d1",
+    "label": "Operate",
+    "t": "setup",
+    "color": "#e67e22",
+    "note": {
+     "b": "Si parte con il lavoro vero.",
+     "p": "Master command Device Operate: da qui lo scambio dei process data è ciclico con il Min Cycle Time."
+    }
+   },
+   {
+    "from": "m",
+    "to": "d1",
+    "label": "PDout (M-sequence)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "il_mseq",
+    "note": {
+     "b": "Il master invia i comandi al sensore.",
+     "p": "M-sequence: Master Command, CKT e process data in uscita; in coda eventuali on-request data (ISDU)."
+    }
+   },
+   {
+    "from": "d1",
+    "to": "m",
+    "label": "PDin (risposta)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Il sensore risponde con il suo valore.",
+     "p": "Risposta del device: process data in ingresso, OD e CKS (checksum con flag evento e PD valid)."
+    }
+   },
+   {
+    "from": "m",
+    "to": "plc",
+    "label": "PD → fieldbus",
+    "t": "ciclo",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il master gira i dati al PLC attraverso la rete di fabbrica.",
+     "p": "Il master mappa i process data di tutte le porte nell'immagine di processo del fieldbus (es. PROFINET, EtherCAT, EtherNet/IP)."
+    }
+   },
+   {
+    "from": "plc",
+    "to": "m",
+    "label": "Comandi dal PLC",
+    "t": "ciclo",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il PLC manda i comandi per gli attuatori.",
+     "p": "Process data di uscita dal PLC verso il master, poi distribuiti alle porte."
+    }
+   },
+   {
+    "from": "m",
+    "to": "d2",
+    "label": "PDout attuatore",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Il master aziona l'attuatore.",
+     "p": "Stessa M-sequence verso il device 2, con il proprio ciclo."
+    }
+   },
+   {
+    "from": "d2",
+    "to": "m",
+    "label": "PDin attuatore",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "L'attuatore conferma il suo stato.",
+     "p": "Process data in ingresso del device 2."
+    }
+   },
+   {
+    "from": "m",
+    "to": "d1",
+    "label": "ISDU parametro",
+    "t": "evento",
+    "color": "#c0392b",
+    "note": {
+     "b": "Su richiesta, il PLC cambia un'impostazione del sensore.",
+     "p": "On-request data: ISDU write di un parametro (indice/sub-indice) senza fermare lo scambio ciclico."
+    }
+   }
+  ],
+  "frames": {
+   "il_mseq": {
+    "title": "M-sequence IO-Link (master → device e risposta)",
+    "fields": [
+     {
+      "n": "MC",
+      "s": "1 B",
+      "v": "R/W, canale, indirizzo",
+      "d": "Master Command: bit di lettura/scrittura, canale (process, page, diagnosis, ISDU) e indirizzo."
+     },
+     {
+      "n": "CKT",
+      "s": "1 B",
+      "v": "tipo + checksum",
+      "d": "2 bit di M-sequence Type e checksum a 6 bit."
+     },
+     {
+      "n": "PDout",
+      "s": "0…32 B",
+      "v": "process data",
+      "d": "Dati di processo dal master al device."
+     },
+     {
+      "n": "OD (master)",
+      "s": "0…32 B",
+      "v": "ISDU",
+      "d": "On-request data: parametri e comandi aciclici, trasportati a piccoli pezzi."
+     },
+     {
+      "n": "PDin",
+      "s": "0…32 B",
+      "v": "process data",
+      "d": "Risposta del device: dati di processo in ingresso."
+     },
+     {
+      "n": "OD (device)",
+      "s": "0…32 B",
+      "v": "ISDU/eventi",
+      "d": "On-request data in risposta: parametri letti, eventi e diagnostica."
+     },
+     {
+      "n": "CKS",
+      "s": "1 B",
+      "v": "bit 7 evento, bit 6 PD valid",
+      "d": "Checksum a 6 bit più flag di evento e validità dei process data."
+     }
+    ]
+   }
+  }
  }
 }

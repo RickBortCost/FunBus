@@ -4,7 +4,7 @@
 body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
 a{color:var(--accent)}
 .topbar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;padding:.5rem 1rem;background:var(--surface);border-bottom:1px solid var(--border)}
-.brand{font-weight:700;text-decoration:none;color:var(--text);font-size:1.1rem}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;text-decoration:none;color:var(--text);font-size:1.1rem}
 #nav{display:flex;gap:.25rem;flex:1;flex-wrap:wrap}
 #nav a{padding:.35rem .75rem;border-radius:6px;text-decoration:none;color:var(--text)}
 #nav a.on,#nav a:hover{background:var(--surface2)}
