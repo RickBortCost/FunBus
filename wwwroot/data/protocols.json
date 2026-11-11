@@ -129,6 +129,20 @@
     "model": [
      "master-slave"
     ]
+   },
+   "story": {
+    "b": [
+     "Pensa a PROFINET come alla normale rete Ethernet dell'ufficio, ma con una corsia riservata per i dati della macchina. Il PLC (IO-Controller) conosce ogni dispositivo per nome e, a intervalli regolari, manda i comandi e riceve lo stato.",
+     "Per i compiti normali (leggere sensori, comandare valvole) basta la modalità RT. Quando servono movimenti sincronizzati, come in un robot con più assi, si passa a IRT, che riserva delle 'finestre di tempo' e garantisce la puntualità."
+    ],
+    "p": [
+     "PROFINET in pratica: il controller stabilisce con ogni device una Application Relation (AR) via RPC su UDP; poi i dati ciclici viaggiano in frame RT diretti sul livello 2 (EtherType 0x8892) con priorità VLAN 6. Il watchdog (DataHoldFactor × ciclo) segnala la perdita di un provider.",
+     "Per il motion si usa IRT con scheduling TDMA e clock sincronizzato (PTCP): la finestra riservata evita che il traffico TCP/IP interferisca con i frame cyclici. Diagnosi tramite allarmi, LLDP/SNMP per la topologia, DCP per assegnare nomi e IP."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una linea di assemblaggio auto con un PLC Siemens, 80 moduli I/O in armadio e 12 azionamenti. Si collegano a stella e a linea con normali cavi Ethernet; la rete si configura in TIA Portal assegnando a ogni modulo un nome (es. 'ingresso-nastro-1'). Se il cavo si rompe, un anello MRP fa ripartire la comunicazione in pochi centinaia di millisecondi.",
+    "p": "Esempio: 12 azionamenti in IRT a 1 ms con topologia a linea. L'ingegnerizzazione definisce l'ordine dei nodi e la finestra IRT; sostituendo un device, il controller lo riconosce dal nome e dai vicini (LLDP) senza programmarlo di nuovo."
    }
   },
   {
@@ -225,6 +239,20 @@
     "model": [
      "master-slave"
     ]
+   },
+   "story": {
+    "b": [
+     "PROFIBUS è un bus 'vecchia scuola' ma affidabile: un solo cavo a due fili percorre l'impianto e tutti i dispositivi sono collegati in parallelo, come le lampadine di una fila di presine.",
+     "Funziona a turni: il master chiede a ogni slave 'dammi i tuoi ingressi e prendi le tue uscite' e passa al successivo. Poiché i turni sono ordinati, il tempo di un giro completo è prevedibile."
+    ],
+    "p": [
+     "PROFIBUS DP usa RS-485 con caratteri UART a 11 bit (start, 8 dati, parità pari, stop). L'accesso al mezzo è ibrido: token tra master e polling master→slave. Il ciclo è circa Σ(Tframe request + TSDR + Tframe response + Tidle) su tutti gli slave.",
+     "Setup tipico: Set_Prm, Chk_Cfg, Slave_Diag fino a 'ready', poi Data_Exchange ciclico; DP-V1 aggiunge servizi aciclici e allarmi, DP-V2 isocronia e slave-to-slave. Nei problemi di campo contano terminazioni, schermatura, lunghezza e baud rate."
+    ]
+   },
+   "example": {
+    "b": "Esempio: in un vecchio impianto di imballaggio con 30 moduli I/O lungo 200 m, il cavo viola di PROFIBUS è già posato. Se si sostituisce il PLC, spesso conviene tenere il bus: costa meno di ricablare. Attenzione: serve la terminazione ai due estremi, altrimenti compaiono errori casuali.",
+    "p": "Esempio: 12 Mbit/s con 10 slave da 4 byte di I/O: il ciclo è dell'ordine di 1–2 ms. A 500 kbit/s con 30 slave sale a oltre 10 ms; per questo, con molti slave, si abbassa la velocità solo se la lunghezza lo impone (≈ 400 m a 500 kbit/s)."
    }
   },
   {
@@ -321,6 +349,20 @@
     "model": [
      "client-server"
     ]
+   },
+   "story": {
+    "b": [
+     "S7comm è come telefonare al PLC Siemens per fargli una domanda: 'quanto vale il contatore dei pezzi?' e il PLC risponde. Non c'è un orario fisso di scambio: si chiede quando serve.",
+     "Per questo è perfetto per supervisione, diagnostica e strumenti di programmazione, ma non per comandare un motore in tempo reale."
+    ],
+    "p": [
+     "S7comm viaggia su TCP/102 con TPKT e COTP (RFC 1006). Dopo l'handshake TCP e COTP CR/CC si negozia la PDU con Setup Communication (0xF0), poi si usano Read Var (0x04) e Write Var (0x05) con item S7ANY (area, DB, offset).",
+     "La specifica è nota da reverse engineering (librerie come Snap7). Sui S7-1200/1500 moderni conviene S7CommPlus o OPC UA, perché il S7comm classico è privo di autenticazione robusta."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un PC in sala controllo legge ogni secondo il numero di pezzi prodotti da un DB di un S7-1500 e lo mostra su una dashboard. Per far funzionare l'accesso bisogna abilitare 'PUT/GET' nella CPU, il che riduce la protezione: va fatto solo in reti protette.",
+    "p": "Esempio: lettura di DB1.DBD0 (REAL): item con area 0x84, DB=1, indirizzo in bit 0, lunghezza 4 B. Con PDU negoziata a 480 byte si possono leggere più item per richiesta, riducendo il numero di round-trip."
    }
   },
   {
@@ -419,6 +461,20 @@
     "model": [
      "master-slave"
     ]
+   },
+   "story": {
+    "b": [
+     "Immagina un treno che parte dal PLC e passa in ogni stazione senza fermarsi: in ogni stazione un operatore scarica il pacco di sua competenza e carica quello che vuole spedire mentre il treno scorre. Alla fine il treno torna indietro con tutto. È EtherCAT.",
+     "Poiché il treno è uno solo per tutti, la rete usa pochissimo tempo e permette cicli da frazioni di millisecondo, con assi perfettamente sincronizzati."
+    ],
+    "p": [
+     "Il master trasmette un frame con uno o più datagram (EtherType 0x88A4). Ogni ESC (slave controller) legge e scrive i dati al volo con ritardo di centinaia di ns e incrementa il Working Counter. L'ultimo slave rileva la porta libera e fa ripartire il frame verso il master.",
+     "La sincronizzazione usa Distributed Clocks: il primo slave con DC è il riferimento; il master misura i ritardi di propagazione e compensa gli offset, ottenendo jitter ≪ 1 µs. Il ciclo è limitato da dati per slave, CPU del master e driver."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una macchina CNC con 8 assi, 2 mandrini e 200 I/O digitali. Un solo cavo a catena parte dal PC industriale e attraversa tutti i moduli; il ciclo è 250 µs. I moduli non hanno bisogno di switch: ogni modulo ha due porte e passa il frame al successivo.",
+    "p": "Esempio: 3 slave da 8 byte: il frame resta al minimo Ethernet (64 byte) e occupa il mezzo circa 7 µs a 100 Mbit/s, più i ritardi dei nodi; per questo cicli da 50–100 µs sono realistici con un master ottimizzato."
    }
   },
   {
@@ -510,6 +566,20 @@
     "model": [
      "client-server"
     ]
+   },
+   "story": {
+    "b": [
+     "ADS è il modo in cui programmi e PLC Beckhoff si parlano. Ogni programma ha un 'interno' (porta) e un 'prefisso' (NetId), come un centralino aziendale.",
+     "La particolarità è la notifica: invece di chiedere ogni secondo 'è cambiato qualcosa?', dici al PLC 'avvisami quando la temperatura cambia' e lui ti manda un messaggio solo in quel caso."
+    ],
+    "p": [
+     "ADS incapsula i comandi in AMS (TCP 48898): AMS header con Target/Source NetId e porta, Command ID, Invoke ID per correlare le risposte. Per un simbolo si fa un ReadWrite su IndexGroup 0xF003 (GetSymHandleByName) e poi Read/Write o Add Device Notification sull'handle.",
+     "Le route ADS vanno configurate nei router AMS; in ambienti esposti si preferisce ADS Secure (TLS) o ADS-over-MQTT. Errori tipici: 0x6 (target port not found), 0x7 (target machine not found) per route mancanti."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una dashboard su PC mostra lo stato di una pressa TwinCAT. Con le notifiche ADS la dashboard si aggiorna solo quando il valore cambia, riducendo il traffico di rete e il carico del PLC rispetto al polling continuo.",
+    "p": "Esempio: Add Device Notification in modalità OnChange con MaxDelay 100 ms: se la variabile cambia dieci volte in 100 ms, il PLC invia un solo frame di notifica raggruppato, con tutti i campioni e i timestamp."
    }
   },
   {
@@ -607,6 +677,20 @@
     "model": [
      "pub-sub"
     ]
+   },
+   "story": {
+    "b": [
+     "MQTT è come un gruppo di notizie: il sensore scrive 'temperatura = 23,4' su un argomento (topic) e il broker lo recapita a tutti quelli iscritti a quell'argomento. Chi scrive non sa chi legge, e viceversa.",
+     "È leggerissimo e tollera le connessioni lente o instabili, quindi è ideale per portare dati dalla fabbrica al cloud."
+    ],
+    "p": [
+     "MQTT usa pacchetti con header fisso di 2–5 byte (tipo+flag, Remaining Length a lunghezza variabile). I livelli QoS sono: 0 (al più una volta), 1 (almeno una, PUBACK), 2 (esattamente una, PUBREC/PUBREL/PUBCOMP). Con retain il broker memorizza l'ultimo valore per i nuovi iscritti.",
+     "In ambito industriale si usa Sparkplug B (topic spBv1.0/…, payload Protobuf): definisce nascita/morte dei nodi (NBIRTH/NDEATH) e metriche. Il broker va dimensionato e reso ridondante: è il punto centrale."
+    ]
+   },
+   "example": {
+    "b": "Esempio: 200 sensori di umidità in una serra pubblicano su 'serra1/zona3/umidita'. Una dashboard si iscrive a 'serra1/#' per vedere tutto, mentre un allarme si iscrive solo a 'serra1/+/umidita'. Se un sensore si spegne di colpo, il broker pubblica il suo messaggio 'Last Will' e l'allarme scatta.",
+    "p": "Esempio: un gateway con QoS 1 invia 'plant/line1/temp' ogni 5 s. Se la rete cade, il client mantiene la sessione e ritrasmette i messaggi non confermati; con QoS 0 quei messaggi andrebbero persi."
    }
   },
   {
@@ -704,6 +788,20 @@
      "client-server",
      "pub-sub"
     ]
+   },
+   "story": {
+    "b": [
+     "OPC UA non trasporta solo numeri: descrive cosa sono. Invece di 'DB10.DBD4 = 23,4' vedi 'Temperatura caldaia, 23,4 °C, ultimo aggiornamento alle 10:02'. È un catalogo ordinato che qualsiasi software capisce.",
+     "Inoltre è sicuro per costruzione: client e server si scambiano certificati e possono cifrare tutto. È lo standard pensato per far dialogare macchine di costruttori diversi con i sistemi informatici."
+    ],
+    "p": [
+     "Sessione client/server tipica: HEL/ACK, OpenSecureChannel (security policy e mode), CreateSession, ActivateSession (identità utente), CreateSubscription con MonitoredItem e Publish. I dati sono nodi (NodeId) con attributi (Value, DataType, timestamp, StatusCode).",
+     "Oltre al client/server esiste PubSub (Part 14) con trasporto UDP, MQTT, AMQP o Ethernet UADP. Le Companion Specification (es. PackML, Euromap, umati) standardizzano i modelli per tipo di macchina. Verifica sempre le security policy supportate e i certificati."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una fabbrica ha macchine di tre marche. Il sistema MES si collega a tutte con un unico client OPC UA e naviga l'albero dei dati: Macchina > Stato > Contatore pezzi, senza conoscere i registri interni di ognuna.",
+    "p": "Esempio: subscription con publishing interval 1000 ms e sampling interval 250 ms con deadband assoluto 0,1: il server campiona ogni 250 ms ma notifica solo i valori che cambiano oltre 0,1, riducendo il traffico."
    }
   },
   {
@@ -800,7 +898,34 @@
     "model": [
      "pub-sub"
     ]
+   },
+   "story": {
+    "b": [
+     "EtherNet/IP è come un'agenzia di corrieri: ogni dispositivo 'produce' dati con un ritmo concordato (RPI) e chi li serve li 'consuma'. Per le richieste speciali (configurazioni, diagnosi) si usa invece una 'raccomandata' (TCP).",
+     "È molto diffuso con i PLC Rockwell/Allen-Bradley, soprattutto in Nord America."
+    ],
+    "p": [
+     "EtherNet/IP usa l'encapsulation (TCP/UDP 44818) per sessioni e messaggi espliciti, e UDP 2222 per l'I/O implicito. La connessione si crea con Forward_Open (RPI O→T e T→O, dimensioni, trigger). I dati I/O portano Connection ID e Sequence Number.",
+     "Il multicast richiede IGMP snooping per non inondare la rete. CIP Sync usa IEEE 1588 per la sincronizzazione; CIP Motion, CIP Safety e CIP Security estendono il profilo. DLR permette il recupero ad anello con tempi che dipendono dai dispositivi."
+    ]
+   },
+   "example": {
+    "b": "Esempio: in uno stabilimento con PLC Logix, 40 moduli I/O e un azionamento, lo scanner apre una connessione con ognuno specificando un RPI di 10 ms (e 2 ms per l'azionamento). Per anelli ridondanti si usa un anello DLR con switch compatibili.",
+    "p": "Esempio: un adapter con RPI 5 ms e timeout multiplier ×4: se non arrivano frame per 20 ms la connessione cade e il PLC segnala la perdita del modulo; con un RPI più basso la rilevazione è più rapida ma il carico di rete cresce."
    }
   }
- ]
+ ],
+ "intro": {
+  "title": "Cos'è un bus di campo e perché esiste",
+  "b": [
+   "Immagina una fabbrica con un PLC (il 'cervello') e centinaia di sensori e motori. Senza un bus, ogni sensore avrebbe il suo cavo fino al quadro elettrico: chilometri di rame, ore di cablaggio e una gran confusione quando qualcosa si guasta.",
+   "Un bus di campo (o protocollo industriale) è come una strada condivisa: un solo cavo passa vicino a tutte le macchine e ognuna sale e scende dove serve. Il protocollo sono le regole del traffico: chi può parlare, quando, e come si scrive l'indirizzo sul pacco.",
+   "Esempio pratico: in una linea di imbottigliamento, un sensore ottico conta le bottiglie e una valvola riempie. Con un bus bastano pochi cavi: il PLC chiede 'quante bottiglie?' e ordina 'apri la valvola' sulla stessa linea. Ogni protocollo di questa app risolve lo stesso problema in modo diverso: alcuni sono velocissimi, altri più flessibili, altri pensati per il cloud."
+  ],
+  "p": [
+   "Un bus di campo sostituisce il cablaggio punto-punto (un cavo per ogni I/O) con un mezzo condiviso su cui il master scambia dati di processo con i nodi. Le scelte di progetto fondamentali sono: mezzo e livello fisico, metodo di accesso (polling, token, TDMA, frame passante), ciclo e determinismo, topologia e diagnostica.",
+   "Esempio pratico: una macchina con 40 I/O e 6 azionamenti. Con PROFIBUS DP a 1,5 Mbit/s il ciclo si calcola sommando request, TSDR e response per ogni slave (qualche ms). Con EtherCAT lo stesso impianto sta in un solo frame e il ciclo scende a poche centinaia di µs; con MQTT/OPC UA invece non c'è ciclo garantito ma si guadagna integrazione IT.",
+   "Il confronto utile non è 'quale è il migliore' ma 'quale requisito domina': tempo ciclo/sincronismo, cablaggio esistente, interoperabilità, sicurezza o collegamento al cloud."
+  ]
+ }
 }
