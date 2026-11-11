@@ -20,12 +20,17 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Compila e crea release
+      - name: Compila e pubblica/aggiorna la release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           NOTES: ${{ inputs.notes }}
         run: |
           tag="${{ inputs.tag || github.ref_name }}"
-          dotnet publish -c Release -r win-x64 -o publish -p:Version="${tag#v}"
-          gh release create "$tag" --target "${{ github.sha }}" publish/FunBus.exe --title "FunBus $tag" --notes "${NOTES:-Nuova versione di FunBus.}"
+          { cat .github/RELEASE_INTRO.md; echo "## Novità di $tag"; echo; echo "${NOTES:-Nuova versione di FunBus.}"; } > notes.md
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --notes-file notes.md
+          else
+            dotnet publish -c Release -r win-x64 -o publish -p:Version="${tag#v}"
+            gh release create "$tag" --target "${{ github.sha }}" publish/FunBus.exe --title "FunBus $tag" --notes-file notes.md
+          fi
