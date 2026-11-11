@@ -1,0 +1,508 @@
+{
+ "questions": [
+  {
+   "id": "b01",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale protocollo funziona con un 'broker' che smista i messaggi tra chi pubblica e chi si iscrive?",
+   "o": [
+    "MQTT",
+    "PROFIBUS",
+    "EtherCAT",
+    "S7"
+   ],
+   "a": 0,
+   "e": "MQTT usa un broker centrale e il modello publish/subscribe."
+  },
+  {
+   "id": "b02",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale tra questi è un bus di campo seriale su cavo a due fili (RS-485)?",
+   "o": [
+    "EtherNet/IP",
+    "PROFIBUS DP",
+    "OPC UA",
+    "ADS"
+   ],
+   "a": 1,
+   "e": "PROFIBUS DP usa RS-485. Gli altri citati lavorano su Ethernet/TCP-IP."
+  },
+  {
+   "id": "b03",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale protocollo è noto per far attraversare a un solo 'treno' di dati tutti i dispositivi, con tempi velocissimi?",
+   "o": [
+    "EtherCAT",
+    "MQTT",
+    "S7",
+    "OPC UA"
+   ],
+   "a": 0,
+   "e": "EtherCAT elabora il frame 'al volo' mentre passa in ogni slave."
+  },
+  {
+   "id": "b04",
+   "level": "beginner",
+   "d": 1,
+   "q": "Cosa significa che un protocollo è 'deterministico'?",
+   "o": [
+    "È molto sicuro",
+    "I tempi di risposta sono prevedibili e garantiti",
+    "Costa poco",
+    "Funziona anche via Internet"
+   ],
+   "a": 1,
+   "e": "Determinismo = tempi di scambio prevedibili, essenziale nel controllo di macchine."
+  },
+  {
+   "id": "b04b",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale protocollo è pensato soprattutto per portare dati dai sensori al cloud, anche con connessioni lente?",
+   "o": [
+    "PROFIBUS",
+    "MQTT",
+    "EtherCAT",
+    "PROFINET IRT"
+   ],
+   "a": 1,
+   "e": "MQTT è leggero e tollera reti instabili: ideale per IIoT e cloud."
+  },
+  {
+   "id": "b05",
+   "level": "beginner",
+   "d": 1,
+   "q": "Quale protocollo viene usato per dialogare con i PLC Siemens S7 da un PC?",
+   "o": [
+    "ADS",
+    "S7comm",
+    "MQTT",
+    "DLR"
+   ],
+   "a": 1,
+   "e": "S7comm (S7) è il protocollo dei PLC Siemens S7 su Ethernet."
+  },
+  {
+   "id": "b06",
+   "level": "beginner",
+   "d": 1,
+   "q": "ADS è associato soprattutto a quale marchio?",
+   "o": [
+    "Beckhoff",
+    "Rockwell",
+    "Siemens",
+    "Schneider"
+   ],
+   "a": 0,
+   "e": "ADS/AMS è il protocollo di TwinCAT di Beckhoff."
+  },
+  {
+   "id": "b07",
+   "level": "beginner",
+   "d": 2,
+   "q": "Quale vantaggio ha OPC UA rispetto a molti altri protocolli?",
+   "o": [
+    "È il più veloce in assoluto",
+    "Descrive i dati con significato ed è sicuro, indipendente dal costruttore",
+    "Non richiede cavi",
+    "Funziona solo con Siemens"
+   ],
+   "a": 1,
+   "e": "OPC UA offre modello dati standard e sicurezza integrata."
+  },
+  {
+   "id": "b08",
+   "level": "beginner",
+   "d": 2,
+   "q": "Quale protocollo è tipico dei PLC Rockwell/Allen-Bradley?",
+   "o": [
+    "EtherNet/IP",
+    "PROFINET",
+    "PROFIBUS",
+    "ADS"
+   ],
+   "a": 0,
+   "e": "EtherNet/IP (ODVA, CIP) è lo standard di riferimento in Nord America."
+  },
+  {
+   "id": "b09",
+   "level": "beginner",
+   "d": 2,
+   "q": "In una rete a bus (PROFIBUS), cosa succede se un cavo è collegato male o manca la terminazione?",
+   "o": [
+    "Nulla",
+    "Possono verificarsi errori di comunicazione",
+    "La rete va più veloce",
+    "Si passa automaticamente a Ethernet"
+   ],
+   "a": 1,
+   "e": "Il bus RS-485 richiede terminazioni corrette ai due estremi."
+  },
+  {
+   "id": "b10",
+   "level": "beginner",
+   "d": 2,
+   "q": "Quale di questi protocolli è nato per funzionare con un master che comanda tanti slave?",
+   "o": [
+    "MQTT",
+    "EtherCAT",
+    "OPC UA PubSub",
+    "HTTP"
+   ],
+   "a": 1,
+   "e": "EtherCAT (come PROFIBUS) è master/slave."
+  },
+  {
+   "id": "b11",
+   "level": "beginner",
+   "d": 2,
+   "q": "Per far muovere 20 assi di un robot perfettamente sincronizzati ogni millisecondo, quale scelta è più adatta?",
+   "o": [
+    "MQTT",
+    "S7comm",
+    "EtherCAT",
+    "OPC UA client/server"
+   ],
+   "a": 2,
+   "e": "Servono determinismo e sincronizzazione: EtherCAT (o PROFINET IRT)."
+  },
+  {
+   "id": "b12",
+   "level": "beginner",
+   "d": 2,
+   "q": "Perché PROFINET può usare cavi Ethernet normali?",
+   "o": [
+    "Perché è basato su Ethernet",
+    "Perché usa onde radio",
+    "Perché non ha cavi",
+    "Perché è un protocollo cloud"
+   ],
+   "a": 0,
+   "e": "PROFINET è Ethernet industriale con corsie preferenziali per i dati in tempo reale."
+  },
+  {
+   "id": "b13",
+   "level": "beginner",
+   "d": 3,
+   "q": "Quale caratteristica descrive meglio un 'broker'?",
+   "o": [
+    "Un cavo speciale",
+    "Un server che riceve i messaggi e li inoltra agli iscritti",
+    "Un tipo di sensore",
+    "Una password"
+   ],
+   "a": 1,
+   "e": "Il broker disaccoppia chi pubblica da chi consuma."
+  },
+  {
+   "id": "b14",
+   "level": "beginner",
+   "d": 3,
+   "q": "Quale soluzione NON è adatta se serve un tempo di risposta garantito di 1 ms?",
+   "o": [
+    "Rete con protocollo non real-time su TCP/IP condivisa",
+    "EtherCAT dedicata",
+    "PROFINET IRT",
+    "Rete isolata con switch industriali"
+   ],
+   "a": 0,
+   "e": "TCP/IP condiviso, con altro traffico, non garantisce tempi."
+  },
+  {
+   "id": "b15",
+   "level": "beginner",
+   "d": 3,
+   "q": "MQTT garantisce che il messaggio arrivi entro un tempo preciso?",
+   "o": [
+    "Sì, sempre",
+    "No: può garantire la consegna (QoS) ma non il tempo",
+    "Solo con il cavo rosso",
+    "Solo di notte"
+   ],
+   "a": 1,
+   "e": "QoS riguarda la consegna, non la latenza."
+  },
+  {
+   "id": "b16",
+   "level": "beginner",
+   "d": 3,
+   "q": "Quale protocollo è tradizionalmente più adatto a 'riutilizzare' il cablaggio a bus già posato in un vecchio impianto?",
+   "o": [
+    "PROFIBUS",
+    "MQTT",
+    "EtherCAT",
+    "OPC UA"
+   ],
+   "a": 0,
+   "e": "PROFIBUS è un bus RS-485; gli altri richiedono Ethernet/IP."
+  },
+  {
+   "id": "p01",
+   "level": "professional",
+   "d": 1,
+   "q": "Qual è l'EtherType usato dai frame PROFINET RT?",
+   "o": [
+    "0x88A4",
+    "0x8892",
+    "0x0800",
+    "0x88CC"
+   ],
+   "a": 1,
+   "e": "0x8892 = PROFINET. 0x88A4 = EtherCAT, 0x0800 = IPv4, 0x88CC = LLDP."
+  },
+  {
+   "id": "p02",
+   "level": "professional",
+   "d": 1,
+   "q": "Qual è l'EtherType di EtherCAT?",
+   "o": [
+    "0x8892",
+    "0x88A4",
+    "0x88F7",
+    "0x8100"
+   ],
+   "a": 1,
+   "e": "EtherCAT = 0x88A4. 0x88F7 è PTP, 0x8100 il tag VLAN."
+  },
+  {
+   "id": "p03",
+   "level": "professional",
+   "d": 1,
+   "q": "Su quale porta TCP dialoga S7comm?",
+   "o": [
+    "102",
+    "502",
+    "1883",
+    "4840"
+   ],
+   "a": 0,
+   "e": "ISO-on-TCP (RFC 1006): porta 102. 502 è Modbus/TCP, 1883 MQTT, 4840 OPC UA."
+  },
+  {
+   "id": "p04",
+   "level": "professional",
+   "d": 1,
+   "q": "Qual è la porta TCP convenzionale di OPC UA (opc.tcp)?",
+   "o": [
+    "4840",
+    "44818",
+    "48898",
+    "8883"
+   ],
+   "a": 0,
+   "e": "4840. 44818 = EtherNet/IP, 48898 = ADS, 8883 = MQTT/TLS."
+  },
+  {
+   "id": "p05",
+   "level": "professional",
+   "d": 2,
+   "q": "Che cosa verifica il master EtherCAT confrontando il Working Counter (WKC)?",
+   "o": [
+    "La velocità del cavo",
+    "Che il numero atteso di slave abbia elaborato il datagram",
+    "La lunghezza del frame",
+    "Il CRC"
+   ],
+   "a": 1,
+   "e": "Ogni slave che elabora il datagram incrementa il WKC; il master lo confronta con l'atteso."
+  },
+  {
+   "id": "p06",
+   "level": "professional",
+   "d": 2,
+   "q": "Quanti indirizzi (stazioni) è possibile gestire in PROFIBUS e con quanti nodi per segmento?",
+   "o": [
+    "126 indirizzi, 32 stazioni/segmento",
+    "256 indirizzi, 64 stazioni",
+    "32 indirizzi, 32 stazioni",
+    "1024 indirizzi, 128 stazioni"
+   ],
+   "a": 0,
+   "e": "Indirizzi 0–125 (126 = broadcast) e fino a 32 stazioni per segmento RS-485, estendibili con ripetitori."
+  },
+  {
+   "id": "p07",
+   "level": "professional",
+   "d": 2,
+   "q": "In MQTT, quale QoS garantisce la consegna 'esattamente una volta'?",
+   "o": [
+    "QoS 0",
+    "QoS 1",
+    "QoS 2",
+    "Retained"
+   ],
+   "a": 2,
+   "e": "QoS 2 usa la sequenza PUBLISH/PUBREC/PUBREL/PUBCOMP."
+  },
+  {
+   "id": "p08",
+   "level": "professional",
+   "d": 2,
+   "q": "Quale porta UDP trasporta il traffico I/O implicito EtherNet/IP?",
+   "o": [
+    "2222",
+    "44818",
+    "34964",
+    "34980"
+   ],
+   "a": 0,
+   "e": "UDP 2222 per I/O implicito; 44818 per messaggi espliciti (TCP) e List Identity (UDP)."
+  },
+  {
+   "id": "p09",
+   "level": "professional",
+   "d": 2,
+   "q": "Che cosa descrive il campo 'Command ID' nell'AMS header di ADS?",
+   "o": [
+    "Il tipo di servizio ADS (es. Read, Write, Notification)",
+    "La lunghezza del frame",
+    "La versione TwinCAT",
+    "Il CRC"
+   ],
+   "a": 0,
+   "e": "1 ReadDevInfo, 2 Read, 3 Write, 4 ReadState, 5 WriteControl, 6/7/8 notifiche, 9 ReadWrite."
+  },
+  {
+   "id": "p10",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale funzione S7comm esegue il 'Setup Communication' all'inizio?",
+   "o": [
+    "0x04",
+    "0x05",
+    "0xF0",
+    "0x1A"
+   ],
+   "a": 2,
+   "e": "0xF0 negozia la PDU. 0x04 = Read Var, 0x05 = Write Var."
+  },
+  {
+   "id": "p11",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale caratteristica distingue PROFINET IRT da RT?",
+   "o": [
+    "Usa IP e TCP",
+    "Riserva banda con TDMA e sincronizzazione dei clock",
+    "Funziona su RS-485",
+    "Ha un broker"
+   ],
+   "a": 1,
+   "e": "IRT riserva una finestra temporale (banda) e richiede hardware e ingegnerizzazione di topologia."
+  },
+  {
+   "id": "p13",
+   "level": "professional",
+   "d": 3,
+   "q": "Come si riconosce un frame PROFIBUS a lunghezza variabile?",
+   "o": [
+    "Start delimiter 0x68 e LE/LEr",
+    "Start delimiter 0xDC",
+    "Header 0x32",
+    "EtherType 0x8892"
+   ],
+   "a": 0,
+   "e": "SD2 = 0x68 con LE e LEr ripetuti. SD4 (0xDC) è il token."
+  },
+  {
+   "id": "p14",
+   "level": "professional",
+   "d": 3,
+   "q": "Qual è la funzione del 'Forward_Open' in EtherNet/IP?",
+   "o": [
+    "Aprire la porta del firewall",
+    "Stabilire una connessione CIP specificando RPI e connection IDs",
+    "Scoprire i dispositivi sulla rete",
+    "Cifrare i dati"
+   ],
+   "a": 1,
+   "e": "Forward_Open (Connection Manager) crea la connessione I/O con RPI e parametri."
+  },
+  {
+   "id": "p15",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale fra questi NON è un security policy tipico di OPC UA?",
+   "o": [
+    "Basic256Sha256",
+    "Aes128_Sha256_RsaOaep",
+    "TLS_PSK_MQTT",
+    "Aes256_Sha256_RsaPss"
+   ],
+   "a": 2,
+   "e": "TLS-PSK per MQTT non è una policy OPC UA."
+  },
+  {
+   "id": "p16",
+   "level": "professional",
+   "d": 3,
+   "q": "Qual è il tempo di recupero tipico per un anello MRP PROFINET (valore standard configurabile)?",
+   "o": [
+    "≤ 200 ms",
+    "≤ 1 µs",
+    "≤ 10 s",
+    "0 ms sempre"
+   ],
+   "a": 0,
+   "e": "MRP definisce profili di recupero (500/200/30/10 ms); 200 ms è il valore più comune. 0 ms solo con MRPD in IRT."
+  },
+  {
+   "id": "p17",
+   "level": "professional",
+   "d": 3,
+   "q": "In EtherCAT i Distributed Clocks servono a...",
+   "o": [
+    "Sincronizzare gli orologi degli slave con jitter < 1 µs",
+    "Misurare la temperatura",
+    "Cifrare i dati",
+    "Assegnare gli indirizzi MAC"
+   ],
+   "a": 0,
+   "e": "I DC compensano ritardi di propagazione e offset, sincronizzando eventi e I/O."
+  },
+  {
+   "id": "p18",
+   "level": "professional",
+   "d": 2,
+   "q": "Con MQTT, il campo 'Remaining Length' dell'header fisso...",
+   "o": [
+    "Ha lunghezza variabile da 1 a 4 byte",
+    "È sempre 2 byte",
+    "È fisso a 4 byte",
+    "Non esiste"
+   ],
+   "a": 0,
+   "e": "Codifica a lunghezza variabile: 7 bit utili per byte con bit di continuazione."
+  },
+  {
+   "id": "p19",
+   "level": "professional",
+   "d": 3,
+   "q": "Qual è la differenza principale tra OPC UA client/server e PubSub?",
+   "o": [
+    "PubSub non usa certificati",
+    "PubSub disaccoppia publisher e subscriber (broker o multicast)",
+    "Client/server è solo UDP",
+    "Nessuna"
+   ],
+   "a": 1,
+   "e": "Part 14: DataSetWriter/Reader, trasporti UDP, MQTT, AMQP o Ethernet L2 con UADP."
+  },
+  {
+   "id": "p20",
+   "level": "professional",
+   "d": 2,
+   "q": "Qual è il ruolo del DCP in PROFINET?",
+   "o": [
+    "Controllo di flusso TCP",
+    "Discovery e assegnazione di nome e IP ai device",
+    "Sincronizzazione dei clock",
+    "Cifratura"
+   ],
+   "a": 1,
+   "e": "Discovery and basic Configuration Protocol: identify, set name, set IP."
+  }
+ ]
+}

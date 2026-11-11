@@ -1,0 +1,1694 @@
+{
+ "profinet": {
+  "title": "PROFINET IO: dal discovery al ciclo RT",
+  "nodes": [
+   {
+    "id": "c",
+    "label": "IO-Controller",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "sw",
+    "label": "Switch",
+    "x": 330,
+    "y": 150
+   },
+   {
+    "id": "d1",
+    "label": "IO-Device 1",
+    "x": 600,
+    "y": 70
+   },
+   {
+    "id": "d2",
+    "label": "IO-Device 2",
+    "x": 600,
+    "y": 230
+   }
+  ],
+  "links": [
+   [
+    "c",
+    "sw"
+   ],
+   [
+    "sw",
+    "d1"
+   ],
+   [
+    "sw",
+    "d2"
+   ]
+  ],
+  "loopFrom": 3,
+  "steps": [
+   {
+    "from": "c",
+    "to": [
+     "d1",
+     "d2"
+    ],
+    "label": "DCP Identify",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il controllore chiede a tutti: «chi c'è e come vi chiamate?»",
+     "p": "DCP Identify Request: multicast L2 (01:0E:CF:00:00:00), EtherType 0x8892, FrameID 0xFEFE. Il device risponde con nome stazione, IP, vendor/device ID."
+    }
+   },
+   {
+    "from": "d1",
+    "to": "c",
+    "label": "Identify Resp",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "I dispositivi rispondono presentandosi.",
+     "p": "DCP Identify Response (FrameID 0xFEFF). Il nome di stazione (NameOfStation) deve corrispondere alla configurazione ingegnerizzata."
+    }
+   },
+   {
+    "from": "c",
+    "to": "d1",
+    "label": "Connect (AR)",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Controllore e dispositivo stabiliscono un 'contratto' di comunicazione.",
+     "p": "Connect Request via DCE/RPC su UDP (porta 34964): crea Application Relation con IOCR (input/output), AlarmCR, Expected Submodule. Seguono Write (parametri), PrmEnd, ApplicationReady."
+    }
+   },
+   {
+    "from": "c",
+    "to": [
+     "d1",
+     "d2"
+    ],
+    "label": "Dati out (RT)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "pn_rt",
+    "note": {
+     "b": "Ogni pochi ms il controllore invia i comandi ai dispositivi.",
+     "p": "Frame RT_Class_1 (FrameID 0x8000–0xBFFF), VLAN PCP 6. Contiene IO data + IOPS (provider status). Cycle Counter incrementa a passi di 31,25 µs."
+    }
+   },
+   {
+    "from": "d1",
+    "to": "c",
+    "label": "Dati in (RT)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "pn_rt",
+    "note": {
+     "b": "I dispositivi rispondono con lo stato di sensori e ingressi.",
+     "p": "Ogni device è provider dei suoi input: invia il proprio frame RT indipendentemente (non è una 'risposta' a una richiesta). Il controllore controlla il watchdog (DataHoldFactor × ciclo)."
+    }
+   },
+   {
+    "from": "d2",
+    "to": "c",
+    "label": "Allarme",
+    "t": "evento",
+    "color": "#c0392b",
+    "note": {
+     "b": "Se qualcosa va storto, un dispositivo lancia un allarme.",
+     "p": "Alarm CR: frame RT con priorità alta (FrameID 0xFC01 Alarm High) con conferma Alarm-ACK. Tipi: diagnosi, process, pull/plug."
+    }
+   }
+  ],
+  "frames": {
+   "pn_rt": {
+    "title": "Frame PROFINET RT_Class_1 (Ethernet II con VLAN)",
+    "fields": [
+     {
+      "n": "Preambolo+SFD",
+      "s": "8 B",
+      "v": "55×7, D5",
+      "d": "Sincronizzazione del ricevitore (non fa parte del frame MAC)."
+     },
+     {
+      "n": "MAC dest",
+      "s": "6 B",
+      "v": "es. 00:0E:CF:…",
+      "d": "Indirizzo del consumer (unicast) o multicast."
+     },
+     {
+      "n": "MAC sorg",
+      "s": "6 B",
+      "v": "provider",
+      "d": "MAC del provider (chi invia i dati)."
+     },
+     {
+      "n": "VLAN tag",
+      "s": "4 B",
+      "v": "0x8100, PCP 6",
+      "d": "TPID 0x8100 + PCP=6 (priorità per RT) + VID. Separa RT dal traffico best-effort."
+     },
+     {
+      "n": "EtherType",
+      "s": "2 B",
+      "v": "0x8892",
+      "d": "Identifica PROFINET: il frame non passa dallo stack IP."
+     },
+     {
+      "n": "FrameID",
+      "s": "2 B",
+      "v": "0x8000…0xBFFF",
+      "d": "Seleziona la IOCR (RT_Class_1: 0x8000–0xBFFF; RT_Class_2: 0xC000–0xFBFF; IRT: 0x0100–0x7FFF in base alla versione)."
+     },
+     {
+      "n": "Dati I/O + IOPS/IOCS",
+      "s": "36…1440 B",
+      "v": "dati processo",
+      "d": "Payload ciclico dei submoduli, ciascuno con IOPS/IOCS. Dimensione minima 40 B di payload applicativo in Ethernet (padding)."
+     },
+     {
+      "n": "Cycle Counter",
+      "s": "2 B",
+      "v": "unità 31,25 µs",
+      "d": "Contatore del ciclo, in unità di 31,25 µs: permette di rilevare frame vecchi o persi."
+     },
+     {
+      "n": "Data Status",
+      "s": "1 B",
+      "v": "bit state/valid/run",
+      "d": "Stato provider: Primary/Backup, Data Valid, Provider State (Run/Stop), Problem Indicator."
+     },
+     {
+      "n": "Transfer Status",
+      "s": "1 B",
+      "v": "0x00",
+      "d": "Riservato; 0 in condizioni normali."
+     },
+     {
+      "n": "FCS",
+      "s": "4 B",
+      "v": "CRC-32",
+      "d": "Frame Check Sequence Ethernet."
+     }
+    ]
+   }
+  }
+ },
+ "profibus": {
+  "title": "PROFIBUS DP: parametrizzazione, scambio dati e token",
+  "nodes": [
+   {
+    "id": "m1",
+    "label": "Master classe 1",
+    "x": 90,
+    "y": 70
+   },
+   {
+    "id": "m2",
+    "label": "Master 2 / Tool",
+    "x": 90,
+    "y": 240
+   },
+   {
+    "id": "bus",
+    "label": "Bus RS-485",
+    "x": 330,
+    "y": 150
+   },
+   {
+    "id": "s1",
+    "label": "Slave 3",
+    "x": 600,
+    "y": 50
+   },
+   {
+    "id": "s2",
+    "label": "Slave 4",
+    "x": 600,
+    "y": 150
+   },
+   {
+    "id": "s3",
+    "label": "Slave 5",
+    "x": 600,
+    "y": 250
+   }
+  ],
+  "links": [
+   [
+    "m1",
+    "bus"
+   ],
+   [
+    "m2",
+    "bus"
+   ],
+   [
+    "bus",
+    "s1"
+   ],
+   [
+    "bus",
+    "s2"
+   ],
+   [
+    "bus",
+    "s3"
+   ]
+  ],
+  "loopFrom": 3,
+  "steps": [
+   {
+    "from": "m1",
+    "to": "s1",
+    "label": "Set_Prm",
+    "t": "setup",
+    "color": "#2980b9",
+    "frame": "pb_sd2",
+    "note": {
+     "b": "Il master configura lo slave prima dell'avvio.",
+     "p": "Set_Prm (DSAP 61): parametri di stazione (Watchdog, Ident Number, Group). Segue Chk_Cfg (DSAP 62) e Slave_Diag (DSAP 60) finché lo slave è 'ready'."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "m1",
+    "label": "SC 0xE5",
+    "t": "setup",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Lo slave conferma.",
+     "p": "Short acknowledge (SC = 0xE5) o risposta con diagnosi (Slave_Diag, SD2)."
+    }
+   },
+   {
+    "from": "m1",
+    "to": "s1",
+    "label": "Chk_Cfg",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il master verifica che la configurazione degli I/O sia corretta.",
+     "p": "Chk_Cfg: sequenza di byte di configurazione (tipo e lunghezza dei moduli di I/O)."
+    }
+   },
+   {
+    "from": "m1",
+    "to": "s1",
+    "label": "Data_Exchange",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "pb_sd2",
+    "note": {
+     "b": "Il master invia i comandi e lo slave risponde con i suoi ingressi.",
+     "p": "Data_Exchange: SD2 con DA=3, SA=master, FC=0x7D/…, payload output; la risposta contiene gli input. Tempo di ciclo = somma di (request + TSDR + response + idle) per ogni slave."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "m1",
+    "label": "Input dati",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "pb_sd2",
+    "note": {
+     "b": "Lo slave 3 risponde.",
+     "p": "La risposta arriva dopo il tempo di risposta dello slave (TSDR, da pochi bit-time a qualche decina)."
+    }
+   },
+   {
+    "from": "m1",
+    "to": "s2",
+    "label": "Data_Exchange",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Poi tocca allo slave 4.",
+     "p": "Il master esegue il polling in sequenza (round robin) di tutti gli slave in Data_Exchange."
+    }
+   },
+   {
+    "from": "s2",
+    "to": "m1",
+    "label": "Input dati",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Risposta dello slave 4.",
+     "p": "Frame di risposta con lunghezza dati configurata."
+    }
+   },
+   {
+    "from": "m1",
+    "to": "s3",
+    "label": "Data_Exchange",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Infine lo slave 5.",
+     "p": "Ultimo slave nel ciclo DP; poi il master può eseguire servizi aciclici (DP-V1) nel tempo residuo."
+    }
+   },
+   {
+    "from": "s3",
+    "to": "m1",
+    "label": "Input dati",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Risposta dello slave 5. Il ciclo è completo.",
+     "p": "Fine ciclo DP. Il ciclo si ripete finché il master mantiene il token."
+    }
+   },
+   {
+    "from": "m1",
+    "to": "m2",
+    "label": "Token",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "frame": "pb_token",
+    "note": {
+     "b": "Il master passa il 'microfono' (token) a un altro master.",
+     "p": "Token frame SD4 (0xDC): DA, SA, nessun payload. Ogni master ha un tempo di tenuta del token (Target Rotation Time, TTR)."
+    }
+   }
+  ],
+  "frames": {
+   "pb_sd2": {
+    "title": "Frame PROFIBUS FDL SD2 (lunghezza variabile)",
+    "fields": [
+     {
+      "n": "SD2",
+      "s": "1 B",
+      "v": "0x68",
+      "d": "Start Delimiter 2: telegramma a lunghezza variabile."
+     },
+     {
+      "n": "LE",
+      "s": "1 B",
+      "v": "n+3",
+      "d": "Lunghezza da DA a fine dati (DA+SA+FC+DSAP+SSAP+dati)."
+     },
+     {
+      "n": "LEr",
+      "s": "1 B",
+      "v": "n+3",
+      "d": "Ripetizione della lunghezza per controllo."
+     },
+     {
+      "n": "SD2 (bis)",
+      "s": "1 B",
+      "v": "0x68",
+      "d": "Secondo Start Delimiter."
+     },
+     {
+      "n": "DA",
+      "s": "1 B",
+      "v": "0…125",
+      "d": "Indirizzo destinazione (126 = broadcast; bit 7 indica SAP extension)."
+     },
+     {
+      "n": "SA",
+      "s": "1 B",
+      "v": "0…125",
+      "d": "Indirizzo sorgente."
+     },
+     {
+      "n": "FC",
+      "s": "1 B",
+      "v": "es. 0x5D / 0x7D",
+      "d": "Function Code: richiesta/risposta, FCB/FCV (alternanza per rilevare duplicati)."
+     },
+     {
+      "n": "DSAP/SSAP",
+      "s": "2 B",
+      "v": "opz.",
+      "d": "Service Access Point (es. 60 Slave_Diag, 61 Set_Prm, 62 Chk_Cfg). Assenti in Data_Exchange default."
+     },
+     {
+      "n": "PDU dati",
+      "s": "0…244 B",
+      "v": "I/O",
+      "d": "Dati di processo (output master o input slave); massimo 244 byte per telegramma DP."
+     },
+     {
+      "n": "FCS",
+      "s": "1 B",
+      "v": "somma mod 256",
+      "d": "Somma aritmetica dei byte da DA a fine dati (modulo 256)."
+     },
+     {
+      "n": "ED",
+      "s": "1 B",
+      "v": "0x16",
+      "d": "End Delimiter."
+     }
+    ]
+   },
+   "pb_token": {
+    "title": "Token frame SD4",
+    "fields": [
+     {
+      "n": "SD4",
+      "s": "1 B",
+      "v": "0xDC",
+      "d": "Start Delimiter 4: telegramma token."
+     },
+     {
+      "n": "DA",
+      "s": "1 B",
+      "v": "prossimo master",
+      "d": "Indirizzo del master che riceve il token."
+     },
+     {
+      "n": "SA",
+      "s": "1 B",
+      "v": "master corrente",
+      "d": "Indirizzo del master che cede il token."
+     }
+    ]
+   }
+  }
+ },
+ "s7": {
+  "title": "S7comm: connessione e lettura variabili",
+  "nodes": [
+   {
+    "id": "pc",
+    "label": "Client (PC/HMI)",
+    "x": 110,
+    "y": 150
+   },
+   {
+    "id": "sw",
+    "label": "Switch",
+    "x": 400,
+    "y": 150
+   },
+   {
+    "id": "plc",
+    "label": "PLC S7 (server)",
+    "x": 690,
+    "y": 150
+   }
+  ],
+  "links": [
+   [
+    "pc",
+    "sw"
+   ],
+   [
+    "sw",
+    "plc"
+   ]
+  ],
+  "loopFrom": 5,
+  "steps": [
+   {
+    "from": "pc",
+    "to": "plc",
+    "label": "TCP SYN",
+    "t": "setup",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il client bussa alla porta del PLC.",
+     "p": "Three-way handshake TCP verso la porta 102 (SYN, SYN-ACK, ACK)."
+    }
+   },
+   {
+    "from": "plc",
+    "to": "pc",
+    "label": "SYN-ACK",
+    "t": "setup",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il PLC apre la porta.",
+     "p": "SYN-ACK; poi ACK dal client completa la connessione TCP."
+    }
+   },
+   {
+    "from": "pc",
+    "to": "plc",
+    "label": "COTP CR",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Si stabilisce il canale di comunicazione.",
+     "p": "COTP Connection Request (PDU type 0xE0) con TSAP sorgente/destinazione (es. rack/slot della CPU)."
+    }
+   },
+   {
+    "from": "plc",
+    "to": "pc",
+    "label": "COTP CC",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il PLC accetta.",
+     "p": "COTP Connection Confirm (0xD0)."
+    }
+   },
+   {
+    "from": "pc",
+    "to": "plc",
+    "label": "Setup comm (0xF0)",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Concordano quanto grandi possono essere i messaggi.",
+     "p": "S7 Job, funzione 0xF0 Setup Communication: AmQ calling/called e PDU length proposta; il PLC risponde con la PDU negoziata (es. 240/480/960 B)."
+    }
+   },
+   {
+    "from": "pc",
+    "to": "plc",
+    "label": "Read Var (0x04)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "s7_read",
+    "note": {
+     "b": "Il client chiede: «quanto vale questa variabile?»",
+     "p": "S7 Job (ROSCTR 1), funzione 0x04 Read Var con item: area (es. 0x84 DB), numero DB, byte offset, lunghezza."
+    }
+   },
+   {
+    "from": "plc",
+    "to": "pc",
+    "label": "Ack_Data + valore",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Il PLC risponde con il valore.",
+     "p": "Ack_Data (ROSCTR 3) con Error class/code e data item (return code 0xFF = successo). Il PDU reference collega richiesta e risposta."
+    }
+   },
+   {
+    "from": "pc",
+    "to": "plc",
+    "label": "Write Var (0x05)",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il client può anche scrivere un nuovo valore.",
+     "p": "Write Var: stessa struttura del Read con payload dati; richiede permessi di accesso (PUT/GET su 1200/1500)."
+    }
+   },
+   {
+    "from": "plc",
+    "to": "pc",
+    "label": "Ack_Data OK",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il PLC conferma.",
+     "p": "Ack_Data con return code per ciascun item."
+    }
+   }
+  ],
+  "frames": {
+   "s7_read": {
+    "title": "Richiesta S7comm Read Var (su TCP/102)",
+    "fields": [
+     {
+      "n": "TPKT ver",
+      "s": "1 B",
+      "v": "0x03",
+      "d": "TPKT (RFC 1006): versione 3."
+     },
+     {
+      "n": "TPKT res",
+      "s": "1 B",
+      "v": "0x00",
+      "d": "Riservato."
+     },
+     {
+      "n": "TPKT len",
+      "s": "2 B",
+      "v": "0x001F",
+      "d": "Lunghezza totale del pacchetto TPKT, header incluso."
+     },
+     {
+      "n": "COTP",
+      "s": "3 B",
+      "v": "02 F0 80",
+      "d": "Length indicator 2, PDU type 0xF0 (Data), TPDU number + EOT 0x80."
+     },
+     {
+      "n": "Protocol ID",
+      "s": "1 B",
+      "v": "0x32",
+      "d": "Identifica S7comm."
+     },
+     {
+      "n": "ROSCTR",
+      "s": "1 B",
+      "v": "0x01",
+      "d": "1 = Job (richiesta), 2 = Ack, 3 = Ack_Data, 7 = Userdata."
+     },
+     {
+      "n": "Redundancy ID",
+      "s": "2 B",
+      "v": "0x0000",
+      "d": "Riservato."
+     },
+     {
+      "n": "PDU reference",
+      "s": "2 B",
+      "v": "0x0001",
+      "d": "Associa risposta e richiesta."
+     },
+     {
+      "n": "Param len",
+      "s": "2 B",
+      "v": "0x000E",
+      "d": "Lunghezza della sezione parametri."
+     },
+     {
+      "n": "Data len",
+      "s": "2 B",
+      "v": "0x0000",
+      "d": "Lunghezza della sezione dati (0 in lettura)."
+     },
+     {
+      "n": "Function",
+      "s": "1 B",
+      "v": "0x04",
+      "d": "0x04 Read Var; 0x05 Write Var; 0xF0 Setup Communication."
+     },
+     {
+      "n": "Item count",
+      "s": "1 B",
+      "v": "0x01",
+      "d": "Numero di item richiesti."
+     },
+     {
+      "n": "Item (S7ANY)",
+      "s": "12 B",
+      "v": "10 0A 10 02 …",
+      "d": "Var spec 0x12, length 0x0A, syntax 0x10 (S7ANY), tipo, quantità, DB number, area (0x84 = DB), indirizzo in bit (byte offset × 8)."
+     }
+    ]
+   }
+  }
+ },
+ "ethercat": {
+  "title": "EtherCAT: un frame, tutti gli slave",
+  "nodes": [
+   {
+    "id": "m",
+    "label": "Master",
+    "x": 80,
+    "y": 150
+   },
+   {
+    "id": "s1",
+    "label": "Slave 1",
+    "x": 290,
+    "y": 150
+   },
+   {
+    "id": "s2",
+    "label": "Slave 2",
+    "x": 500,
+    "y": 150
+   },
+   {
+    "id": "s3",
+    "label": "Slave 3",
+    "x": 710,
+    "y": 150
+   }
+  ],
+  "links": [
+   [
+    "m",
+    "s1"
+   ],
+   [
+    "s1",
+    "s2"
+   ],
+   [
+    "s2",
+    "s3"
+   ]
+  ],
+  "loopFrom": 3,
+  "steps": [
+   {
+    "path": [
+     "m",
+     "s1",
+     "s2",
+     "s3",
+     "s2",
+     "s1",
+     "m"
+    ],
+    "label": "BRD (conta slave)",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il master conta quanti dispositivi ci sono sulla linea.",
+     "p": "Broadcast Read (BRD) su un registro ESC: ogni slave incrementa il Working Counter. WKC finale = numero di slave presenti."
+    }
+   },
+   {
+    "path": [
+     "m",
+     "s1",
+     "s2",
+     "s3",
+     "s2",
+     "s1",
+     "m"
+    ],
+    "label": "APWR indirizzi",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Assegna un indirizzo a ciascun dispositivo.",
+     "p": "Auto-increment write (APWR) per assegnare indirizzi di stazione, poi accesso con indirizzamento fisso (FPRD/FPWR)."
+    }
+   },
+   {
+    "path": [
+     "m",
+     "s1",
+     "s2",
+     "s3",
+     "s2",
+     "s1",
+     "m"
+    ],
+    "label": "BWR → OP",
+    "t": "setup",
+    "color": "#e67e22",
+    "note": {
+     "b": "Porta tutti i dispositivi nello stato operativo.",
+     "p": "Scrittura su AL Control (0x0120): INIT → PRE-OP → SAFE-OP → OP. Gli slave rispondono nell'AL Status (0x0130)."
+    }
+   },
+   {
+    "path": [
+     "m",
+     "s1",
+     "s2",
+     "s3"
+    ],
+    "label": "LRW → (andata)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "ec_frame",
+    "note": {
+     "b": "Il frame parte dal master e attraversa i dispositivi: ognuno legge i suoi comandi e inserisce i suoi ingressi 'al volo'.",
+     "p": "Datagram LRW con indirizzo logico: ogni ESC estrae i propri output e inserisce gli input nel campo dati, incrementando il WKC (+2 se ha letto e scritto). Ritardo di attraversamento ~ 0,5–1 µs per nodo."
+    }
+   },
+   {
+    "path": [
+     "s3",
+     "s2",
+     "s1",
+     "m"
+    ],
+    "label": "LRW ← (ritorno)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "L'ultimo dispositivo rimanda il frame indietro fino al master.",
+     "p": "L'ultimo slave rileva la porta aperta e fa il loopback; il frame torna al master che verifica il WKC (atteso = 2 × slave coinvolti) e consegna gli input."
+    }
+   }
+  ],
+  "frames": {
+   "ec_frame": {
+    "title": "Frame EtherCAT (EtherType 0x88A4) con un datagram",
+    "fields": [
+     {
+      "n": "MAC dest",
+      "s": "6 B",
+      "v": "FF:FF:FF:FF:FF:FF",
+      "d": "Spesso broadcast: gli slave non filtrano per MAC."
+     },
+     {
+      "n": "MAC sorg",
+      "s": "6 B",
+      "v": "master",
+      "d": "MAC del master."
+     },
+     {
+      "n": "EtherType",
+      "s": "2 B",
+      "v": "0x88A4",
+      "d": "Identifica EtherCAT."
+     },
+     {
+      "n": "Header EtherCAT",
+      "s": "2 B",
+      "v": "len 11 b | R 1 b | type 4 b",
+      "d": "Lunghezza dei datagram (11 bit), 1 bit riservato, tipo = 1 (comandi ESC)."
+     },
+     {
+      "n": "Cmd",
+      "s": "1 B",
+      "v": "0x0C (LRW)",
+      "d": "Comando: APRD 1, APWR 2, FPRD 4, FPWR 5, BRD 7, BWR 8, LRD 10, LWR 11, LRW 12…"
+     },
+     {
+      "n": "Idx",
+      "s": "1 B",
+      "v": "0x00",
+      "d": "Indice per associare la risposta al datagram inviato."
+     },
+     {
+      "n": "Indirizzo",
+      "s": "4 B",
+      "v": "logico",
+      "d": "Indirizzo fisico (ADP+ADO) oppure logico a 32 bit (LRD/LWR/LRW)."
+     },
+     {
+      "n": "Len/flag",
+      "s": "2 B",
+      "v": "len 11 b, R 3 b, C 1 b, M 1 b",
+      "d": "Lunghezza dati, bit Circulating Frame e M (altri datagram seguono)."
+     },
+     {
+      "n": "IRQ",
+      "s": "2 B",
+      "v": "0x0000",
+      "d": "Eventi interrupt dagli ESC."
+     },
+     {
+      "n": "Dati",
+      "s": "0…1486 B",
+      "v": "process data",
+      "d": "Immagine di processo: output verso gli slave e input da essi."
+     },
+     {
+      "n": "WKC",
+      "s": "2 B",
+      "v": "working counter",
+      "d": "Incrementato dagli slave che elaborano il datagram; il master lo confronta con il valore atteso."
+     },
+     {
+      "n": "FCS",
+      "s": "4 B",
+      "v": "CRC-32",
+      "d": "Ricalcolato dagli ESC al passaggio."
+     }
+    ]
+   }
+  }
+ },
+ "ads": {
+  "title": "ADS: symbol handle e notifiche",
+  "nodes": [
+   {
+    "id": "c",
+    "label": "Client ADS (PC)",
+    "x": 120,
+    "y": 150
+   },
+   {
+    "id": "r",
+    "label": "Router AMS",
+    "x": 400,
+    "y": 150
+   },
+   {
+    "id": "p",
+    "label": "PLC TwinCAT (porta 851)",
+    "x": 680,
+    "y": 150
+   }
+  ],
+  "links": [
+   [
+    "c",
+    "r"
+   ],
+   [
+    "r",
+    "p"
+   ]
+  ],
+  "loopFrom": 5,
+  "steps": [
+   {
+    "from": "c",
+    "to": "p",
+    "label": "Read Device Info (1)",
+    "t": "setup",
+    "color": "#2980b9",
+    "frame": "ads_msg",
+    "note": {
+     "b": "Il client chiede al PLC chi è.",
+     "p": "AMS/TCP header + AMS header (Target/Source NetId e porta, Command ID 1). Il router AMS instrada in base al NetId di destinazione e alle route configurate."
+    }
+   },
+   {
+    "from": "p",
+    "to": "c",
+    "label": "Risposta",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il PLC risponde con nome e versione.",
+     "p": "Response con Result 0 e nome device + versione (major/minor/build)."
+    }
+   },
+   {
+    "from": "c",
+    "to": "p",
+    "label": "ReadWrite (9) simbolo",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il client chiede un 'numero di pratica' (handle) per una variabile per nome.",
+     "p": "ReadWrite su IndexGroup 0xF003 (GetSymHandleByName), il nome simbolo (es. MAIN.nCount) è nel dato di scrittura; la risposta contiene l'handle."
+    }
+   },
+   {
+    "from": "p",
+    "to": "c",
+    "label": "Handle",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il PLC restituisce l'handle.",
+     "p": "Handle a 4 byte, valido finché il simbolo non cambia (ricarica del programma)."
+    }
+   },
+   {
+    "from": "c",
+    "to": "p",
+    "label": "Add Notification (6)",
+    "t": "setup",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il client dice: «avvisami quando cambia».",
+     "p": "Add Device Notification: IndexGroup 0xF005 (valore per handle), lunghezza, TransmissionMode (OnChange/Cyclic), MaxDelay, CycleTime. Risposta: Notification Handle."
+    }
+   },
+   {
+    "from": "p",
+    "to": "c",
+    "label": "Notification (8)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Quando il valore cambia, il PLC manda un avviso senza essere interrogato.",
+     "p": "Device Notification: stamp con timestamp (FILETIME), handle e dato. Più notifiche possono essere raggruppate in un unico frame (MaxDelay)."
+    }
+   },
+   {
+    "from": "c",
+    "to": "p",
+    "label": "Write (3)",
+    "t": "ciclo",
+    "color": "#c0392b",
+    "note": {
+     "b": "Il client può anche scrivere un valore.",
+     "p": "Write: IndexGroup/Offset (o handle) + dati. Risposta con Result (codici errore ADS, es. 0x705 porta non trovata)."
+    }
+   }
+  ],
+  "frames": {
+   "ads_msg": {
+    "title": "AMS/TCP + AMS header (TCP 48898)",
+    "fields": [
+     {
+      "n": "Reserved",
+      "s": "2 B",
+      "v": "0x0000",
+      "d": "Riservato (AMS/TCP header)."
+     },
+     {
+      "n": "Length (TCP)",
+      "s": "4 B",
+      "v": "lunghezza",
+      "d": "Lunghezza in byte dell'AMS header + dati."
+     },
+     {
+      "n": "Target NetId",
+      "s": "6 B",
+      "v": "5.12.34.56.1.1",
+      "d": "AMS NetId di destinazione (di norma indirizzo IP + .1.1)."
+     },
+     {
+      "n": "Target Port",
+      "s": "2 B",
+      "v": "851",
+      "d": "Porta AMS: 851 = runtime PLC 1 TwinCAT 3 (801 in TwinCAT 2)."
+     },
+     {
+      "n": "Source NetId",
+      "s": "6 B",
+      "v": "client",
+      "d": "NetId del mittente."
+     },
+     {
+      "n": "Source Port",
+      "s": "2 B",
+      "v": "dinamica",
+      "d": "Porta AMS del client."
+     },
+     {
+      "n": "Command ID",
+      "s": "2 B",
+      "v": "0x0001…0x0009",
+      "d": "1 ReadDevInfo, 2 Read, 3 Write, 4 ReadState, 5 WriteControl, 6 AddNotif, 7 DelNotif, 8 Notification, 9 ReadWrite."
+     },
+     {
+      "n": "State Flags",
+      "s": "2 B",
+      "v": "0x0004",
+      "d": "Bit request/response, ADS command, TCP/UDP."
+     },
+     {
+      "n": "Data Length",
+      "s": "4 B",
+      "v": "n",
+      "d": "Lunghezza dei dati ADS."
+     },
+     {
+      "n": "Error Code",
+      "s": "4 B",
+      "v": "0",
+      "d": "Errore AMS (0 = OK)."
+     },
+     {
+      "n": "Invoke ID",
+      "s": "4 B",
+      "v": "n° univoco",
+      "d": "Il client lo imposta e il server lo ripete nella risposta."
+     },
+     {
+      "n": "Dati ADS",
+      "s": "n B",
+      "v": "IG, IO, len",
+      "d": "Es. per Read: Index Group (4 B), Index Offset (4 B), Length (4 B)."
+     }
+    ]
+   }
+  }
+ },
+ "mqtt": {
+  "title": "MQTT: connessione, sottoscrizione e pubblicazione QoS 1",
+  "nodes": [
+   {
+    "id": "pub",
+    "label": "Sensore (publisher)",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "b",
+    "label": "Broker",
+    "x": 380,
+    "y": 150
+   },
+   {
+    "id": "s1",
+    "label": "HMI (subscriber)",
+    "x": 670,
+    "y": 60
+   },
+   {
+    "id": "s2",
+    "label": "Cloud (subscriber)",
+    "x": 670,
+    "y": 240
+   }
+  ],
+  "links": [
+   [
+    "pub",
+    "b"
+   ],
+   [
+    "b",
+    "s1"
+   ],
+   [
+    "b",
+    "s2"
+   ]
+  ],
+  "loopFrom": 4,
+  "steps": [
+   {
+    "from": "pub",
+    "to": "b",
+    "label": "CONNECT",
+    "t": "setup",
+    "color": "#8e44ad",
+    "frame": "mqtt_pub",
+    "note": {
+     "b": "Il sensore si presenta al broker.",
+     "p": "CONNECT: protocol name 'MQTT', level 4 (v3.1.1) o 5, connect flags (Clean Session, Will…), Keep Alive, ClientId."
+    }
+   },
+   {
+    "from": "b",
+    "to": "pub",
+    "label": "CONNACK",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il broker accetta.",
+     "p": "CONNACK con return code 0 (v3.1.1) o reason code (v5) e flag Session Present."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "b",
+    "label": "SUBSCRIBE plant/+/temp",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "L'HMI dice: «voglio i messaggi su questo argomento».",
+     "p": "SUBSCRIBE con filtro topic (wildcard + = un livello, # = più livelli) e QoS richiesto. Il broker risponde con SUBACK."
+    }
+   },
+   {
+    "from": "s2",
+    "to": "b",
+    "label": "SUBSCRIBE plant/#",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Anche il cloud si iscrive.",
+     "p": "Stessa procedura; più subscriber ricevono lo stesso messaggio."
+    }
+   },
+   {
+    "from": "pub",
+    "to": "b",
+    "label": "PUBLISH QoS1",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "mqtt_pub",
+    "note": {
+     "b": "Il sensore pubblica la temperatura su un argomento.",
+     "p": "PUBLISH con topic 'plant/line1/temp', Packet Identifier (QoS ≥ 1), payload. Il bit RETAIN può mantenere l'ultimo valore sul broker."
+    }
+   },
+   {
+    "from": "b",
+    "to": "pub",
+    "label": "PUBACK",
+    "t": "ciclo",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il broker conferma di aver ricevuto.",
+     "p": "PUBACK con lo stesso Packet Identifier. Se non arriva, il publisher ritrasmette con DUP=1 (almeno una consegna)."
+    }
+   },
+   {
+    "from": "b",
+    "to": [
+     "s1",
+     "s2"
+    ],
+    "label": "PUBLISH",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Il broker recapita il messaggio a tutti gli iscritti.",
+     "p": "Il broker inoltra a ciascun subscriber con il QoS minimo tra quello del messaggio e quello della sottoscrizione."
+    }
+   }
+  ],
+  "frames": {
+   "mqtt_pub": {
+    "title": "Pacchetto MQTT PUBLISH (v3.1.1)",
+    "fields": [
+     {
+      "n": "Tipo+flag",
+      "s": "1 B",
+      "v": "0011 DUP QoS RETAIN",
+      "d": "Tipo 3 (PUBLISH) nei 4 bit alti; flag DUP, QoS (2 bit), RETAIN."
+     },
+     {
+      "n": "Remaining Length",
+      "s": "1–4 B",
+      "v": "es. 0x1A",
+      "d": "Lunghezza codificata a lunghezza variabile (7 bit utili per byte, bit 7 = continuazione)."
+     },
+     {
+      "n": "Topic length",
+      "s": "2 B",
+      "v": "0x000F",
+      "d": "Lunghezza del nome del topic (UTF-8)."
+     },
+     {
+      "n": "Topic name",
+      "s": "n B",
+      "v": "plant/line1/temp",
+      "d": "Topic gerarchico; non può contenere wildcard in PUBLISH."
+     },
+     {
+      "n": "Packet Id",
+      "s": "2 B",
+      "v": "0x0001",
+      "d": "Presente solo per QoS 1 e 2: correla PUBACK/PUBREC."
+     },
+     {
+      "n": "Payload",
+      "s": "n B",
+      "v": "23.4",
+      "d": "Dati applicativi: MQTT non ne impone il formato (testo, JSON, Protobuf, Sparkplug B…)."
+     }
+    ]
+   }
+  }
+ },
+ "opcua": {
+  "title": "OPC UA client/server: canale sicuro, sessione, subscription",
+  "nodes": [
+   {
+    "id": "c",
+    "label": "Client",
+    "x": 120,
+    "y": 150
+   },
+   {
+    "id": "s",
+    "label": "Server (address space)",
+    "x": 680,
+    "y": 150
+   }
+  ],
+  "links": [
+   [
+    "c",
+    "s"
+   ]
+  ],
+  "loopFrom": 8,
+  "steps": [
+   {
+    "from": "c",
+    "to": "s",
+    "label": "HEL",
+    "t": "setup",
+    "color": "#7f8c8d",
+    "frame": "ua_hel",
+    "note": {
+     "b": "Il client saluta il server.",
+     "p": "Hello (UA TCP): ProtocolVersion, Receive/SendBufferSize, MaxMessageSize, MaxChunkCount, EndpointUrl."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "ACK",
+    "t": "setup",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il server risponde.",
+     "p": "Acknowledge con i parametri negoziati (buffer e dimensioni massime)."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "OpenSecureChannel",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Si crea un canale protetto.",
+     "p": "OPN: scelta della SecurityPolicy (es. Basic256Sha256) e SecurityMode (None, Sign, SignAndEncrypt); scambio dei certificati e dei nonce."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "OPN Response",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Il server conferma e fornisce l'identificativo del canale.",
+     "p": "SecureChannelId e TokenId; le chiavi di sessione sono derivate dai nonce."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "CreateSession",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il client apre una sessione di lavoro.",
+     "p": "CreateSessionRequest/Response (certificato applicazione, nonce, timeout). Quindi ActivateSession con identità utente (anonimo, user/password, certificato)."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "ActivateSession",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il client si autentica.",
+     "p": "UserIdentityToken (Anonymous, UserName, X509, IssuedToken); firma con il nonce del server."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "CreateSubscription",
+    "t": "setup",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il client si iscrive ai valori che gli interessano.",
+     "p": "CreateSubscription (PublishingInterval) + CreateMonitoredItems (NodeId, SamplingInterval, Deadband)."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "Risposta",
+    "t": "setup",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il server conferma.",
+     "p": "SubscriptionId e MonitoredItemIds; il client mantiene richieste Publish pendenti."
+    }
+   },
+   {
+    "from": "c",
+    "to": "s",
+    "label": "PublishRequest",
+    "t": "ciclo",
+    "color": "#7f8c8d",
+    "note": {
+     "b": "Il client lascia al server una 'busta' vuota da riempire quando ci sono novità.",
+     "p": "PublishRequest con acknowledgement delle notifiche precedenti; il server ne tiene più di una in coda."
+    }
+   },
+   {
+    "from": "s",
+    "to": "c",
+    "label": "DataChange",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Quando un valore cambia, il server risponde con la novità.",
+     "p": "PublishResponse con NotificationMessage (DataChangeNotification: ClientHandle, DataValue con valore, StatusCode, timestamp)."
+    }
+   }
+  ],
+  "frames": {
+   "ua_hel": {
+    "title": "Messaggio UA TCP Hello (HEL)",
+    "fields": [
+     {
+      "n": "MessageType",
+      "s": "3 B",
+      "v": "'HEL'",
+      "d": "HEL, ACK, ERR, OPN, MSG, CLO."
+     },
+     {
+      "n": "ChunkType",
+      "s": "1 B",
+      "v": "'F'",
+      "d": "F = chunk finale; C = intermedio; A = abort."
+     },
+     {
+      "n": "MessageSize",
+      "s": "4 B",
+      "v": "UInt32",
+      "d": "Lunghezza totale del messaggio."
+     },
+     {
+      "n": "ProtocolVersion",
+      "s": "4 B",
+      "v": "0",
+      "d": "Versione del protocollo UA TCP."
+     },
+     {
+      "n": "ReceiveBufferSize",
+      "s": "4 B",
+      "v": "65535",
+      "d": "Dimensione massima del chunk che il client riceve."
+     },
+     {
+      "n": "SendBufferSize",
+      "s": "4 B",
+      "v": "65535",
+      "d": "Dimensione del chunk che il client invia."
+     },
+     {
+      "n": "MaxMessageSize",
+      "s": "4 B",
+      "v": "0 = nessun limite",
+      "d": "Dimensione massima del messaggio ricomposto."
+     },
+     {
+      "n": "MaxChunkCount",
+      "s": "4 B",
+      "v": "0 = nessun limite",
+      "d": "Numero massimo di chunk per messaggio."
+     },
+     {
+      "n": "EndpointUrl",
+      "s": "String",
+      "v": "opc.tcp://host:4840",
+      "d": "URL dell'endpoint (lunghezza Int32 + UTF-8)."
+     }
+    ]
+   }
+  }
+ },
+ "enip": {
+  "title": "EtherNet/IP: discovery, Forward_Open e I/O implicito",
+  "nodes": [
+   {
+    "id": "o",
+    "label": "Scanner (Originator)",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "sw",
+    "label": "Switch",
+    "x": 340,
+    "y": 150
+   },
+   {
+    "id": "a1",
+    "label": "Adapter 1",
+    "x": 610,
+    "y": 70
+   },
+   {
+    "id": "a2",
+    "label": "Adapter 2",
+    "x": 610,
+    "y": 230
+   }
+  ],
+  "links": [
+   [
+    "o",
+    "sw"
+   ],
+   [
+    "sw",
+    "a1"
+   ],
+   [
+    "sw",
+    "a2"
+   ]
+  ],
+  "loopFrom": 3,
+  "steps": [
+   {
+    "from": "o",
+    "to": [
+     "a1",
+     "a2"
+    ],
+    "label": "List Identity",
+    "t": "setup",
+    "color": "#8e44ad",
+    "note": {
+     "b": "Lo scanner chiede a tutti: «chi sei?»",
+     "p": "ListIdentity (comando 0x0063) via UDP 44818 broadcast/multicast. Risposta con vendor ID, product type, serial, IP."
+    }
+   },
+   {
+    "from": "o",
+    "to": "a1",
+    "label": "RegisterSession",
+    "t": "setup",
+    "color": "#2980b9",
+    "frame": "enip_encap",
+    "note": {
+     "b": "Apre un canale di conversazione con il dispositivo.",
+     "p": "TCP 44818: RegisterSession (0x0065); la risposta contiene il Session Handle da usare nei comandi successivi."
+    }
+   },
+   {
+    "from": "o",
+    "to": "a1",
+    "label": "Forward_Open",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Concorda ogni quanto scambiare i dati e di che dimensione.",
+     "p": "SendRRData (0x006F) con CIP Forward_Open al Connection Manager: RPI O→T e T→O, dimensioni, trasporto, connection IDs, trigger (cyclic/COS)."
+    }
+   },
+   {
+    "from": "o",
+    "to": "a1",
+    "label": "Output I/O (UDP 2222)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "enip_io",
+    "note": {
+     "b": "Ogni ciclo lo scanner invia i comandi al dispositivo.",
+     "p": "Implicit messaging: UDP 2222, CPF con Sequenced Address Item (Connection ID + sequence number) e Connected Data Item (sequence count + dati, eventuale 32-bit run/idle header)."
+    }
+   },
+   {
+    "from": "a1",
+    "to": "o",
+    "label": "Input I/O (UDP 2222)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Il dispositivo invia lo stato dei suoi ingressi.",
+     "p": "Il target produce i dati T→O in multicast o unicast (IGMP). Se la connessione non riceve dati per RPI × timeout multiplier, viene chiusa."
+    }
+   },
+   {
+    "from": "o",
+    "to": "a2",
+    "label": "Output I/O (UDP 2222)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Lo stesso per il secondo dispositivo.",
+     "p": "Ogni connessione I/O ha RPI e Connection ID propri."
+    }
+   },
+   {
+    "from": "a2",
+    "to": "o",
+    "label": "Input I/O (UDP 2222)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Risposta dello stato del secondo dispositivo.",
+     "p": "Dati prodotti con il proprio RPI."
+    }
+   }
+  ],
+  "frames": {
+   "enip_encap": {
+    "title": "Encapsulation header EtherNet/IP (24 byte, TCP/UDP 44818)",
+    "fields": [
+     {
+      "n": "Command",
+      "s": "2 B",
+      "v": "0x0065",
+      "d": "0x0063 ListIdentity, 0x0065 RegisterSession, 0x006F SendRRData, 0x0070 SendUnitData."
+     },
+     {
+      "n": "Length",
+      "s": "2 B",
+      "v": "4",
+      "d": "Lunghezza dei dati che seguono l'header."
+     },
+     {
+      "n": "Session Handle",
+      "s": "4 B",
+      "v": "0 → assegnato",
+      "d": "Assegnato dal target in RegisterSession."
+     },
+     {
+      "n": "Status",
+      "s": "4 B",
+      "v": "0",
+      "d": "0 = successo."
+     },
+     {
+      "n": "Sender Context",
+      "s": "8 B",
+      "v": "libero",
+      "d": "Valore scelto dal mittente e ripetuto nella risposta."
+     },
+     {
+      "n": "Options",
+      "s": "4 B",
+      "v": "0",
+      "d": "Riservato (0)."
+     }
+    ]
+   },
+   "enip_io": {
+    "title": "Dato I/O implicito (UDP 2222) — Common Packet Format",
+    "fields": [
+     {
+      "n": "Item Count",
+      "s": "2 B",
+      "v": "2",
+      "d": "Numero di item CPF."
+     },
+     {
+      "n": "Addr Type",
+      "s": "2 B",
+      "v": "0x8002",
+      "d": "Sequenced Address Item."
+     },
+     {
+      "n": "Addr Length",
+      "s": "2 B",
+      "v": "8",
+      "d": "Lunghezza dell'item indirizzo."
+     },
+     {
+      "n": "Connection ID",
+      "s": "4 B",
+      "v": "da Forward_Open",
+      "d": "Identifica la connessione I/O (O→T o T→O)."
+     },
+     {
+      "n": "Sequence Number",
+      "s": "4 B",
+      "v": "incrementale",
+      "d": "Numero di sequenza a livello di incapsulamento (rilevamento duplicati)."
+     },
+     {
+      "n": "Data Type",
+      "s": "2 B",
+      "v": "0x00B1",
+      "d": "Connected Data Item."
+     },
+     {
+      "n": "Data Length",
+      "s": "2 B",
+      "v": "n",
+      "d": "Lunghezza dati (include sequence count)."
+     },
+     {
+      "n": "CIP Seq Count",
+      "s": "2 B",
+      "v": "incrementale",
+      "d": "Sequence count CIP (trasporto classe 1)."
+     },
+     {
+      "n": "I/O data",
+      "s": "n B",
+      "v": "processo",
+      "d": "Dati applicativi I/O (assembly). Può avere header Run/Idle a 32 bit negli output."
+     }
+    ]
+   }
+  }
+ }
+}
