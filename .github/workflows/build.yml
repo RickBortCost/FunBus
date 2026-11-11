@@ -1,6 +1,5 @@
 name: build-exe
 on:
-  push:
   pull_request:
   workflow_dispatch:
 jobs:
@@ -13,6 +12,7 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet publish -c Release -r win-x64 -o publish
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: IndustrialProtocolsLab-win-x64
           path: publish/IndustrialProtocolsLab.exe
