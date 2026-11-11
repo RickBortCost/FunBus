@@ -139,16 +139,18 @@ public static class Program
 
     private static void OpenUi(string url)
     {
-        try
+        // Finestra "app" senza barra degli indirizzi: Edge (Windows 10/11), poi Chrome, infine il browser predefinito.
+        foreach (var exe in new[] { "msedge", "chrome" })
         {
-            // Finestra "app" senza barra degli indirizzi, se Edge è presente (Windows 10/11).
-            Process.Start(new ProcessStartInfo("msedge", $"--app={url}") { UseShellExecute = true });
+            try
+            {
+                Process.Start(new ProcessStartInfo(exe, $"--app={url} --window-size=1280,860") { UseShellExecute = true });
+                return;
+            }
+            catch { /* prova il successivo */ }
         }
-        catch
-        {
-            try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
-            catch { /* nessun browser disponibile */ }
-        }
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+        catch { /* nessun browser disponibile */ }
     }
 
     private static void ExportContent(IFileProvider provider, string target)

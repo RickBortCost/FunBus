@@ -1,0 +1,40 @@
+{
+ "topics": [
+  {
+   "id": "tsn",
+   "title": "TSN: Ethernet con tempi garantiti",
+   "b": [
+    "TSN (Time-Sensitive Networking) è un insieme di regole per far passare sulla stessa rete Ethernet sia il traffico normale sia quello che ha scadenze precise, come il controllo di una macchina.",
+    "Funziona con orologi sincronizzati e 'finestre di tempo' riservate: i dati urgenti hanno sempre la loro finestra, senza essere disturbati dagli altri."
+   ],
+   "p": [
+    "TSN comprende IEEE 802.1AS (sincronizzazione), 802.1Qbv (scheduled traffic con gate control list), 802.1Qbu/802.3br (frame preemption), 802.1CB (ridondanza FRER) e 802.1Qcc (configurazione).",
+    "In ambito industriale è integrato in PROFINET over TSN, OPC UA PubSub over TSN e CIP; le funzioni supportate dipendono da switch, end station e profilo (es. IEC/IEEE 60802)."
+   ]
+  },
+  {
+   "id": "safety",
+   "title": "Safety: bus sicuri",
+   "b": [
+    "Alcune macchine devono fermarsi in modo sicuro se qualcosa si rompe: pulsanti di emergenza, barriere di luce, porte.",
+    "I bus di campo possono trasportare anche questi segnali sullo stesso cavo con uno 'strato di sicurezza' sopra, senza usare cavi dedicati."
+   ],
+   "p": [
+    "I protocolli safety usano il principio del black channel: il canale di comunicazione standard non è affidabile, e un livello safety aggiunge CRC, contatore progressivo, timeout, e autenticazione degli identificatori. Esempi: PROFIsafe, Safety over EtherCAT (FSoE), CIP Safety, CANopen Safety, ASIsafe, IO-Link Safety.",
+    "Le funzioni sono certificate fino a SIL 3 (IEC 61508) e PL e (ISO 13849); la sicurezza dipende dal dispositivo e dall'intera catena, non solo dal bus."
+   ]
+  },
+  {
+   "id": "security",
+   "title": "Sicurezza informatica (cybersecurity)",
+   "b": [
+    "Collegare le macchine a una rete le espone ad attacchi come per un computer. I protocolli vecchi (Modbus, S7 classico, PROFIBUS) non hanno password né cifratura.",
+    "Si proteggono separando la rete di fabbrica da quella degli uffici, usando firewall e, dove possibile, protocolli sicuri come OPC UA o MQTT con TLS."
+   ],
+   "p": [
+    "Strategia a più livelli (defense in depth, IEC 62443): segmentazione in zone e conduit, firewall e DMZ, gestione degli accessi, patching e monitoraggio.",
+    "Meccanismi nativi: OPC UA (certificati, firma/cifratura), MQTT con TLS e autenticazione al broker, ADS Secure, CIP Security (TLS/DTLS), S7CommPlus, BACnet/SC, Modbus/TCP Security (TLS). Fieldbus seriali richiedono protezione fisica e di accesso."
+   ]
+  }
+ ]
+}

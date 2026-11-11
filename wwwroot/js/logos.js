@@ -10,6 +10,11 @@ const G = {
   enip: '<circle cx="11" cy="24" r="5"/><circle cx="37" cy="24" r="5"/><path d="M17 24H31M27 20L31 24L27 28"/>',
   modbus: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 19H40M8 29H40M19 8V40M29 8V40"/>',
   canopen: '<path d="M6 18H42M6 30H42M14 18V30M24 18V30M34 18V30"/><circle cx="6" cy="24" r="2.5" fill="#fff"/><circle cx="42" cy="24" r="2.5" fill="#fff"/>',
+  modbusrtu: '<path d="M6 24H42M12 24V14H20V24M28 24V34H36V24"/>',
+  asi: '<path d="M6 24H42"/><circle cx="14" cy="24" r="4" fill="#fff"/><circle cx="24" cy="24" r="4" fill="#fff"/><circle cx="34" cy="24" r="4" fill="#fff"/>',
+  bacnet: '<rect x="12" y="10" width="24" height="30"/><path d="M18 18H20M24 18H26M30 18H32M18 26H20M24 26H26M30 26H32M21 40V33H27V40"/>',
+  knx: '<path d="M8 24L24 10L40 24M13 22V38H35V22M21 38V29H27V38"/>',
+  hart: '<path d="M6 30H14C18 14 22 14 24 24C26 34 30 34 34 18H42"/>',
   iolink: '<circle cx="10" cy="24" r="6"/><path d="M16 24H30"/><rect x="30" y="16" width="12" height="16" rx="2"/>'
 };
 

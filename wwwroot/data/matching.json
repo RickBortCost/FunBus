@@ -243,6 +243,62 @@
      "EtherType 0x88A4 e Working Counter"
     ]
    ]
+  },
+  {
+   "id": "m_b5",
+   "level": "beginner",
+   "title": "Edifici e strumenti",
+   "hint": "Collega bus per edifici e strumenti alla loro descrizione.",
+   "pairs": [
+    [
+     "KNX",
+     "Bus a gruppi per luci e tapparelle"
+    ],
+    [
+     "BACnet",
+     "Standard di supervisione per impianti e HVAC"
+    ],
+    [
+     "HART",
+     "Dialogo digitale sopra il 4–20 mA"
+    ],
+    [
+     "AS-Interface",
+     "Cavo giallo con alimentazione e dati"
+    ],
+    [
+     "Modbus RTU",
+     "Registri su cavo RS-485"
+    ]
+   ]
+  },
+  {
+   "id": "m_p5",
+   "level": "professional",
+   "title": "Altri bus, dettagli tecnici",
+   "hint": "Associa il bus al dettaglio.",
+   "pairs": [
+    [
+     "BACnet/IP",
+     "UDP 47808 e Present_Value 85"
+    ],
+    [
+     "KNX",
+     "Group address e APCI 0x80"
+    ],
+    [
+     "AS-Interface",
+     "Master call 14 bit, risposta 7 bit"
+    ],
+    [
+     "HART",
+     "FSK 1200 bit/s, STX 0x02"
+    ],
+    [
+     "Modbus RTU",
+     "CRC-16 e silenzio di 3,5 caratteri"
+    ]
+   ]
   }
  ]
 }

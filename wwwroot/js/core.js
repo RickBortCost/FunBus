@@ -4,7 +4,7 @@ export const S = { level: 'beginner', levelChosen: false, theme: null, progress:
 export const defProgress = () => ({
   xp: 0, xpPro: 0, badges: {},
   stats: { quizDone: 0, bestStreak: 0, quizBest: {}, matchPerfect: 0 },
-  matchDone: {}, scenariosSolved: [], visited: [], animated: []
+  matchDone: {}, scenariosSolved: [], visited: [], animated: [], wrong: []
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');
@@ -33,7 +33,7 @@ export function svgEl(tag, attrs) {
 export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export async function loadData(onStep = () => {}) {
-  const names = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game'];
+  const names = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode'];
   const res = await Promise.all(names.map(n => fetch(`data/${n}.json`, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(n); return r.json(); }).then(j => { onStep(n); return j; })));
   names.forEach((n, i) => (S.data[n] = res[i]));
 }

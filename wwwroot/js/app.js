@@ -2,6 +2,7 @@ import { S, h, loadData, loadState, save } from './core.js';
 import * as pages from './pages.js';
 import { compare } from './compare.js';
 import * as games from './games.js';
+import * as extra from './extra.js';
 
 const app = document.getElementById('app');
 let cleanups = [];
@@ -20,11 +21,16 @@ function render(scroll = false) {
     if (root === 'home') pages.home(app, ctx);
     else if (root === 'protocolli') (sub ? pages.protocol : pages.protocols)(app, ctx);
     else if (root === 'confronto') compare(app, ctx);
-    else if (root === 'test') (({ quiz: games.quiz, match: games.match, scenari: games.scenari })[sub] || games.hub)(app, ctx);
+    else if (root === 'test') (({ quiz: games.quiz, match: games.match, scenari: games.scenari, frame: games.frame, ripasso: (ap, cx) => games.quiz(ap, cx, true) })[sub] || games.hub)(app, ctx);
     else if (root === 'profilo') games.profilo(app, ctx);
+    else if (root === 'glossario') extra.glossario(app, ctx);
+    else if (root === 'approfondimenti') extra.approfondimenti(app, ctx);
+    else if (root === 'strumenti') extra.strumenti(app, ctx);
+    else if (root === 'certificato') extra.certificato(app, ctx);
     else pages.home(app, ctx);
   } catch (e) { app.append(h('pre', {}, 'Errore: ' + e.message)); console.error(e); }
-  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.r === root));
+  document.querySelectorAll('#nav a').forEach(a => { const on = a.dataset.r === root; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  app.focus({ preventScroll: true });
   document.getElementById('lvB').classList.toggle('on', S.level === 'beginner');
   document.getElementById('lvP').classList.toggle('on', S.level === 'professional');
   if (scroll) window.scrollTo(0, 0);
@@ -48,7 +54,7 @@ async function init() {
   await loadState();
   splash(15, 'Caricamento contenuti');
   let done = 0;
-  try { await loadData(n => { done++; splash(15 + Math.round((done / 6) * 70), `Contenuti: ${n}`); }); }
+  try { await loadData(n => { done++; splash(15 + Math.round((done / 9) * 70), `Contenuti: ${n}`); }); }
   catch (e) { document.getElementById('splash').classList.add('hide'); app.textContent = 'Impossibile caricare i contenuti JSON: ' + e.message; return; }
   splash(90, 'Preparazione interfaccia');
   applyTheme();

@@ -2,7 +2,7 @@ import { S, h, T, isPro } from './core.js';
 import { logo } from './logos.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
-const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto' };
+const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
 const RT = { hard: 'hard real-time', det: 'deterministico', soft: 'soft real-time', none: 'non real-time' };
 const MODEL = { 'master-slave': 'master/slave', 'client-server': 'client/server', 'pub-sub': 'pub/sub o producer/consumer' };
 const TOPO = { line: 'linea', star: 'stella', ring: 'anello', tree: 'albero', bus: 'bus' };

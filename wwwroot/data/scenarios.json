@@ -28,7 +28,10 @@
   "plcRockwell": "integrazione nativa con PLC Rockwell/Logix",
   "sensorParam": "sensori semplici punto-punto con parametrizzazione remota",
   "mobile": "robustezza per macchine mobili e ambienti gravosi",
-  "simpleOpen": "semplicità di implementazione e specifica aperta"
+  "simpleOpen": "semplicità di implementazione e specifica aperta",
+  "building": "automazione di edifici (luci, clima, accessi)",
+  "analog420": "riuso di anelli analogici 4–20 mA esistenti",
+  "powerOnBus": "alimentazione e dati sullo stesso cavo"
  },
  "matrix": {
   "profinet": {
@@ -64,11 +67,13 @@
     "safety": "yes",
     "redundancy": "partial",
     "siemensIO": "yes",
-    "simpleOpen": "partial"
+    "simpleOpen": "partial",
+    "powerOnBus": "partial"
    },
    "notes": {
     "motion": "DP-V2 isocrono / PROFIdrive, ma con cicli dell'ordine dei ms.",
-    "redundancy": "Ridondanza di master/fibra specifica del costruttore."
+    "redundancy": "Ridondanza di master/fibra specifica del costruttore.",
+    "powerOnBus": "Solo PROFIBUS PA (31,25 kbit/s) alimenta gli strumenti dal bus."
    }
   },
   "s7": {
@@ -263,6 +268,94 @@
    },
    "notes": {
     "safety": "IO-Link Safety è un'estensione con dispositivi dedicati."
+   }
+  },
+  "modbusrtu": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Dipende da baud rate e numero di slave: tipicamente 10–1000 ms.",
+   "rt": "none",
+   "rtNote": "Il protocollo non garantisce tempi.",
+   "maxNodes": 247,
+   "nodesNote": "247 indirizzi; 32 carichi per segmento RS-485 senza ripetitori.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "simpleOpen": "yes"
+   },
+   "notes": {}
+  },
+  "asi": {
+   "cycleMinUs": 5000,
+   "cycleNote": "≈ 5 ms con 31 slave (v2.0), ≈ 10 ms con 62 slave A/B.",
+   "rt": "det",
+   "rtNote": "Ciclo fisso dipendente solo dal numero di slave.",
+   "maxNodes": 62,
+   "nodesNote": "31 slave (v2.0) o 62 slave A/B (v2.1 e successive).",
+   "caps": {
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "sensorParam": "partial",
+    "powerOnBus": "yes"
+   },
+   "notes": {
+    "safety": "ASIsafe sullo stesso cavo.",
+    "sensorParam": "Slave molto semplici (4 bit); i profili più recenti aggiungono parametri."
+   }
+  },
+  "bacnet": {
+   "cycleMinUs": 100000,
+   "cycleNote": "Event-driven; secondi o frazioni di secondo.",
+   "rt": "none",
+   "rtNote": "UDP/IP, non deterministico.",
+   "maxNodes": 1000,
+   "nodesNote": "Dipende dall'installazione (device instance e BBMD).",
+   "caps": {
+    "vendorNeutral": "yes",
+    "notify": "yes",
+    "security": "partial",
+    "itint": "partial",
+    "building": "yes",
+    "pubsub": "partial",
+    "simpleOpen": "partial"
+   },
+   "notes": {
+    "security": "BACnet/SC (TLS) disponibile nelle versioni recenti.",
+    "itint": "Modello a oggetti standard ma limitato all'edificio.",
+    "pubsub": "Sottoscrizioni COV, non un broker."
+   }
+  },
+  "knx": {
+   "cycleMinUs": 100000,
+   "cycleNote": "Un telegramma dura ≈ 25–30 ms a 9600 bit/s; traffico a eventi.",
+   "rt": "none",
+   "rtNote": "CSMA/CA con priorità, nessuna garanzia.",
+   "maxNodes": 256,
+   "nodesNote": "64 dispositivi per segmento, 256 per linea con ripetitori; la rete cresce con aree e linee.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "notify": "yes",
+    "pubsub": "partial",
+    "building": "yes",
+    "powerOnBus": "yes"
+   },
+   "notes": {
+    "pubsub": "Group address: i dispositivi iscritti reagiscono al telegramma."
+   }
+  },
+  "hart": {
+   "cycleMinUs": 500000,
+   "cycleNote": "≈ 2–3 transazioni al secondo.",
+   "rt": "none",
+   "rtNote": "Lento, non pensato per il tempo reale.",
+   "maxNodes": 15,
+   "nodesNote": "Fino a 63 in multidrop nelle revisioni recenti; 15 nelle precedenti.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "analog420": "yes",
+    "powerOnBus": "yes",
+    "sensorParam": "partial"
+   },
+   "notes": {
+    "sensorParam": "Parametrizzazione e diagnostica di strumenti di campo, non sensori on/off."
    }
   }
  },
@@ -468,6 +561,57 @@
     "caps": [
      "sensorParam",
      "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sb8",
+   "level": "beginner",
+   "title": "Edificio intelligente",
+   "text": "Un edificio ha luci, tapparelle e clima di marche diverse. Vuoi controllarli con uno standard aperto pensato per gli edifici.",
+   "req": {
+    "caps": [
+     "building",
+     "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sb9",
+   "level": "beginner",
+   "title": "Strumenti 4–20 mA esistenti",
+   "text": "In un impianto ci sono già trasmettitori con cavo 4–20 mA. Vuoi leggere anche diagnostica e parametri senza cambiare i cavi.",
+   "req": {
+    "caps": [
+     "analog420"
+    ]
+   }
+  },
+  {
+   "id": "sp9",
+   "level": "professional",
+   "title": "Un cavo per tutto",
+   "text": "30 sensori e attuatori on/off su un solo cavo che porta anche l'alimentazione, ciclo 5 ms.",
+   "req": {
+    "maxCycleUs": 5000,
+    "rtMin": "det",
+    "nodes": 30,
+    "caps": [
+     "powerOnBus"
+    ]
+   }
+  },
+  {
+   "id": "sp10",
+   "level": "professional",
+   "title": "BMS multi-produttore",
+   "text": "Edificio con 3 produttori di impianti, integrazione con un sistema di supervisione su IP e modello dati standard degli oggetti.",
+   "req": {
+    "maxCycleUs": 1000000,
+    "caps": [
+     "building",
+     "vendorNeutral",
+     "itint"
     ]
    }
   }
