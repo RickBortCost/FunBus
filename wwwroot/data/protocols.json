@@ -396,7 +396,7 @@
    "comm": {
     "mode": "polling",
     "b": "Il client chiede e il PLC risponde; nessun avviso spontaneo.",
-    "p": "Read Var/Write Var su richiesta; nessuna notifica on-change del client (solo polling)."
+    "p": "Read Var/Write Var su richiesta; nessuna notifica on-change del client (solo polling). Su TCP/IP il polling non è deterministico."
    },
    "osi": {
     "own": [
@@ -1154,7 +1154,7 @@
    "comm": {
     "mode": "polling",
     "b": "Il client chiede, il dispositivo risponde.",
-    "p": "Solo polling client→server; nessuna notifica."
+    "p": "Solo polling client→server; nessuna notifica. Su TCP i tempi non sono garantiti."
    },
    "osi": {
     "own": [
@@ -2182,8 +2182,8 @@
  "commText": {
   "polling": {
    "title": "A polling (ciclico): qualcuno chiede",
-   "b": "Come chiedere «ci sono novità?» a intervalli regolari. I tempi sono prevedibili, ma si chiede anche quando non cambia nulla.",
-   "p": "Il richiedente interroga a cadenza fissa: carico costante N/ciclo, latenza massima ≈ un ciclo + elaborazione, comportamento deterministico e calcolabile. Spreca banda se i dati cambiano di rado."
+   "b": "Come chiedere «ci sono novità?» a intervalli regolari. Si chiede anche quando non cambia nulla; i tempi sono prevedibili solo se la rete li garantisce.",
+   "p": "Il richiedente interroga a cadenza fissa: carico costante N/ciclo, latenza massima ≈ un ciclo + elaborazione. È deterministico solo se anche il mezzo lo è (bus seriali, EtherCAT, ciclo calcolabile); su TCP/IP no. Spreca banda se i dati cambiano di rado."
   },
   "notify": {
    "title": "A notifica (non sollecitati)",
@@ -2197,7 +2197,7 @@
   }
  },
  "commIntro": {
-  "b": "Un dato può raggiungere chi lo vuole in due modi: qualcuno lo chiede (polling) oppure arriva da solo quando cambia (notifica). La differenza è il compromesso tra determinismo (tempi certi) e performance (meno traffico, reazione immediata).",
-  "p": "Polling = determinismo e carico costante, con latenza fino a un ciclo e banda sprecata se i dati non cambiano. Notifica = efficienza e latenza minima, con carico variabile e burst che rompono il determinismo. I protocolli ibridi lasciano scegliere per variabile: ciclico per ciò che richiede tempi certi, on-change per il resto."
+  "b": "Un dato può raggiungere chi lo vuole in due modi: qualcuno lo chiede (polling) oppure arriva da solo quando cambia (notifica). Il polling dà tempi prevedibili solo se anche la rete li garantisce; la notifica risparmia traffico, ma il carico dipende dagli eventi.",
+  "p": "Il polling non è deterministico di per sé: lo diventa solo se il ciclo è limitato dal mezzo e dal protocollo (PROFIBUS, AS-i, IO-Link, EtherCAT: ciclo calcolabile). Su TCP/IP (Modbus TCP, S7) il polling non è deterministico: ritrasmissioni e carico variano i tempi. La notifica on-change ha carico proporzionale agli eventi e, con burst, latenza non limitata."
  }
 }
