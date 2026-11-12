@@ -27,7 +27,18 @@ for (const [id, a] of Object.entries(A)) {
     for (const x of [s.from, ...(Array.isArray(s.to) ? s.to : [s.to]), ...(s.path || [])].filter(Boolean)) if (!n.includes(x)) err.push(`${id} passo ${i}: nodo ${x}`);
     if (s.frame && !a.frames?.[s.frame]) err.push(`${id} passo ${i}: frame ${s.frame} inesistente`);
     if (!s.note?.b || !s.note?.p) err.push(`${id} passo ${i}: nota b/p mancante`);
+    if (!['cyc', 'acy', 'alm', 'tok', 'err'].includes(s.kind)) err.push(`${id} passo ${i}: tipo di pacchetto (kind) mancante o non valido`);
+    if (s.us != null && !(s.us > 0)) err.push(`${id} passo ${i}: tempo "us" non valido`);
   });
+  if (a.cycleUs != null && !(a.cycleUs > 0)) err.push(`${id}: cycleUs non valido`);
+  if (a.timeNote && !EN.strings[a.timeNote]) err.push(`${id}: timeNote senza traduzione EN`);
+  const f = a.faults || {};
+  if (!f.cable?.link || !a.links.some(([x, y]) => (x === f.cable.link[0] && y === f.cable.link[1]) || (y === f.cable.link[0] && x === f.cable.link[1]))) err.push(`${id}: guasto cavo senza link valido`);
+  if (!n.includes(f.node?.id)) err.push(`${id}: guasto nodo senza id valido`);
+  for (const k of ['cable', 'node', 'crc']) for (const lv of ['b', 'p']) {
+    if (!f[k]?.[lv]) err.push(`${id}: spiegazione guasto ${k}/${lv} mancante`);
+    else if (!EN.strings[f[k][lv]]) err.push(`${id}: guasto ${k}/${lv} senza traduzione EN`);
+  }
 }
 const qids = new Set();
 for (const q of Q.questions) {
@@ -55,6 +66,12 @@ for (const [name, t] of [['chiaro', light], ['scuro', dark]]) {
     const r = ratio(t[fg], t[bg]);
     if (r < 4.5) err.push(`contrasto tema ${name}: ${fg} su ${bg} = ${r.toFixed(2)}`);
   }
+  // Elementi grafici (WCAG 1.4.11, 3:1): colori dei tipi di pacchetto sugli sfondi delle animazioni
+  for (const k of ['k-cyc', 'k-acy', 'k-alm', 'k-tok', 'k-err']) for (const bg of ['surface', 'surface2']) {
+    const r = ratio(t[k], t[bg]);
+    if (r < 3) err.push(`contrasto grafico tema ${name}: ${k} su ${bg} = ${r.toFixed(2)}`);
+  }
+  for (const k of ['k-cyc', 'k-acy', 'k-alm', 'k-tok', 'k-err']) { const r = ratio(t['k-t'], t[k]); if (r < 3) err.push(`contrasto grafico tema ${name}: k-t su ${k} = ${r.toFixed(2)}`); }
 }
 if (err.length) { console.error('ERRORI:\n- ' + err.join('\n- ')); process.exit(1); }
 console.log(`OK: ${P.protocols.length} protocolli, ${Q.questions.length} domande, ${SC.scenarios.length} scenari`);

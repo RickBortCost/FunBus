@@ -2,7 +2,7 @@
 // applicato ai dati caricati (traduzione ricorsiva) e, per l'interfaccia, ai nodi di testo del DOM.
 import { S } from './core.js';
 
-const SKIP = new Set(['id', 'color', 'from', 'to', 'path', 'frame', 'loopFrom', 'x', 'y', 'a', 'level', 'attrs', 'req', 'mode', 'caps', 'hex', 'cycleMinUs', 'maxNodes', 'links', 'own', 'via']);
+const SKIP = new Set(['id', 'kind', 'us', 'cycleUs', 'link', 'color', 'from', 'to', 'path', 'frame', 'loopFrom', 'x', 'y', 'a', 'level', 'attrs', 'req', 'mode', 'caps', 'hex', 'cycleMinUs', 'maxNodes', 'links', 'own', 'via']);
 let dict = null, patterns = [], observer = null;
 
 export async function loadDict() {
