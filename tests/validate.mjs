@@ -9,6 +9,7 @@ if (new Set(ids).size !== ids.length) err.push('id protocollo duplicati');
 for (const p of P.protocols) {
   for (const f of P.fields) if (!p.card[f.key]) err.push(`${p.id}: campo ${f.key} mancante`);
   for (const k of ['story', 'example', 'tagline']) if (!p[k]?.b || !p[k]?.p) err.push(`${p.id}: ${k} b/p mancante`);
+  if (!p.osi?.own?.length || [...p.osi.own, ...p.osi.via].some(n => n < 1 || n > 7)) err.push(`${p.id}: livelli OSI mancanti o non validi`);
   if (!A[p.id]) err.push(`${p.id}: animazione mancante`);
   if (!SC.matrix[p.id]) err.push(`${p.id}: matrice scenari mancante`);
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);

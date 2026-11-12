@@ -1,6 +1,7 @@
 import { S, h, T, isPro, mark, protoById, save } from './core.js';
 import { createSim } from './sim.js';
 import { logo } from './logos.js';
+import { pyramid, pyramidLegend } from './osi.js';
 
 const FIELDS = () => S.data.protocols.fields;
 
@@ -77,6 +78,7 @@ function card(p) {
       h('div', { class: 'note analogy' }, h('strong', {}, 'Esempio pratico: '), T(p.example))),
     !isPro() && p.analogy ? h('div', { class: 'note analogy' }, h('strong', {}, 'Analogia: '), p.analogy) : null,
     h('div', { class: 'card', style: 'margin-top:1rem' }, h('dl', { class: 'spec' }, FIELDS().flatMap(f => [h('dt', {}, f.label), h('dd', {}, T(p.card[f.key]))]))),
+    h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Piramide dei livelli OSI'), pyramid(p, { width: 300 }), pyramidLegend(p)),
     h('div', { class: 'two', style: 'margin-top:1rem' }, list('Vantaggi', p.pros), list('Limiti', p.cons)),
     h('div', { style: 'margin-top:1rem' }, list('Casi d\'uso tipici', p.usecases)),
     isPro() ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Dati tecnici'), h('dl', { class: 'spec' }, p.tech.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]))) : null,
