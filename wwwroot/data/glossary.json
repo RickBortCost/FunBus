@@ -139,6 +139,26 @@
    "t": "Gateway",
    "b": "Il traduttore tra due protocolli.",
    "p": "Collega reti diverse (es. Modbus TCP↔RTU, IO-Link master↔PROFINET, AS-i↔PROFIBUS)."
+  },
+  {
+   "t": "Polling",
+   "b": "Chiedere i dati a intervalli regolari.",
+   "p": "Interrogazione periodica del richiedente: carico costante e latenza limitata dal ciclo, deterministico."
+  },
+  {
+   "t": "Notifica / non sollecitato",
+   "b": "Il dato arriva da solo quando cambia.",
+   "p": "Push su evento (on-change, COV, subscription, pub/sub): efficiente ma con carico e latenza variabili."
+  },
+  {
+   "t": "Produced / Consumed tag",
+   "b": "Variabile 'pubblicata' da un PLC Rockwell e ricevuta da altri.",
+   "p": "Connessione CIP producer/consumer con RPI (multicast o unicast) tra controllori Logix."
+  },
+  {
+   "t": "CIP",
+   "b": "Il linguaggio a oggetti comune di EtherNet/IP, DeviceNet e ControlNet.",
+   "p": "Common Industrial Protocol (ODVA): oggetti, servizi e percorsi indipendenti dal trasporto."
   }
  ]
 }

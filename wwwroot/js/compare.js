@@ -2,7 +2,7 @@ import { S, h, T, isPro } from './core.js';
 import { logo } from './logos.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
-const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
+const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', cip: 'L5–L7 su TCP/UDP/IP', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
 const RT = { hard: 'hard real-time', det: 'deterministico', soft: 'soft real-time', none: 'non real-time' };
 const MODEL = { 'master-slave': 'master/slave', 'client-server': 'client/server', 'pub-sub': 'pub/sub o producer/consumer' };
 const TOPO = { line: 'linea', star: 'stella', ring: 'anello', tree: 'albero', bus: 'bus' };
@@ -14,6 +14,7 @@ const ROWS = [
   { label: 'Mezzo fisico', get: p => T(p.card.medium), cat: p => p.attrs.ethernet, lv: 'bp', hl: 'bp' },
   { label: 'Velocità', get: p => p.card.speed, lv: 'p' },
   { label: 'Topologia', get: p => T(p.card.topology), cat: p => p.attrs.topo.join(), lv: 'bp', hl: 'bp' },
+  { label: 'Scambio dati', get: p => T({ b: p.comm.b, p: p.comm.p }), cat: p => p.comm.mode, lv: 'bp', hl: 'bp', pre: p => ({ polling: '🔄 Polling', notify: '🔔 Notifica', both: '⚖ Entrambi' }[p.comm.mode]) },
   { label: 'Modello', get: p => T(p.card.model), cat: p => p.attrs.model.join(), lv: 'bp', hl: 'bp' },
   { label: 'Determinismo', get: p => T(p.card.determinism), cat: p => p.attrs.rt, lv: 'bp', hl: 'bp' },
   { label: 'Tempi di ciclo', get: p => T(p.card.cycle), cat: p => p.attrs.rt, lv: 'bp', hl: 'p' },
@@ -29,6 +30,7 @@ const FILTERS = () => [
   { id: 'eth', label: 'Mezzo', opts: [['yes', 'Ethernet/IP'], ['no', 'Seriale']], test: (p, v) => p.attrs.ethernet === (v === 'yes') },
   { id: 'rt', label: 'Real-time', opts: Object.entries(RT), test: (p, v) => p.attrs.rt === v },
   { id: 'topo', label: 'Topologia', opts: Object.entries(TOPO), test: (p, v) => p.attrs.topo.includes(v) },
+  { id: 'comm', label: 'Scambio dati', opts: [['polling', 'polling'], ['notify', 'notifica'], ['both', 'entrambi']], test: (p, v) => p.comm.mode === v },
   { id: 'model', label: 'Modello', opts: Object.entries(MODEL), test: (p, v) => p.attrs.model.includes(v) }
 ];
 
@@ -52,9 +54,9 @@ export function compare(app) {
       h('div', {}, logo(p, 28)), h('label', {}, h('input', { type: 'checkbox', checked: sel.has(p.id), onchange: e => { e.target.checked ? sel.add(p.id) : sel.delete(p.id); render(); } }), ' ', h('a', { href: `#/protocolli/${p.id}` }, p.name))))));
     const tbody = h('tbody', {}, rows.map(r => {
       const diff = r.cat && r.hl?.includes(lv) && ps.length > 1 && new Set(ps.map(p => String(r.cat(p)))).size > 1;
-      return h('tr', { class: diff ? 'diff' : '' }, h('td', {}, r.label), ps.map(p => h('td', {}, r.get(p))));
+      return h('tr', { class: diff ? 'diff' : '' }, h('td', {}, r.label), ps.map(p => h('td', {}, r.pre ? h('strong', {}, r.pre(p) + ' — ') : null, r.get(p))));
     }));
-    out.replaceChildren(h('div', { class: 'tablewrap' }, h('table', { class: 'cmp' }, thead, tbody)),
+    out.replaceChildren(h('div', { class: 'tablewrap' }, h('table', { class: 'cmp', style: `--n:${ps.length}` }, thead, tbody)),
       h('p', { class: 'muted' }, isPro() ? 'Righe in giallo: differenze rilevanti per il livello Professional (stack, mezzo, topologia, modello, determinismo e ciclo).' : 'Righe in giallo: differenze rilevanti per il livello Beginner (famiglia, mezzo, topologia, modello, determinismo).'));
   };
   app.append(h('h1', {}, 'Confronto'), h('p', {}, 'Filtra i protocolli, spunta quelli da confrontare (almeno 2) e usa "Affianca selezionati".'), bar, out);

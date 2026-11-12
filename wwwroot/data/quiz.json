@@ -797,6 +797,90 @@
    ],
    "a": 0,
    "e": "CRC-16 (0xA001) trasmesso low byte first."
+  },
+  {
+   "id": "b25",
+   "level": "beginner",
+   "d": 2,
+   "q": "Cosa significa 'polling'?",
+   "o": [
+    "Qualcuno chiede i dati a intervalli regolari",
+    "I dati arrivano da soli solo quando cambiano",
+    "I dati sono cifrati",
+    "I dati passano dal cloud"
+   ],
+   "a": 0,
+   "e": "Polling = interrogazione periodica; la notifica invece è non sollecitata."
+  },
+  {
+   "id": "b26",
+   "level": "beginner",
+   "d": 2,
+   "q": "Quale vantaggio ha la notifica rispetto al polling?",
+   "o": [
+    "Meno traffico quando i dati cambiano poco",
+    "Tempi sempre garantiti",
+    "Nessuna rete necessaria",
+    "È sempre più sicura"
+   ],
+   "a": 0,
+   "e": "Si invia solo quando serve, ma i tempi non sono garantiti."
+  },
+  {
+   "id": "b27",
+   "level": "beginner",
+   "d": 2,
+   "q": "In un sistema Rockwell, cosa sono i 'produced tag'?",
+   "o": [
+    "Variabili che un PLC pubblica e altri PLC ricevono",
+    "Errori di rete",
+    "Password",
+    "Tag RFID"
+   ],
+   "a": 0,
+   "e": "Produced/consumed tag: scambio di variabili tra controllori con CIP."
+  },
+  {
+   "id": "p34",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale servizio CIP legge un tag Logix per nome?",
+   "o": [
+    "0x4C Read Tag",
+    "0x0E Get_Attribute_Single",
+    "0x54 Forward_Open",
+    "0x4D Write Tag"
+   ],
+   "a": 0,
+   "e": "0x4C Read Tag e 0x4D Write Tag con percorso simbolico (0x91). Forward_Open è 0x54."
+  },
+  {
+   "id": "p35",
+   "level": "professional",
+   "d": 3,
+   "q": "Perché la notifica on-change riduce il determinismo?",
+   "o": [
+    "Il carico dipende dagli eventi e può avere burst",
+    "Usa meno banda",
+    "Usa TCP",
+    "È sempre cifrata"
+   ],
+   "a": 0,
+   "e": "Se molte variabili cambiano insieme, code e latenza diventano variabili."
+  },
+  {
+   "id": "p36",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale parametro regola la cadenza di un produced tag?",
+   "o": [
+    "RPI",
+    "TTL",
+    "TSAP",
+    "MTU"
+   ],
+   "a": 0,
+   "e": "Requested Packet Interval della connessione CIP."
   }
  ]
 }

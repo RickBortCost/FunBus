@@ -143,6 +143,11 @@
    "example": {
     "b": "Esempio: una linea di assemblaggio auto con un PLC Siemens, 80 moduli I/O in armadio e 12 azionamenti. Si collegano a stella e a linea con normali cavi Ethernet; la rete si configura in TIA Portal assegnando a ogni modulo un nome (es. 'ingresso-nastro-1'). Se il cavo si rompe, un anello MRP fa ripartire la comunicazione in pochi centinaia di millisecondi.",
     "p": "Esempio: 12 azionamenti in IRT a 1 ms con topologia a linea. L'ingegnerizzazione definisce l'ordine dei nodi e la finestra IRT; sostituendo un device, il controller lo riconosce dal nome e dai vicini (LLDP) senza programmarlo di nuovo."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dispositivi inviano i dati da soli a ritmo fisso e avvisano con allarmi; si può anche chiedere un parametro.",
+    "p": "Ciclico provider→consumer autonomo (non sollecitato) + allarmi spontanei; record aciclici in lettura/scrittura su richiesta."
    }
   },
   {
@@ -253,6 +258,11 @@
    "example": {
     "b": "Esempio: in un vecchio impianto di imballaggio con 30 moduli I/O lungo 200 m, il cavo viola di PROFIBUS è già posato. Se si sostituisce il PLC, spesso conviene tenere il bus: costa meno di ricablare. Attenzione: serve la terminazione ai due estremi, altrimenti compaiono errori casuali.",
     "p": "Esempio: 12 Mbit/s con 10 slave da 4 byte di I/O: il ciclo è dell'ordine di 1–2 ms. A 500 kbit/s con 30 slave sale a oltre 10 ms; per questo, con molti slave, si abbassa la velocità solo se la lunghezza lo impone (≈ 400 m a 500 kbit/s)."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga ogni slave a turno.",
+    "p": "Polling ciclico master→slave (Data_Exchange) con ciclo calcolabile; DP-V1 aggiunge allarmi ma sempre dentro il ciclo."
    }
   },
   {
@@ -363,6 +373,11 @@
    "example": {
     "b": "Esempio: un PC in sala controllo legge ogni secondo il numero di pezzi prodotti da un DB di un S7-1500 e lo mostra su una dashboard. Per far funzionare l'accesso bisogna abilitare 'PUT/GET' nella CPU, il che riduce la protezione: va fatto solo in reti protette.",
     "p": "Esempio: lettura di DB1.DBD0 (REAL): item con area 0x84, DB=1, indirizzo in bit 0, lunghezza 4 B. Con PDU negoziata a 480 byte si possono leggere più item per richiesta, riducendo il numero di round-trip."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il client chiede e il PLC risponde; nessun avviso spontaneo.",
+    "p": "Read Var/Write Var su richiesta; nessuna notifica on-change del client (solo polling)."
    }
   },
   {
@@ -475,6 +490,11 @@
    "example": {
     "b": "Esempio: una macchina CNC con 8 assi, 2 mandrini e 200 I/O digitali. Un solo cavo a catena parte dal PC industriale e attraversa tutti i moduli; il ciclo è 250 µs. I moduli non hanno bisogno di switch: ogni modulo ha due porte e passa il frame al successivo.",
     "p": "Esempio: 3 slave da 8 byte: il frame resta al minimo Ethernet (64 byte) e occupa il mezzo circa 7 µs a 100 Mbit/s, più i ritardi dei nodi; per questo cicli da 50–100 µs sono realistici con un master ottimizzato."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master manda un 'treno' di dati a ogni ciclo e raccoglie le risposte.",
+    "p": "Ciclico guidato dal master (LRW su frame passante); eventi (EMCY, AL) via mailbox o interrupt, di fatto eccezioni."
    }
   },
   {
@@ -580,6 +600,11 @@
    "example": {
     "b": "Esempio: una dashboard su PC mostra lo stato di una pressa TwinCAT. Con le notifiche ADS la dashboard si aggiorna solo quando il valore cambia, riducendo il traffico di rete e il carico del PLC rispetto al polling continuo.",
     "p": "Esempio: Add Device Notification in modalità OnChange con MaxDelay 100 ms: se la variabile cambia dieci volte in 100 ms, il PLC invia un solo frame di notifica raggruppato, con tutti i campioni e i timestamp."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Può chiedere il valore oppure farsi avvisare quando cambia.",
+    "p": "Read/ReadWrite su richiesta oppure Add Device Notification (OnChange o Cyclic, MaxDelay) con push dal server."
    }
   },
   {
@@ -691,6 +716,11 @@
    "example": {
     "b": "Esempio: 200 sensori di umidità in una serra pubblicano su 'serra1/zona3/umidita'. Una dashboard si iscrive a 'serra1/#' per vedere tutto, mentre un allarme si iscrive solo a 'serra1/+/umidita'. Se un sensore si spegne di colpo, il broker pubblica il suo messaggio 'Last Will' e l'allarme scatta.",
     "p": "Esempio: un gateway con QoS 1 invia 'plant/line1/temp' ogni 5 s. Se la rete cade, il client mantiene la sessione e ritrasmette i messaggi non confermati; con QoS 0 quei messaggi andrebbero persi."
+   },
+   "comm": {
+    "mode": "notify",
+    "b": "Chi pubblica invia solo quando c'è una novità; gli iscritti la ricevono.",
+    "p": "Event-driven pub/sub tramite broker; retained message per lo stato iniziale; nessun polling (solo keep-alive)."
    }
   },
   {
@@ -802,6 +832,11 @@
    "example": {
     "b": "Esempio: una fabbrica ha macchine di tre marche. Il sistema MES si collega a tutte con un unico client OPC UA e naviga l'albero dei dati: Macchina > Stato > Contatore pezzi, senza conoscere i registri interni di ognuna.",
     "p": "Esempio: subscription con publishing interval 1000 ms e sampling interval 250 ms con deadband assoluto 0,1: il server campiona ogni 250 ms ma notifica solo i valori che cambiano oltre 0,1, riducendo il traffico."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Si può leggere a richiesta oppure iscriversi ai cambiamenti.",
+    "p": "Read/Browse su richiesta; Subscription con MonitoredItem (sampling e publishing interval, deadband); PubSub non sollecitato."
    }
   },
   {
@@ -912,6 +947,11 @@
    "example": {
     "b": "Esempio: in uno stabilimento con PLC Logix, 40 moduli I/O e un azionamento, lo scanner apre una connessione con ognuno specificando un RPI di 10 ms (e 2 ms per l'azionamento). Per anelli ridondanti si usa un anello DLR con switch compatibili.",
     "p": "Esempio: un adapter con RPI 5 ms e timeout multiplier ×4: se non arrivano frame per 20 ms la connessione cade e il PLC segnala la perdita del modulo; con un RPI più basso la rilevazione è più rapida ma il carico di rete cresce."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dati di I/O arrivano da soli a ritmo fisso; i messaggi speciali si chiedono a richiesta.",
+    "p": "Implicit: producer/consumer ciclico o COS non sollecitato (RPI); Explicit: request/response (Get_Attribute…)."
    }
   },
   {
@@ -1023,6 +1063,11 @@
    "example": {
     "b": "Esempio: un PC legge ogni secondo la potenza di un contatore di energia: 'dammi 2 registri a partire dal 3000'. I due registri formano un numero con la virgola, come spiegato nel manuale del contatore.",
     "p": "Esempio: lettura di 2 holding register dall'indirizzo 3000 (FC 0x03) da un analizzatore di rete: i due registri a 16 bit formano un float a 32 bit; l'ordine delle word (big/little endian) va verificato sul manuale, altrimenti il valore risulta sbagliato."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il client chiede, il dispositivo risponde.",
+    "p": "Solo polling client→server; nessuna notifica."
    }
   },
   {
@@ -1134,6 +1179,11 @@
    "example": {
     "b": "Esempio: su un escavatore, la pompa, il joystick e i sensori di posizione condividono un solo cavo a due fili. Il joystick manda i comandi con un messaggio prioritario e la pompa risponde con la pressione, anche in mezzo a polvere e vibrazioni.",
     "p": "Esempio: 20 nodi a 250 kbit/s con SYNC a 5 ms: un frame da 8 byte dura ≈ 0,5 ms, quindi nel ciclo entrano al massimo una decina di PDO; il carico del bus (≈ 50 %) va calcolato per garantire le latenze dei messaggi a priorità più bassa."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I nodi inviano da soli i dati quando cambiano o al segnale SYNC; i parametri si chiedono a richiesta.",
+    "p": "PDO a evento/SYNC/cicli (non sollecitati) + heartbeat; SDO su richiesta; si sceglie il tipo di trasmissione per PDO."
    }
   },
   {
@@ -1243,6 +1293,11 @@
    "example": {
     "b": "Esempio: una macchina ha 8 sensori di prossimità su un modulo IO-Link collegato in rete al PLC. Dal PLC cambi la distanza di intervento di un sensore e, se uno si guasta, il nuovo sensore riceve subito le stesse impostazioni.",
     "p": "Esempio: a COM2 (38,4 kbit/s) con 2 byte di process data in e out, il ciclo minimo è dell'ordine di 2–3 ms; i parametri ISDU (es. soglia di commutazione) viaggiano a richiesta, senza fermare lo scambio ciclico."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga il sensore a ciclo fisso.",
+    "p": "Ciclo del master per porta (M-sequence); gli eventi del device sono segnalati con un flag e letti dal master."
    }
   },
   {
@@ -1352,6 +1407,11 @@
    "example": {
     "b": "Esempio: un quadro con 12 contatori d'energia collegati con un cavo a due fili. Il PC li interroga uno per volta ogni minuto e salva i consumi.",
     "p": "Esempio: 12 slave, richiesta 8 byte + risposta 9 byte a 19,2 kbit/s: ≈ (8+9)×11/19200 ≈ 9,7 ms più il tempo di risposta di ogni slave: un giro completo supera i 150 ms."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga gli strumenti uno per uno.",
+    "p": "Polling master→slave su RS-485; nessun messaggio spontaneo dello slave."
    }
   },
   {
@@ -1463,6 +1523,11 @@
    "example": {
     "b": "Esempio: su un nastro trasportatore, 20 sensori di presenza e 10 elettrovalvole sono agganciati allo stesso cavo giallo: niente quadri intermedi né cablaggio punto-punto.",
     "p": "Esempio: 31 slave con ciclo di 5 ms: ogni master call dura ≈ 14 bit a 167 kbit/s ≈ 84 µs più pausa e risposta, quindi ≈ 150 µs per slave, circa 5 ms per l'intero giro."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga ogni slave a turno.",
+    "p": "Polling ciclico con master call a 14 bit; ciclo fisso (5 ms con 31 slave)."
    }
   },
   {
@@ -1574,6 +1639,11 @@
    "example": {
     "b": "Esempio: il sistema dell'edificio chiede a una centralina 'quanto vale la temperatura sala riunioni?' e si iscrive per essere avvisato se supera 26 °C.",
     "p": "Esempio: SubscribeCOV per AnalogInput 3 con COV increment 0,5 °C e lifetime 300 s: il dispositivo notifica solo variazioni significative e la sottoscrizione va rinnovata."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Si può leggere a richiesta oppure chiedere di essere avvisati se cambia.",
+    "p": "ReadProperty su richiesta o SubscribeCOV (notifiche on-change con incremento)."
    }
   },
   {
@@ -1683,6 +1753,11 @@
    "example": {
     "b": "Esempio: premi l'interruttore del corridoio: invia 'ON' al gruppo 1/1/1; le due lampade e il sensore di presenza iscritti a quel gruppo reagiscono insieme.",
     "p": "Esempio: GroupValue_Write ON (1 bit) su 1/1/1 da 1.1.5: l'attuatore 1.1.12 conferma con ACK L2; se serve, GroupValue_Read riceve una GroupValue_Response con lo stato."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dispositivi inviano da soli quando succede qualcosa; si può chiedere lo stato.",
+    "p": "Telegrammi event-driven a group address (non sollecitati) + GroupValue_Read/Response su richiesta."
    }
   },
   {
@@ -1792,6 +1867,128 @@
    "example": {
     "b": "Esempio: un trasmettitore di pressione in un impianto chimico: il PLC legge il 4–20 mA, mentre il tecnico da una cassetta di campo legge con HART la sua diagnostica.",
     "p": "Esempio: Command 3 (Read Dynamic Variables) restituisce corrente di loop e fino a 4 variabili (PV, SV, TV, QV) con le loro unità; il ciclo di una transazione dura ≈ 400–500 ms."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "L'host chiede i dati allo strumento.",
+    "p": "Master/slave: comandi periodici (es. Command 3); lo strumento non invia spontaneamente."
+   }
+  },
+  {
+   "id": "cip",
+   "name": "CIP / Logix (Rockwell)",
+   "color": "#c0392b",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "Il modello a oggetti CIP dei PLC Rockwell: tag leggibili a richiesta e variabili 'pubblicate' (produced/consumed) tra controllori.",
+    "p": "Common Industrial Protocol (ODVA) su EtherNet/IP: servizi espliciti (Read/Write Tag), I/O implicito e produced/consumed tag tra controllori Logix."
+   },
+   "analogy": "Come una bacheca: un PLC 'appende' una variabile (produced tag) e gli altri PLC iscritti la leggono a ogni aggiornamento; per le domande puntuali invece si chiede a voce (Read Tag).",
+   "card": {
+    "purpose": {
+     "b": "Far scambiare variabili tra PLC Rockwell e con HMI/SCADA, e collegare I/O e azionamenti.",
+     "p": "Accesso ai tag Logix per nome (servizi 0x4C/0x4D), connessioni I/O implicite e produced/consumed tag con RPI tra controllori; stesso modello CIP anche su DeviceNet, ControlNet e CompoNet."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra la rete EtherNet/IP.",
+     "p": "CIP è L5–L7 (oggetti, servizi, percorsi) trasportato da EtherNet/IP su TCP/UDP/IP (L3–L4); su ControlNet/DeviceNet con altri livelli 1–2."
+    },
+    "medium": {
+     "b": "Cavo Ethernet.",
+     "p": "Ethernet 100/1000 Mbit/s rame e fibra."
+    },
+    "speed": "100 Mbit/s tipico, 1 Gbit/s",
+    "topology": {
+     "b": "Stella, linea o anello.",
+     "p": "Stella con switch, linea con switch integrato, anello DLR; il multicast dei produced tag richiede IGMP snooping."
+    },
+    "model": {
+     "b": "Una variabile 'pubblicata' da un PLC è ricevuta da molti altri.",
+     "p": "Producer/consumer per produced/consumed tag (connessioni con RPI, multicast o unicast); client/server per Read/Write Tag e messaggi MSG."
+    },
+    "determinism": {
+     "b": "Buono ma non garantito come EtherCAT.",
+     "p": "Soft real-time: l'RPI fissa la cadenza di produzione, la puntualità dipende da rete e carico del controllore."
+    },
+    "cycle": {
+     "b": "Da pochi ms a decine di ms.",
+     "p": "RPI tipico 2–100 ms per produced/consumed tag; i messaggi espliciti (MSG, Read Tag) non hanno cadenza garantita."
+    }
+   },
+   "pros": [
+    "Variabili condivise tra PLC senza programmare lo scambio",
+    "Un solo modello CIP per I/O, motion, safety e dati",
+    "Accesso ai tag per nome (symbolic)",
+    "Multicast: un produttore, molti consumatori"
+   ],
+   "cons": [
+    "Dimensione dei tag prodotti e numero di connessioni limitati dal controllore",
+    "Multicast richiede switch configurati (IGMP snooping)",
+    "Non è un protocollo a notifica 'on-change' generico: dipende dall'RPI/COS",
+    "Prestazioni dipendono da modello e firmware del controllore"
+   ],
+   "usecases": [
+    "Scambio di stati tra PLC di linee diverse",
+    "HMI e SCADA che leggono i tag Logix",
+    "Impianti Rockwell con I/O, motion e safety su una rete unica"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ODVA CIP (Vol. 1) + EtherNet/IP adaptation (Vol. 2)"
+    ],
+    [
+     "Read Tag / Write Tag",
+     "Servizi 0x4C / 0x4D con percorso simbolico (segmento 0x91 + nome del tag)"
+    ],
+    [
+     "Tipi dati",
+     "BOOL 0xC1, SINT 0xC2, INT 0xC3, DINT 0xC4, REAL 0xCA"
+    ],
+    [
+     "Produced/consumed tag",
+     "Connessione CIP con RPI; produttore in multicast o unicast"
+    ],
+    [
+     "Porte",
+     "TCP 44818 (esplicito), UDP 2222 (implicito)"
+    ]
+   ],
+   "notes": [
+    "Dimensione massima dei produced tag, numero di consumatori e tempi dipendono dal modello (ControlLogix/CompactLogix) e dal firmware. Con 'variabili published' si intendono qui i produced tag."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "soft",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub",
+     "client-server"
+    ]
+   },
+   "story": {
+    "b": [
+     "In un sistema Rockwell, il PLC può 'pubblicare' una variabile: la marca come produced tag. Gli altri PLC la marcano come consumed e la ricevono da soli, a intervalli regolari, senza dover fare richieste.",
+     "Quando serve un dato una volta sola, invece, l'HMI chiede 'dammi il valore del tag Contatore_Pezzi' e il PLC risponde."
+    ],
+    "p": [
+     "Il produced tag è una connessione CIP unidirezionale: il produttore invia il blocco di tag a ogni RPI (in multicast se più consumatori); ogni consumatore stabilisce la propria connessione verso il produttore con Forward_Open. Se i dati non arrivano entro RPI × timeout multiplier, la connessione cade e il consumatore segnala il guasto.",
+     "L'accesso esplicito usa i servizi Read Tag (0x4C) e Write Tag (0x4D) con percorso simbolico: il client riceve tipo e valore e il PLC lo elabora quando può, senza garanzia di cadenza."
+    ]
+   },
+   "example": {
+    "b": "Esempio: il PLC della linea A pubblica 'Stato_Linea' (produced tag). I PLC delle linee B e C lo consumano e fermano le loro macchine se la linea A va in allarme.",
+    "p": "Esempio: produced tag da 100 byte con RPI 20 ms verso 3 consumatori in multicast: 5 kB/s sulla rete; con unicast sarebbero 3 connessioni separate e 15 kB/s. Read Tag dall'HMI avviene invece solo su richiesta."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Le variabili 'pubblicate' arrivano da sole a ogni aggiornamento; gli altri dati si chiedono a richiesta.",
+    "p": "Produced/consumed tag a RPI (non sollecitati) + Read/Write Tag e MSG su richiesta."
    }
   }
  ],
@@ -1807,5 +2004,26 @@
    "Esempio pratico: una macchina con 40 I/O e 6 azionamenti. Con PROFIBUS DP a 1,5 Mbit/s il ciclo si calcola sommando request, TSDR e response per ogni slave (qualche ms). Con EtherCAT lo stesso impianto sta in un solo frame e il ciclo scende a poche centinaia di µs; con MQTT/OPC UA invece non c'è ciclo garantito ma si guadagna integrazione IT.",
    "Il confronto utile non è 'quale è il migliore' ma 'quale requisito domina': tempo ciclo/sincronismo, cablaggio esistente, interoperabilità, sicurezza o collegamento al cloud."
   ]
+ },
+ "commText": {
+  "polling": {
+   "title": "A polling (ciclico): qualcuno chiede",
+   "b": "Come chiedere «ci sono novità?» a intervalli regolari. I tempi sono prevedibili, ma si chiede anche quando non cambia nulla.",
+   "p": "Il richiedente interroga a cadenza fissa: carico costante N/ciclo, latenza massima ≈ un ciclo + elaborazione, comportamento deterministico e calcolabile. Spreca banda se i dati cambiano di rado."
+  },
+  "notify": {
+   "title": "A notifica (non sollecitati)",
+   "b": "Come un campanello: il dato arriva da solo solo quando serve. Poco traffico e reazione immediata, ma i tempi non sono garantiti.",
+   "p": "Il produttore invia in base a eventi (on-change, pub/sub): carico proporzionale al tasso di eventi, latenza minima in condizioni normali, ma con burst (tutti cambiano insieme) il carico e le code sono imprevedibili: meno deterministico."
+  },
+  "both": {
+   "title": "Entrambi: si sceglie",
+   "b": "Questi protocolli possono fare le due cose: ciclico per avere tempi certi, notifica per risparmiare traffico e reagire subito.",
+   "p": "Qui la scelta del trasferimento decide il compromesso: ciclico (RPI, sampling interval, cicli PDO) → determinismo e carico costante; on-change/COV/subscription → performance ed efficienza di banda, con carico e latenza variabili. Spesso si combinano (ciclico di sicurezza + on-change per gli eventi)."
+  }
+ },
+ "commIntro": {
+  "b": "Un dato può raggiungere chi lo vuole in due modi: qualcuno lo chiede (polling) oppure arriva da solo quando cambia (notifica). La differenza è il compromesso tra determinismo (tempi certi) e performance (meno traffico, reazione immediata).",
+  "p": "Polling = determinismo e carico costante, con latenza fino a un ciclo e banda sprecata se i dati non cambiano. Notifica = efficienza e latenza minima, con carico variabile e burst che rompono il determinismo. I protocolli ibridi lasciano scegliere per variabile: ciclico per ciò che richiede tempi certi, on-change per il resto."
  }
 }

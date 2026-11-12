@@ -357,6 +357,29 @@
    "notes": {
     "sensorParam": "Parametrizzazione e diagnostica di strumenti di campo, non sensori on/off."
    }
+  },
+  "cip": {
+   "cycleMinUs": 1000,
+   "cycleNote": "RPI tipico 2–100 ms; dipende dal controllore.",
+   "rt": "soft",
+   "rtNote": "Soft real-time con RPI.",
+   "maxNodes": 256,
+   "nodesNote": "Stima: limiti di connessioni del controllore.",
+   "caps": {
+    "motion": "yes",
+    "pubsub": "yes",
+    "notify": "partial",
+    "security": "partial",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "yes",
+    "plcRockwell": "yes"
+   },
+   "notes": {
+    "notify": "Produced tag ciclici o COS, non un push on-change generico.",
+    "pubsub": "Produced/consumed tag in multicast.",
+    "redundancy": "DLR."
+   }
   }
  },
  "scenarios": [

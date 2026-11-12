@@ -3104,5 +3104,156 @@
     ]
    }
   }
+ },
+ "cip": {
+  "title": "CIP / Logix: produced/consumed tag e Read Tag",
+  "nodes": [
+   {
+    "id": "p",
+    "label": "PLC A (producer)",
+    "x": 90,
+    "y": 150
+   },
+   {
+    "id": "sw",
+    "label": "Switch",
+    "x": 360,
+    "y": 150
+   },
+   {
+    "id": "c",
+    "label": "PLC B (consumer)",
+    "x": 640,
+    "y": 60
+   },
+   {
+    "id": "h",
+    "label": "HMI",
+    "x": 640,
+    "y": 240
+   }
+  ],
+  "links": [
+   [
+    "p",
+    "sw"
+   ],
+   [
+    "sw",
+    "c"
+   ],
+   [
+    "sw",
+    "h"
+   ]
+  ],
+  "loopFrom": 1,
+  "steps": [
+   {
+    "from": "c",
+    "to": "p",
+    "label": "Forward_Open (consumer)",
+    "t": "setup",
+    "color": "#2980b9",
+    "note": {
+     "b": "Il PLC B dice al PLC A: «voglio ricevere la tua variabile ogni 20 ms».",
+     "p": "Il consumatore apre la connessione verso il produttore (Forward_Open con RPI, tag path e dimensione): da qui parte la produzione ciclica."
+    }
+   },
+   {
+    "from": "p",
+    "to": "c",
+    "label": "Produced tag (RPI)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "frame": "cip_tag",
+    "note": {
+     "b": "Il PLC A 'pubblica' la variabile e il PLC B la riceve da solo.",
+     "p": "Dati del produced tag in UDP 2222 (multicast o unicast) a ogni RPI, con Connection ID e sequence number. Non c'è richiesta per ogni dato."
+    }
+   },
+   {
+    "from": "h",
+    "to": "p",
+    "label": "Read Tag (0x4C)",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "L'HMI chiede una volta sola il valore di un tag.",
+     "p": "Servizio esplicito 0x4C con percorso simbolico verso il tag, via TCP 44818 (UCMM o connesso)."
+    }
+   },
+   {
+    "from": "p",
+    "to": "h",
+    "label": "Valore (DINT)",
+    "t": "ciclo",
+    "color": "#e67e22",
+    "note": {
+     "b": "Il PLC A risponde con il valore.",
+     "p": "Risposta con tipo (es. 0xC4 DINT) e valore, status 0 = successo."
+    }
+   },
+   {
+    "from": "p",
+    "to": "c",
+    "label": "Produced tag (RPI)",
+    "t": "ciclo",
+    "color": "#27ae60",
+    "note": {
+     "b": "Intanto la pubblicazione continua a ritmo fisso.",
+     "p": "Se il consumatore non riceve dati entro RPI × timeout multiplier, la connessione scade e il tag consumato va in fault."
+    }
+   }
+  ],
+  "frames": {
+   "cip_tag": {
+    "title": "Produced tag su UDP 2222 (CPF)",
+    "fields": [
+     {
+      "n": "Item count",
+      "s": "2 B",
+      "v": "2",
+      "d": "Numero di item del Common Packet Format."
+     },
+     {
+      "n": "Addr item",
+      "s": "2+2 B",
+      "v": "0x8002",
+      "d": "Sequenced Address Item."
+     },
+     {
+      "n": "Connection ID",
+      "s": "4 B",
+      "v": "da Forward_Open",
+      "d": "Identifica la connessione produttore→consumatori."
+     },
+     {
+      "n": "Sequence number",
+      "s": "4 B",
+      "v": "incrementale",
+      "d": "Numero di sequenza per scartare i duplicati."
+     },
+     {
+      "n": "Data item",
+      "s": "2+2 B",
+      "v": "0x00B1",
+      "d": "Connected Data Item con lunghezza."
+     },
+     {
+      "n": "CIP seq count",
+      "s": "2 B",
+      "v": "incrementale",
+      "d": "Sequence count del trasporto CIP classe 1."
+     },
+     {
+      "n": "Tag data",
+      "s": "n B",
+      "v": "valori",
+      "d": "Contenuto del produced tag (struttura o array)."
+     }
+    ]
+   }
+  }
  }
 }
