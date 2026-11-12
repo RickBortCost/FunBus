@@ -19,7 +19,8 @@ export function home(app, { rerender }) {
     h('h1', {}, 'FunBus'),
     h('p', {}, 'Impara i protocolli industriali con schede, animazioni, confronti e test a punti. Tutto è simulato, nessun hardware richiesto.'),
     ...box,
-    h('h2', {}, 'Protocolli'),
+    commSection(),
+    h('h2', {}, 'Tutti i protocolli'),
     protocolGrid(),
     h('div', { class: 'two' },
       h('a', { class: 'card', href: '#/confronto' }, h('h3', {}, '⚖ Confronto'), h('p', { class: 'muted' }, 'Tabella filtrabile e protocolli affiancati.')),
@@ -80,4 +81,20 @@ function card(p) {
     h('div', { style: 'margin-top:1rem' }, list('Casi d\'uso tipici', p.usecases)),
     isPro() ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Dati tecnici'), h('dl', { class: 'spec' }, p.tech.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]))) : null,
     p.notes.map(n => h('div', { class: 'note' }, h('strong', {}, 'Accuratezza: '), n)));
+}
+
+function commSection() {
+  const P = S.data.protocols, mode = { polling: '🔄', notify: '🔔', both: '⚖' };
+  const col = k => h('div', { class: 'card', style: `border-top:4px solid var(--${k === 'polling' ? 'accent' : k === 'notify' ? 'ok' : 'warn'})` },
+    h('h3', { style: 'margin-top:0' }, `${mode[k]} ${P.commText[k].title}`),
+    h('p', { class: 'muted' }, T(P.commText[k])),
+    h('ul', { class: 'clean', style: 'list-style:none;padding:0' }, P.protocols.filter(x => x.comm.mode === k).map(x =>
+      h('li', { style: 'margin:.5rem 0' }, h('div', { class: 'row' }, logo(x, 24), h('a', { href: `#/protocolli/${x.id}` }, h('strong', {}, x.name))), h('div', { class: 'muted', style: 'font-size:.88rem' }, T({ b: x.comm.b, p: x.comm.p })))))
+  );
+  return h('div', {}, h('h2', {}, 'Come arrivano i dati? Polling o notifica'),
+    h('div', { class: 'note analogy' }, T(P.commIntro)),
+    h('div', { class: 'grid', style: 'grid-template-columns:repeat(auto-fit,minmax(280px,1fr))' }, col('polling'), col('both'), col('notify')),
+    h('div', { class: 'note' }, h('strong', {}, 'Performance vs determinismo: '), isPro()
+      ? 'nei protocolli ibridi la modalità scelta per ogni variabile decide il compromesso. Ciclico = carico costante e latenza limitata; on-change = banda e latenza migliori in media, ma il caso peggiore (tutte le variabili cambiano insieme) non è limitato.'
+      : 'nei protocolli che fanno entrambe le cose, scegli «ciclico» quando servono tempi certi e «a notifica» quando vuoi risparmiare traffico e reagire subito.'));
 }

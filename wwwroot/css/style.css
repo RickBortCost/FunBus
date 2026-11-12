@@ -40,10 +40,10 @@ dl.spec dt{font-weight:600;color:var(--muted)}dl.spec dd{margin:0}
 .two{display:grid;gap:1rem;grid-template-columns:1fr 1fr}@media(max-width:700px){.two{grid-template-columns:1fr}}
 ul.clean{margin:.2rem 0;padding-left:1.2rem}
 /* tabella confronto */
-.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
-table.cmp{border-collapse:collapse;width:100%;min-width:640px}
-table.cmp th,table.cmp td{padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top;text-align:left;min-width:170px}
-table.cmp th:first-child,table.cmp td:first-child{min-width:120px;position:sticky;left:0;background:var(--surface2);font-weight:600;z-index:1}
+.tablewrap{overflow:auto;max-height:calc(100vh - 190px);border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table.cmp{border-collapse:collapse;table-layout:fixed;width:max(100%,calc(120px + var(--n,3)*150px))}
+table.cmp th,table.cmp td{padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top;text-align:left;overflow-wrap:anywhere;font-size:clamp(.78rem,.9vw + .45rem,1rem)}
+table.cmp th:first-child,table.cmp td:first-child{width:120px;position:sticky;left:0;background:var(--surface2);font-weight:600;z-index:1}
 table.cmp thead th{background:var(--surface2);position:sticky;top:0;z-index:2}
 table.cmp tr.diff td:not(:first-child){background:var(--diff)}
 .filters{display:flex;flex-wrap:wrap;gap:.4rem 1rem;margin:.5rem 0 1rem;align-items:center}
@@ -99,6 +99,6 @@ table.cmp tr.diff td:not(:first-child){background:var(--diff)}
 
 .skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--accent-t);padding:.5rem 1rem;z-index:200}.skip:focus{left:0}
 #app:focus{outline:none}
-@media(max-width:560px){main{padding:.6rem}.topbar{padding:.4rem .6rem}.tools{width:100%;justify-content:space-between}table.cmp{min-width:560px}}
+@media(max-width:560px){main{padding:.6rem}.topbar{padding:.4rem .6rem}.tools{width:100%;justify-content:space-between}table.cmp th:first-child,table.cmp td:first-child{width:92px}}
 @media print{.topbar,#ver,.no-print,.skip{display:none!important}body{background:#fff;color:#000}#cert{box-shadow:none;margin-top:2rem}}
 .hex{font-family:ui-monospace,Consolas,monospace;background:var(--surface2);padding:.6rem .8rem;border-radius:8px;overflow-x:auto;white-space:pre-wrap}
