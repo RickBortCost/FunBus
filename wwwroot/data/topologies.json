@@ -1,0 +1,217 @@
+{
+ "intro": {
+  "b": "Il modo in cui i nodi sono collegati decide cosa succede quando un cavo si rompe o un dispositivo si spegne. Clicca su un cavo per interromperlo o su un dispositivo per spegnerlo, e guarda chi resta raggiungibile dal master.",
+  "p": "La topologia determina propagazione dei guasti, ritardi e regole di cablaggio. Clicca su un cavo per interromperlo o su un nodo per spegnerlo: il disegno mostra i nodi ancora raggiungibili dal master e l'effetto tipico sul protocollo."
+ },
+ "ipNote": "Per i protocolli basati su TCP/IP (S7, ADS, MQTT, OPC UA, Modbus TCP, BACnet/IP) la topologia è quella della rete Ethernet sottostante: la ridondanza è affidata agli switch, non al protocollo.",
+ "topologies": [
+  {
+   "id": "bus",
+   "name": "Bus",
+   "title": "Bus: dorsale con derivazioni e terminatori",
+   "text": {
+    "b": "Un unico cavo passa da tutti i dispositivi, come una strada con tante case. Alle due estremità ci sono i terminatori, che «assorbono» il segnale ed evitano l'eco.",
+    "p": "Dorsale condivisa (RS-485, CAN) con derivazioni corte: tutti i nodi sono in parallelo sullo stesso mezzo. Le due estremità vanno chiuse sull'impedenza caratteristica del cavo (es. 120 Ω per CAN; per PROFIBUS una rete resistiva alimentata, con polarizzazione) per evitare riflessioni; lunghezza massima e velocità sono legate tra loro."
+   },
+   "cable": {
+    "b": "La dorsale è interrotta: i dispositivi oltre il taglio sono isolati. In più i due tronconi restano senza un terminatore: anche chi è ancora collegato può avere errori di comunicazione.",
+    "p": "Rottura della dorsale: i nodi a valle sono irraggiungibili e ogni troncone ha una sola terminazione. Le riflessioni sull'estremità aperta degradano il segnale anche sul tratto ancora collegato al master, tanto più quanto maggiore è il baud rate."
+   },
+   "drop": {
+    "b": "Si è staccata solo la derivazione di un dispositivo: gli altri continuano a comunicare normalmente.",
+    "p": "Derivazione interrotta: è isolato solo quel nodo, la dorsale e le sue terminazioni restano integre. Un moncone aperto e lungo può comunque causare riflessioni: per questo le derivazioni devono essere corte (o assenti agli alti baud rate, come in PROFIBUS a 12 Mbit/s)."
+   },
+   "node": {
+    "b": "Un dispositivo spento non blocca gli altri: sul bus sono tutti collegati in parallelo.",
+    "p": "Un nodo spento o rimosso non interrompe il bus (collegamento in parallelo), purché la dorsale resti continua. Attenzione alla terminazione attiva di PROFIBUS, alimentata dall'ultima stazione: se quella stazione è spenta, la terminazione non lavora correttamente. Un nodo guasto che trasmette di continuo («babbling idiot») può invece bloccare tutto il segmento."
+   },
+   "pros": [
+    "Cablaggio semplice ed economico: un solo cavo",
+    "Aggiungere un nodo richiede poco cavo"
+   ],
+   "cons": [
+    "Un guasto sulla dorsale coinvolge molti nodi",
+    "Terminazioni e lunghezze vanno rispettate con cura",
+    "Trovare il punto di guasto è meno immediato"
+   ]
+  },
+  {
+   "id": "line",
+   "name": "Linea",
+   "title": "Linea (daisy chain): dispositivi in cascata",
+   "text": {
+    "b": "I dispositivi sono collegati in fila, uno dopo l'altro: ognuno ha due porte, una di ingresso e una di uscita. Non serve uno switch separato.",
+    "p": "Ogni dispositivo integra uno switch a 2 porte (o, in EtherCAT, elabora il frame al volo e lo inoltra): il cablaggio segue la macchina senza switch esterni. Ogni tratto è un collegamento punto-punto senza terminatori e ogni nodo aggiunge un ritardo di attraversamento."
+   },
+   "cable": {
+    "b": "Il cavo è interrotto: tutti i dispositivi dopo il taglio restano isolati, anche se funzionano perfettamente.",
+    "p": "Tutti i nodi a valle del guasto perdono la comunicazione: i loro watchdog scadono e le uscite vanno nello stato sicuro. Il master individua il punto dall'ultimo nodo raggiungibile (diagnostica di porta e LLDP; in EtherCAT stato dei link e Working Counter). Chiudendo la linea ad anello si tollera un guasto singolo."
+   },
+   "node": {
+    "b": "Un dispositivo spento interrompe la catena: anche quelli dopo di lui non ricevono più nulla.",
+    "p": "Un nodo spento non inoltra più i frame: equivale a un cavo interrotto in quel punto. Per sostituire un dispositivo senza fermare quelli a valle servono una topologia ad anello o a stella."
+   },
+   "pros": [
+    "Poco cavo e nessuno switch esterno",
+    "Segue la disposizione della macchina"
+   ],
+   "cons": [
+    "Un guasto isola tutti i nodi a valle",
+    "Il ritardo cresce con il numero di nodi in cascata"
+   ]
+  },
+  {
+   "id": "star",
+   "name": "Stella",
+   "title": "Stella: un cavo per ogni dispositivo",
+   "text": {
+    "b": "Ogni dispositivo ha il proprio cavo verso uno switch centrale, come i raggi di una ruota.",
+    "p": "Collegamenti punto-punto verso uno switch (o verso un master multiporta, come in IO-Link): ogni tratto è indipendente e full duplex. Lo switch è però un punto singolo di guasto e ogni nodo richiede un cavo fino al centro."
+   },
+   "cable": {
+    "b": "Si è rotto un solo raggio: resta isolato soltanto quel dispositivo, tutti gli altri continuano a lavorare. Se invece si rompe il cavo del master, si ferma tutto.",
+    "p": "Il guasto resta confinato al ramo: gli altri nodi non ne risentono e la diagnostica di porta dello switch indica subito il collegamento caduto. Se si interrompe il cavo tra master e switch cade invece tutta la comunicazione."
+   },
+   "node": {
+    "b": "Un dispositivo spento non disturba gli altri. Se però si spegne lo switch al centro, si ferma tutto.",
+    "p": "Un nodo terminale spento isola solo se stesso e si può sostituire a caldo. Lo switch è il punto singolo di guasto: per questo si usano switch industriali con alimentazione ridondata o topologie ridondate."
+   },
+   "pros": [
+    "Un guasto su un ramo non tocca gli altri",
+    "Sostituzione a caldo e diagnosi semplice"
+   ],
+   "cons": [
+    "Più cavo: un tratto per ogni nodo",
+    "Lo switch centrale è un punto singolo di guasto"
+   ]
+  },
+  {
+   "id": "tree",
+   "name": "Albero",
+   "title": "Albero: una stella di stelle",
+   "text": {
+    "b": "È una stella di stelle: uno switch principale collega altri switch, e da ciascuno partono i dispositivi di una zona.",
+    "p": "Struttura gerarchica di switch (o di ripetitori e accoppiatori sui bus seriali), adatta a impianti estesi divisi in zone. Gli uplink tra switch portano il traffico di tutto il ramo e ogni switch in cascata aggiunge latenza."
+   },
+   "cable": {
+    "b": "Si isola tutto il ramo che sta sotto il cavo interrotto: più il guasto è vicino al master, più dispositivi restano fuori.",
+    "p": "La rottura di un uplink isola l'intero sottoalbero; quella di un ramo terminale un solo nodo. Gli uplink sono quindi i collegamenti critici: spesso si rendono ridondati con un anello tra gli switch (MRP, RSTP)."
+   },
+   "node": {
+    "b": "Se si spegne uno switch, perdono il collegamento tutti i dispositivi collegati a lui.",
+    "p": "Uno switch guasto isola tutto il suo sottoalbero; un dispositivo terminale solo se stesso. La profondità dell'albero va limitata: ogni switch store-and-forward aggiunge ritardo e jitter (rilevante per PROFINET RT; IRT ed EtherCAT hanno regole proprie)."
+   },
+   "pros": [
+    "Si adatta a impianti grandi e divisi in zone",
+    "I guasti sui rami terminali restano locali"
+   ],
+   "cons": [
+    "Un guasto vicino alla radice isola molti nodi",
+    "Più switch in cascata: più latenza e più costo"
+   ]
+  },
+  {
+   "id": "ring",
+   "name": "Anello",
+   "title": "Anello: ridondanza con ripristino automatico",
+   "text": {
+    "b": "I dispositivi formano un cerchio chiuso: i dati possono arrivare da due lati. Se un cavo si rompe, la rete si riorganizza da sola e continua a funzionare.",
+    "p": "Linea richiusa su se stessa con un protocollo di ridondanza: un nodo (manager o supervisor) tiene bloccata una delle sue due porte d'anello, così non si crea un loop Ethernet. Al primo guasto la porta viene sbloccata e l'anello diventa una linea con tutti i nodi raggiungibili. Tollera un solo guasto alla volta."
+   },
+   "cable": {
+    "b": "Con due guasti l'anello si divide: i dispositivi tra i due punti restano isolati finché non ne ripari almeno uno.",
+    "p": "L'anello tollera un solo guasto: con due interruzioni i nodi compresi tra i due punti sono isolati finché non viene riparato almeno un tratto."
+   },
+   "node": {
+    "b": "Un dispositivo spento vale come un taglio nell'anello: gli altri restano raggiungibili dall'altro lato.",
+    "p": "Un nodo spento interrompe l'anello in quel punto: il manager sblocca la porta e gli altri nodi restano raggiungibili; è perso solo il nodo guasto. È ciò che permette di sostituire un dispositivo senza fermare la linea."
+   },
+   "pros": [
+    "Sopravvive a un guasto singolo di cavo o di nodo",
+    "Poco cavo in più rispetto alla linea"
+   ],
+   "cons": [
+    "Servono un manager e dispositivi che supportino il protocollo",
+    "Il ripristino non è istantaneo (salvo soluzioni dedicate)"
+   ],
+   "other": "Altre soluzioni: EtherCAT chiude l'anello su una seconda porta del master (cable redundancy); HSR e PRP (IEC 62439-3) duplicano i frame e non hanno tempo di ripristino; RSTP è più lento (da centinaia di ms a secondi) e poco adatto all'I/O in tempo reale.",
+   "mechs": [
+    {
+     "id": "mrp",
+     "name": "MRP",
+     "full": "MRP – Media Redundancy Protocol (IEC 62439-2)",
+     "protos": [
+      "profinet"
+     ],
+     "manager": "Manager (MRM)",
+     "test": "MRP_Test",
+     "recovery": "≤ 200 ms nel profilo tipico (esistono profili da 500, 30 e 10 ms)",
+     "phases": [
+      {
+       "b": "Anello chiuso. Il manager tiene bloccata una delle sue due porte e fa girare piccoli messaggi di prova per controllare che l'anello sia integro.",
+       "p": "Stato Ring Closed: l'MRM mantiene una porta d'anello in Blocked (passano solo i frame MRP) e invia MRP_Test su entrambe le porte a intervalli regolari (tipicamente 20 ms nel profilo da 200 ms), ricevendoli sull'altra porta."
+      },
+      {
+       "b": "Guasto! I messaggi di prova non tornano più al manager, e i dispositivi vicini al guasto lo avvisano.",
+       "p": "I client (MRC) adiacenti rilevano il link down e inviano MRP_LinkChange al manager; in ogni caso l'MRM se ne accorge dopo alcuni MRP_Test non ricevuti. Fino alla riconfigurazione i nodi oltre il guasto non sono raggiungibili."
+      },
+      {
+       "b": "Il manager apre la porta che teneva chiusa e avvisa tutti che la strada è cambiata.",
+       "p": "L'MRM porta la porta bloccata in Forwarding e invia MRP_TopologyChange: i nodi cancellano le tabelle degli indirizzi (FDB) per reimparare i nuovi percorsi."
+      },
+      {
+       "b": "La rete funziona di nuovo: i dati raggiungono tutti passando dall'altro lato. L'interruzione è durata una frazione di secondo.",
+       "p": "Stato Ring Open: tutti i nodi raggiungibili su due linee. Ripristino entro 200 ms nel profilo tipico: con watchdog PROFINET più brevi (es. 3 × 2 ms) alcune stazioni vanno comunque in guasto e si riconnettono; per un ripristino senza interruzioni servono MRPD (con IRT) o la ridondanza di sistema."
+      },
+      {
+       "b": "Guasto riparato: i messaggi di prova ricominciano a fare il giro completo.",
+       "p": "Il link torna attivo, ma le porte dei client adiacenti restano inizialmente bloccate al traffico dati; l'MRM riceve di nuovo i propri MRP_Test sull'altra porta."
+      },
+      {
+       "b": "Il manager richiude la sua porta: l'anello è di nuovo pronto ad affrontare un guasto.",
+       "p": "L'MRM riporta la propria porta in Blocked e invia MRP_TopologyChange; i client mettono in Forwarding le porte riparate: di nuovo Ring Closed, senza loop temporanei."
+      }
+     ]
+    },
+    {
+     "id": "dlr",
+     "name": "DLR",
+     "full": "DLR – Device Level Ring (EtherNet/IP)",
+     "protos": [
+      "enip",
+      "cip"
+     ],
+     "manager": "Ring Supervisor",
+     "test": "Beacon",
+     "recovery": "≈ 3 ms per anelli fino a 50 nodi (beacon ogni 400 µs)",
+     "phases": [
+      {
+       "b": "Anello chiuso. Il supervisor blocca una delle sue porte e manda in continuazione brevissimi segnali (beacon) nei due sensi.",
+       "p": "Stato Normal: il Ring Supervisor attivo blocca una porta (passano solo i frame DLR) e trasmette Beacon su entrambe le porte ogni 400 µs (valore predefinito), oltre agli Announce per i nodi non beacon-based."
+      },
+      {
+       "b": "Guasto! I beacon non completano più il giro: il supervisor se ne accorge in un paio di millisecondi.",
+       "p": "I nodi adiacenti al guasto inviano Link_Status al supervisor; in ogni caso il supervisor rileva la perdita dei beacon entro il beacon timeout (1,96 ms predefinito)."
+      },
+      {
+       "b": "Il supervisor apre la porta bloccata e avvisa tutti che la strada è cambiata.",
+       "p": "Il supervisor passa in Fault State, sblocca la porta e segnala il nuovo stato con Beacon e Announce: i nodi svuotano le tabelle di apprendimento degli indirizzi MAC."
+      },
+      {
+       "b": "Tutto funziona di nuovo in pochi millisecondi: di solito le macchine non si accorgono nemmeno del guasto.",
+       "p": "Ripristino tipico entro ≈ 3 ms per anelli fino a 50 nodi: meno del timeout delle connessioni I/O (almeno 4 × RPI), che quindi non cadono. Il supervisor individua il tratto guasto (Neighbor_Check, Sign_On) e lo espone alla diagnostica."
+      },
+      {
+       "b": "Guasto riparato: i beacon tornano a fare il giro completo.",
+       "p": "Il supervisor riceve di nuovo i propri beacon sull'altra porta: l'anello è fisicamente richiuso."
+      },
+      {
+       "b": "Il supervisor richiude la sua porta: anello di nuovo protetto.",
+       "p": "Il supervisor torna in Normal State, blocca di nuovo la porta e lo comunica con i beacon; i nodi svuotano ancora le tabelle. Con più supervisor configurati è attivo quello con precedenza più alta, gli altri fanno da backup."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

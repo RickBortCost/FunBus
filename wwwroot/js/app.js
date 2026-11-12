@@ -1,9 +1,10 @@
-import { S, h, loadData, loadState, save } from './core.js';
+import { S, h, loadData, loadState, save, DATA_FILES } from './core.js';
 import * as pages from './pages.js';
 import { compare } from './compare.js';
 import * as games from './games.js';
 import * as extra from './extra.js';
 import { normative } from './normative.js';
+import { topologie } from './topo.js';
 import { loadDict, translateData, startDomLocalizer } from './i18n.js';
 
 const app = document.getElementById('app');
@@ -27,6 +28,7 @@ function render(scroll = false) {
     else if (root === 'profilo') games.profilo(app, ctx);
     else if (root === 'glossario') extra.glossario(app, ctx);
     else if (root === 'normative') normative(app, ctx);
+    else if (root === 'topologie') topologie(app, ctx);
     else if (root === 'approfondimenti') extra.approfondimenti(app, ctx);
     else if (root === 'strumenti') extra.strumenti(app, ctx);
     else if (root === 'certificato') extra.certificato(app, ctx);
@@ -66,7 +68,7 @@ async function init() {
   await loadState();
   splash(15, 'Caricamento contenuti');
   let done = 0;
-  try { await loadData(n => { done++; splash(15 + Math.round((done / 10) * 70), `Contenuti: ${n}`); }); }
+  try { await loadData(n => { done++; splash(15 + Math.round((done / DATA_FILES.length) * 70), `Contenuti: ${n}`); }); }
   catch (e) { document.getElementById('splash').classList.add('hide'); app.textContent = 'Impossibile caricare i contenuti JSON: ' + e.message; return; }
   splash(90, 'Preparazione interfaccia');
   await setLang(S.lang, false);

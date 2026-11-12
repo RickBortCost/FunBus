@@ -3,6 +3,7 @@ import { createSim } from './sim.js';
 import { logo } from './logos.js';
 import { pyramid, pyramidLegend } from './osi.js';
 import { securityBox } from './normative.js';
+import { topoChips } from './topo.js';
 
 const FIELDS = () => S.data.protocols.fields;
 
@@ -80,6 +81,7 @@ function card(p) {
     !isPro() && p.analogy ? h('div', { class: 'note analogy' }, h('strong', {}, 'Analogia: '), p.analogy) : null,
     h('div', { class: 'card', style: 'margin-top:1rem' }, h('dl', { class: 'spec' }, FIELDS().flatMap(f => [h('dt', {}, f.label), h('dd', {}, T(p.card[f.key]))]))),
     h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Piramide dei livelli OSI'), pyramid(p, { width: 300 }), pyramidLegend(p)),
+    h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Topologie supportate'), topoChips(p), h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(p.card.topology))),
     securityBox(p),
     h('div', { class: 'two', style: 'margin-top:1rem' }, list('Vantaggi', p.pros), list('Limiti', p.cons)),
     h('div', { style: 'margin-top:1rem' }, list('Casi d\'uso tipici', p.usecases)),
