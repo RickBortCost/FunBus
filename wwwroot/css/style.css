@@ -1,5 +1,5 @@
-:root{--bg:#f5f7fa;--surface:#fff;--surface2:#eef2f7;--text:#1b2733;--muted:#5d6b7a;--border:#d5dce4;--accent:#0b6bcb;--accent-t:#fff;--ok:#1a7f37;--warn:#8a5a0b;--bad:#c62828;--diff:#fff4cc;--shadow:0 1px 3px rgba(0,0,0,.12)}
-[data-theme=dark]{--bg:#12171d;--surface:#1b222b;--surface2:#242d38;--text:#e6ebf0;--muted:#9aa8b6;--border:#34404d;--accent:#4aa3ff;--accent-t:#06121f;--ok:#4cc26a;--warn:#e0b04a;--bad:#ff7b72;--diff:#4a3f12;--shadow:none}
+:root{--r:18px;--r-sm:12px;--bg:#f5f7fa;--surface:#fff;--surface2:#eef2f7;--text:#1b2733;--muted:#5d6b7a;--border:#d5dce4;--accent:#0b6bcb;--accent-t:#fff;--ok:#1a7f37;--warn:#8a5a0b;--bad:#c62828;--diff:#fff4cc;--shadow:0 6px 18px rgba(20,40,80,.08),0 1px 3px rgba(20,40,80,.06)}
+[data-theme=dark]{--bg:#12171d;--surface:#1b222b;--surface2:#242d38;--text:#e6ebf0;--muted:#9aa8b6;--border:#34404d;--accent:#4aa3ff;--accent-t:#06121f;--ok:#4cc26a;--warn:#e0b04a;--bad:#ff7b72;--diff:#4a3f12;--shadow:0 6px 18px rgba(0,0,0,.28)}
 *{box-sizing:border-box}
 body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
 a{color:var(--accent)}
@@ -102,3 +102,31 @@ table.cmp tr.diff td:not(:first-child){background:var(--diff)}
 @media(max-width:560px){main{padding:.6rem}.topbar{padding:.4rem .6rem}.tools{width:100%;justify-content:space-between}table.cmp th:first-child,table.cmp td:first-child{width:92px}}
 @media print{.topbar,#ver,.no-print,.skip{display:none!important}body{background:#fff;color:#000}#cert{box-shadow:none;margin-top:2rem}}
 .hex{font-family:ui-monospace,Consolas,monospace;background:var(--surface2);padding:.6rem .8rem;border-radius:8px;overflow-x:auto;white-space:pre-wrap}
+
+/* Aspetto morbido: angoli arrotondati, ombre leggere, pulsanti a pillola */
+body{background:radial-gradient(1200px 500px at 10% -10%,color-mix(in srgb,var(--accent) 9%,transparent),transparent),var(--bg);background-attachment:fixed}
+.topbar{border-radius:0 0 var(--r) var(--r);border-bottom:0;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+#nav a{border-radius:999px;padding:.35rem .65rem;white-space:nowrap}
+#nav a.on{box-shadow:none;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.seg{border-radius:999px;padding:3px;background:var(--surface2);border-color:transparent}
+.seg button{border-radius:999px}
+button,.btn{border-radius:999px;padding:.45rem 1rem;transition:background .15s,transform .1s,box-shadow .15s}
+button:active{transform:scale(.97)}
+button.icon{border-radius:50%}
+button.primary{box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 35%,transparent)}
+.card,.sim,.tablewrap,#cert{border-radius:var(--r);border-color:transparent;box-shadow:var(--shadow)}
+a.card{border-top-width:0;border-left:6px solid var(--pc,var(--accent));transition:transform .15s,box-shadow .15s}
+a.card:hover{box-shadow:0 10px 26px rgba(20,40,80,.14)}
+.tag{border-radius:999px;padding:.15rem .7rem}
+.tabs{border-bottom:0;gap:.4rem}.tabs button{border-radius:999px}.tabs button.on{background:var(--accent);color:var(--accent-t);box-shadow:none}
+.note,.chk,.fb,.fielddesc,.hex{border-radius:var(--r-sm)}
+.note{border-left-width:5px}
+.sim svg{border-radius:var(--r-sm)}
+.node rect{rx:16px;ry:16px}
+.frame button{border-radius:var(--r-sm)}
+.opts button,.match button{border-radius:var(--r-sm)}
+.badge{border-radius:var(--r);box-shadow:var(--shadow);border-color:transparent}
+.progress,.sp-bar{border-radius:999px}.toast{border-radius:var(--r)}
+input,select,textarea{border-radius:var(--r-sm)}
+table.cmp thead th:first-child{border-top-left-radius:var(--r)}table.cmp thead th:last-child{border-top-right-radius:var(--r)}
+svg polygon{stroke-linejoin:round}
