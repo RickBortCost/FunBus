@@ -3,6 +3,7 @@ import * as pages from './pages.js';
 import { compare } from './compare.js';
 import * as games from './games.js';
 import * as extra from './extra.js';
+import { loadDict, translateData, startDomLocalizer } from './i18n.js';
 
 const app = document.getElementById('app');
 let cleanups = [];
@@ -29,6 +30,7 @@ function render(scroll = false) {
     else if (root === 'certificato') extra.certificato(app, ctx);
     else pages.home(app, ctx);
   } catch (e) { app.append(h('pre', {}, 'Errore: ' + e.message)); console.error(e); }
+  app.classList.toggle('wide', root === 'confronto');
   document.querySelectorAll('#nav a').forEach(a => { const on = a.dataset.r === root; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   app.focus({ preventScroll: true });
   document.getElementById('lvB').classList.toggle('on', S.level === 'beginner');
@@ -48,6 +50,14 @@ function splash(pct, msg) {
   if (msg) document.getElementById('spMsg').textContent = msg;
 }
 
+async function setLang(lang, rerender) {
+  S.lang = lang;
+  if (lang === 'en') { try { await loadDict(); } catch { S.lang = 'it'; } }
+  S.data = S.lang === 'en' ? translateData(structuredClone(S.raw)) : S.raw;
+  startDomLocalizer();
+  if (rerender) { save(); render(); }
+}
+
 async function init() {
   const t0 = Date.now();
   splash(5, 'Caricamento impostazioni');
@@ -57,7 +67,11 @@ async function init() {
   try { await loadData(n => { done++; splash(15 + Math.round((done / 9) * 70), `Contenuti: ${n}`); }); }
   catch (e) { document.getElementById('splash').classList.add('hide'); app.textContent = 'Impossibile caricare i contenuti JSON: ' + e.message; return; }
   splash(90, 'Preparazione interfaccia');
+  await setLang(S.lang, false);
   applyTheme();
+  const sel = document.getElementById('langSel');
+  sel.value = S.lang;
+  sel.addEventListener('change', async () => { await setLang(sel.value, true); });
   document.querySelectorAll('[data-level]').forEach(b => b.addEventListener('click', () => { S.level = b.dataset.level; S.levelChosen = true; save(); render(); }));
   document.getElementById('themeBtn').addEventListener('click', () => {
     S.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save();
