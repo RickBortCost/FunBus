@@ -31,7 +31,7 @@ export function createSim(proto, anim) {
   for (const n of anim.nodes) {
     const w = Math.max(110, n.label.length * 7.4 + 22);
     const g = svgEl('g', { class: 'node' });
-    g.append(svgEl('rect', { x: n.x - w / 2, y: n.y - 23, width: w, height: 46, rx: 8 }));
+    g.append(svgEl('rect', { x: n.x - w / 2, y: n.y - 23, width: w, height: 46, rx: 16 }));
     const t = svgEl('text', { x: n.x, y: n.y + 5 }); t.textContent = n.label; g.append(t);
     gNodes.append(g); nodeG[n.id] = g;
   }
@@ -112,7 +112,7 @@ export function createSim(proto, anim) {
     gPk.replaceChildren();
     cur.routes.forEach((r, k) => {
       const q = pos(r, p);
-      gPk.append(svgEl('rect', { class: 'pkt', x: q.x - 11, y: q.y - 8, width: 22, height: 16, rx: 3, fill: cur.color }));
+      gPk.append(svgEl('rect', { class: 'pkt', x: q.x - 11, y: q.y - 8, width: 22, height: 16, rx: 8, fill: cur.color }));
       if (k === 0) { const t = svgEl('text', { class: 'pktlbl', x: q.x, y: q.y - 14 }); t.textContent = steps[idx].label; gPk.append(t); }
     });
   }
