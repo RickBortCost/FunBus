@@ -2,6 +2,7 @@ import { S, h, T, isPro } from './core.js';
 import { logo } from './logos.js';
 import { pyramid } from './osi.js';
 import { profile, profileTag } from './normative.js';
+import { chartsView, MAX_SERIES } from './charts.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
 const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', cip: 'L5–L7 su TCP/UDP/IP', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
@@ -38,24 +39,36 @@ const FILTERS = () => [
   { id: 'model', label: 'Modello', opts: Object.entries(MODEL), test: (p, v) => p.attrs.model.includes(v) }
 ];
 
-export function compare(app) {
+export function compare(app, { cleanups }) {
   const flt = {}; const sel = new Set(); let only = false;
+  // Vista tabella o grafici; nei grafici ogni protocollo selezionato occupa una "serie" stabile (colore, tratteggio, marcatore).
+  let view = sessionStorage.getItem('cmpView') === 'charts' ? 'charts' : 'table';
+  const slots = new Map(), chartClean = [];
+  const toggle = id => {
+    if (sel.has(id)) { sel.delete(id); slots.delete(id); }
+    else { sel.add(id); const used = new Set(slots.values()); for (let i = 0; i < MAX_SERIES; i++) if (!used.has(i)) { slots.set(id, i); break; } }
+  };
+  cleanups.push(() => chartClean.splice(0).forEach(f => f()));
   const out = h('div');
   const bar = h('div', { class: 'filters' });
   const render = () => {
     const lv = isPro() ? 'p' : 'b';
+    chartClean.splice(0).forEach(f => f());
+    const all = S.data.protocols.protocols.filter(p => FILTERS().every(f => !flt[f.id]?.size || [...flt[f.id]].some(v => f.test(p, v))));
     let ps = S.data.protocols.protocols.filter(p => FILTERS().every(f => !flt[f.id]?.size || [...flt[f.id]].some(v => f.test(p, v))));
     if (only && sel.size >= 2) ps = ps.filter(p => sel.has(p.id));
-    bar.replaceChildren(...FILTERS().map(f => h('div', { class: 'grp' }, h('strong', {}, f.label + ':'),
+    const vbtn = (k, l) => h('button', { class: view === k ? 'on' : '', 'aria-pressed': String(view === k), onclick: () => { view = k; try { sessionStorage.setItem('cmpView', k); } catch { /* ignora */ } if (k === 'charts' && !sel.size) all.slice(0, 3).forEach(p => toggle(p.id)); render(); } }, l);
+    bar.replaceChildren(h('div', { class: 'seg', role: 'group', 'aria-label': 'Vista' }, vbtn('table', '▦ Tabella'), vbtn('charts', '📊 Grafici')), ...FILTERS().map(f => h('div', { class: 'grp' }, h('strong', {}, f.label + ':'),
       f.opts.map(([v, l]) => h('span', { class: 'tag chip' + (flt[f.id]?.has(v) ? ' on' : ''), tabindex: 0, role: 'button', 'aria-pressed': String(!!flt[f.id]?.has(v)),
         onclick: () => { (flt[f.id] ||= new Set()); flt[f.id].has(v) ? flt[f.id].delete(v) : flt[f.id].add(v); render(); },
         onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.click(); } } }, l)))),
-      h('button', { disabled: sel.size < 2 && !only, onclick: () => { only = !only; render(); } }, only ? 'Mostra tutti' : `Affianca selezionati (${sel.size})`),
-      h('button', { onclick: () => { for (const k in flt) flt[k].clear(); sel.clear(); only = false; render(); } }, 'Azzera'));
+      ...(view === 'table' ? [h('button', { disabled: sel.size < 2 && !only, onclick: () => { only = !only; render(); } }, only ? 'Mostra tutti' : `Affianca selezionati (${sel.size})`)] : []),
+      h('button', { onclick: () => { for (const k in flt) flt[k].clear(); sel.clear(); slots.clear(); only = false; render(); } }, 'Azzera'));
+    if (view === 'charts' && all.length) { out.replaceChildren(chartsView(all, sel, slots, id => { toggle(id); render(); }, chartClean, isPro())); return; }
     if (!ps.length) { out.replaceChildren(h('p', { class: 'muted' }, 'Nessun protocollo corrisponde ai filtri.')); return; }
     const rows = ROWS.filter(r => r.lv.includes(lv));
     const thead = h('thead', {}, h('tr', {}, h('th', {}, ''), ps.map(p => h('th', { style: `border-top:4px solid ${p.color}` },
-      h('div', {}, logo(p, 28)), h('label', {}, h('input', { type: 'checkbox', checked: sel.has(p.id), onchange: e => { e.target.checked ? sel.add(p.id) : sel.delete(p.id); render(); } }), ' ', h('a', { href: `#/protocolli/${p.id}` }, p.name))))));
+      h('div', {}, logo(p, 28)), h('label', {}, h('input', { type: 'checkbox', checked: sel.has(p.id), onchange: () => { toggle(p.id); render(); } }), ' ', h('a', { href: `#/protocolli/${p.id}` }, p.name))))));
     const tbody = h('tbody', {}, rows.map(r => {
       const diff = r.cat && r.hl?.includes(lv) && ps.length > 1 && new Set(ps.map(p => String(r.cat(p)))).size > 1;
       return h('tr', { class: diff ? 'diff' : '' }, h('td', {}, r.label), ps.map(p => h('td', {}, r.pre ? h('strong', {}, r.pre(p) + ' — ') : null, r.get(p))));
@@ -63,6 +76,7 @@ export function compare(app) {
     out.replaceChildren(h('div', { class: 'tablewrap' }, h('table', { class: 'cmp', style: `--n:${ps.length}` }, thead, tbody)),
       h('p', { class: 'muted' }, isPro() ? 'Righe in giallo: differenze rilevanti per il livello Professional (stack, mezzo, topologia, modello, determinismo e ciclo).' : 'Righe in giallo: differenze rilevanti per il livello Beginner (famiglia, mezzo, topologia, modello, determinismo).'));
   };
-  app.append(h('h1', {}, 'Confronto'), h('p', {}, 'Filtra i protocolli, spunta quelli da confrontare (almeno 2) e usa "Affianca selezionati".'), bar, out);
+  if (view === 'charts') S.data.protocols.protocols.slice(0, 3).forEach(p => toggle(p.id));
+  app.append(h('h1', {}, 'Confronto'), h('p', {}, 'Filtra i protocolli, spunta quelli da confrontare (almeno 2) e usa "Affianca selezionati"; passa a «Grafici» per radar, mappa e piramidi OSI.'), bar, out);
   render();
 }
