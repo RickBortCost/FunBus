@@ -6,6 +6,7 @@ rd('game'); rd('glossary'); rd('topics');
 const EN = JSON.parse(fs.readFileSync('wwwroot/data/lang/en.json', 'utf8'));
 for (const [re] of EN.patterns) new RegExp(re);
 const NM = rd('normative');
+const TP = rd('topologies');
 const err = [];
 const ids = P.protocols.map(p => p.id);
 if (new Set(ids).size !== ids.length) err.push('id protocollo duplicati');
@@ -17,6 +18,24 @@ for (const p of P.protocols) {
   if (!A[p.id]) err.push(`${p.id}: animazione mancante`);
   if (!SC.matrix[p.id]) err.push(`${p.id}: matrice scenari mancante`);
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);
+}
+// Topologie: ogni topologia citata dai protocolli deve esistere, con testi b/p e traduzione EN
+const tids = TP.topologies.map(t => t.id);
+for (const p of P.protocols) for (const t of p.attrs.topo) if (!tids.includes(t)) err.push(`${p.id}: topologia ${t} senza scheda in topologies.json`);
+const needEn = (s, where) => { if (typeof s !== 'string' || !s) err.push(`${where}: testo mancante`); else if (EN.strings[s] === undefined) err.push(`${where}: senza traduzione EN`); };
+for (const k of ['b', 'p']) needEn(TP.intro?.[k], `topologie intro/${k}`);
+needEn(TP.ipNote, 'topologie ipNote');
+for (const t of TP.topologies) {
+  needEn(t.name, `topologia ${t.id} name`); needEn(t.title, `topologia ${t.id} title`);
+  for (const f of ['text', 'cable', 'node', ...(t.drop ? ['drop'] : [])]) for (const k of ['b', 'p']) needEn(t[f]?.[k], `topologia ${t.id} ${f}/${k}`);
+  for (const f of ['pros', 'cons']) (t[f] || []).forEach((s, i) => needEn(s, `topologia ${t.id} ${f}[${i}]`));
+  if (t.id === 'ring' && !t.mechs?.length) err.push('topologia ring: meccanismi di ridondanza mancanti');
+  for (const m of t.mechs || []) {
+    if (m.phases?.length !== 6) err.push(`anello ${m.id}: servono 6 fasi`);
+    (m.phases || []).forEach((ph, i) => { for (const k of ['b', 'p']) needEn(ph[k], `anello ${m.id} fase ${i}/${k}`); });
+    for (const f of ['full', 'manager', 'recovery']) needEn(m[f], `anello ${m.id} ${f}`);
+    for (const pid of m.protos) if (!ids.includes(pid)) err.push(`anello ${m.id}: protocollo ${pid} inesistente`);
+  }
 }
 for (const [id, a] of Object.entries(A)) {
   if (!ids.includes(id)) err.push(`animazione orfana ${id}`);

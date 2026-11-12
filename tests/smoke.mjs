@@ -16,7 +16,7 @@ const base = `http://127.0.0.1:${server.address().port}/`;
 
 const data = id => JSON.parse(fs.readFileSync(`wwwroot/data/${id}.json`, 'utf8'));
 const ids = data('protocols').protocols.map(p => p.id);
-const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', ...ids.map(i => '/protocolli/' + i)];
+const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
 const errs = [];
 const b = await chromium.launch();
 for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile', { width: 390, height: 800 }]]) {
@@ -36,6 +36,25 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       }
       if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
+  }
+  // topologie: guasto di cavo e di nodo, anello con ripristino
+  for (const t of data('topologies').topologies) {
+    await pg.evaluate(h => (location.hash = h), '/topologie/' + t.id); await pg.waitForTimeout(150);
+    const all = (await pg.locator('.toporeach').textContent()).match(/\d+/g);
+    await pg.locator('.tlinkg').nth(1).dispatchEvent('click'); await pg.waitForTimeout(120);
+    if (!(await pg.locator('.tlinkg.broken').count())) errs.push(`${label} topologia ${t.id}: il cavo non si interrompe`);
+    if (t.id === 'ring') {
+      await pg.waitForFunction(() => /4/.test(document.querySelector('.topobox ~ * .tag, .note .tag')?.textContent || ''), null, { timeout: 8000 }).catch(() => errs.push(`${label} anello: la riconfigurazione non arriva alla fase 4`));
+      const now = (await pg.locator('.toporeach').textContent()).match(/\d+/g);
+      if (now[0] !== all[1]) errs.push(`${label} anello: dopo il ripristino ${now[0]}/${all[1]} raggiungibili`);
+    } else {
+      const now = (await pg.locator('.toporeach').textContent()).match(/\d+/g);
+      if (+now[0] >= +all[0]) errs.push(`${label} topologia ${t.id}: il guasto non isola alcun nodo`);
+      await pg.locator('.tnode[role=button]').first().dispatchEvent('click'); await pg.waitForTimeout(80);
+      if (!(await pg.locator('.tnode.off').count())) errs.push(`${label} topologia ${t.id}: il nodo non si spegne`);
+    }
+    await pg.click('.topobox ~ .row button'); await pg.waitForTimeout(80);
+    if (await pg.locator('.tlinkg.broken, .tnode.off').count()) errs.push(`${label} topologia ${t.id}: ripristino non riuscito`);
   }
   // animazione di ogni protocollo
   if (label === 'desktop') for (const id of ids) {
