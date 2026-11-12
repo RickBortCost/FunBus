@@ -1,5 +1,6 @@
 import { S, h, T, isPro } from './core.js';
 import { logo } from './logos.js';
+import { pyramid } from './osi.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
 const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', cip: 'L5–L7 su TCP/UDP/IP', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
@@ -11,6 +12,7 @@ const ROWS = [
   { label: 'Famiglia', get: p => p.family, cat: p => p.family, lv: 'bp', hl: 'bp' },
   { label: 'Scopo', get: p => T(p.card.purpose), lv: 'bp' },
   { label: 'Livello OSI', get: p => T(p.card.osi), cat: p => STACK[p.id], lv: 'p', hl: 'p' },
+  { label: 'Piramide OSI', get: p => pyramid(p, { compact: true, width: 150 }), cat: p => (p.osi?.own || []).join(), lv: 'bp', hl: 'p' },
   { label: 'Mezzo fisico', get: p => T(p.card.medium), cat: p => p.attrs.ethernet, lv: 'bp', hl: 'bp' },
   { label: 'Velocità', get: p => p.card.speed, lv: 'p' },
   { label: 'Topologia', get: p => T(p.card.topology), cat: p => p.attrs.topo.join(), lv: 'bp', hl: 'bp' },

@@ -148,6 +148,17 @@
     "mode": "both",
     "b": "I dispositivi inviano i dati da soli a ritmo fisso e avvisano con allarmi; si può anche chiedere un parametro.",
     "p": "Ciclico provider→consumer autonomo (non sollecitato) + allarmi spontanei; record aciclici in lettura/scrittura su richiesta."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": [
+     3,
+     4
+    ]
    }
   },
   {
@@ -263,6 +274,14 @@
     "mode": "polling",
     "b": "Il master interroga ogni slave a turno.",
     "p": "Polling ciclico master→slave (Data_Exchange) con ciclo calcolabile; DP-V1 aggiunge allarmi ma sempre dentro il ciclo."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
    }
   },
   {
@@ -378,6 +397,18 @@
     "mode": "polling",
     "b": "Il client chiede e il PLC risponde; nessun avviso spontaneo.",
     "p": "Read Var/Write Var su richiesta; nessuna notifica on-change del client (solo polling)."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
    }
   },
   {
@@ -495,6 +526,14 @@
     "mode": "polling",
     "b": "Il master manda un 'treno' di dati a ogni ciclo e raccoglie le risposte.",
     "p": "Ciclico guidato dal master (LRW su frame passante); eventi (EMCY, AL) via mailbox o interrupt, di fatto eccezioni."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
    }
   },
   {
@@ -605,6 +644,17 @@
     "mode": "both",
     "b": "Può chiedere il valore oppure farsi avvisare quando cambia.",
     "p": "Read/ReadWrite su richiesta oppure Add Device Notification (OnChange o Cyclic, MaxDelay) con push dal server."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
    }
   },
   {
@@ -721,6 +771,17 @@
     "mode": "notify",
     "b": "Chi pubblica invia solo quando c'è una novità; gli iscritti la ricevono.",
     "p": "Event-driven pub/sub tramite broker; retained message per lo stato iniziale; nessun polling (solo keep-alive)."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
    }
   },
   {
@@ -837,6 +898,19 @@
     "mode": "both",
     "b": "Si può leggere a richiesta oppure iscriversi ai cambiamenti.",
     "p": "Read/Browse su richiesta; Subscription con MonitoredItem (sampling e publishing interval, deadband); PubSub non sollecitato."
+   },
+   "osi": {
+    "own": [
+     5,
+     6,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
    }
   },
   {
@@ -952,6 +1026,19 @@
     "mode": "both",
     "b": "I dati di I/O arrivano da soli a ritmo fisso; i messaggi speciali si chiedono a richiesta.",
     "p": "Implicit: producer/consumer ciclico o COS non sollecitato (RPI); Explicit: request/response (Get_Attribute…)."
+   },
+   "osi": {
+    "own": [
+     5,
+     6,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
    }
   },
   {
@@ -1068,6 +1155,17 @@
     "mode": "polling",
     "b": "Il client chiede, il dispositivo risponde.",
     "p": "Solo polling client→server; nessuna notifica."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
    }
   },
   {
@@ -1184,6 +1282,15 @@
     "mode": "both",
     "b": "I nodi inviano da soli i dati quando cambiano o al segnale SYNC; i parametri si chiedono a richiesta.",
     "p": "PDO a evento/SYNC/cicli (non sollecitati) + heartbeat; SDO su richiesta; si sceglie il tipo di trasmissione per PDO."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2
+    ]
    }
   },
   {
@@ -1298,6 +1405,14 @@
     "mode": "polling",
     "b": "Il master interroga il sensore a ciclo fisso.",
     "p": "Ciclo del master per porta (M-sequence); gli eventi del device sono segnalati con un flag e letti dal master."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
    }
   },
   {
@@ -1412,6 +1527,15 @@
     "mode": "polling",
     "b": "Il master interroga gli strumenti uno per uno.",
     "p": "Polling master→slave su RS-485; nessun messaggio spontaneo dello slave."
+   },
+   "osi": {
+    "own": [
+     2,
+     7
+    ],
+    "via": [
+     1
+    ]
    }
   },
   {
@@ -1528,6 +1652,14 @@
     "mode": "polling",
     "b": "Il master interroga ogni slave a turno.",
     "p": "Polling ciclico con master call a 14 bit; ciclo fisso (5 ms con 31 slave)."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
    }
   },
   {
@@ -1644,6 +1776,17 @@
     "mode": "both",
     "b": "Si può leggere a richiesta oppure chiedere di essere avvisati se cambia.",
     "p": "ReadProperty su richiesta o SubscribeCOV (notifiche on-change con incremento)."
+   },
+   "osi": {
+    "own": [
+     3,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     4
+    ]
    }
   },
   {
@@ -1758,6 +1901,16 @@
     "mode": "both",
     "b": "I dispositivi inviano da soli quando succede qualcosa; si può chiedere lo stato.",
     "p": "Telegrammi event-driven a group address (non sollecitati) + GroupValue_Read/Response su richiesta."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     3,
+     4,
+     7
+    ],
+    "via": []
    }
   },
   {
@@ -1872,6 +2025,14 @@
     "mode": "polling",
     "b": "L'host chiede i dati allo strumento.",
     "p": "Master/slave: comandi periodici (es. Command 3); lo strumento non invia spontaneamente."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
    }
   },
   {
@@ -1989,6 +2150,19 @@
     "mode": "both",
     "b": "Le variabili 'pubblicate' arrivano da sole a ogni aggiornamento; gli altri dati si chiedono a richiesta.",
     "p": "Produced/consumed tag a RPI (non sollecitati) + Read/Write Tag e MSG su richiesta."
+   },
+   "osi": {
+    "own": [
+     5,
+     6,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
    }
   }
  ],
