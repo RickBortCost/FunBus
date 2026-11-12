@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 const rd = f => JSON.parse(fs.readFileSync(`wwwroot/data/${f}.json`, 'utf8'));
 const P = rd('protocols'), A = rd('animations'), Q = rd('quiz'), M = rd('matching'), SC = rd('scenarios'), D = rd('decode');
-rd('game'); rd('glossary'); rd('topics');
+const GM = rd('game'); rd('glossary'); rd('topics');
 const EN = JSON.parse(fs.readFileSync('wwwroot/data/lang/en.json', 'utf8'));
 for (const [re] of EN.patterns) new RegExp(re);
 const NM = rd('normative');
@@ -22,6 +22,22 @@ for (const p of P.protocols) {
   else if (!EN.strings[p.illus.text]) err.push(`${p.id}: didascalia dell'illustrazione senza traduzione EN`);
   if (!(p.attrs.mbps > 0)) err.push(`${p.id}: attrs.mbps (bit rate tipico in Mbit/s, usato dai grafici) mancante`);
 }
+// Gioco «Costruisci la rete»: ogni missione deve avere almeno una soluzione pienamente adatta (stessa logica di evaluate() nell'app)
+const RANK = { none: 0, soft: 1, det: 2, hard: 3 };
+for (const m of GM.build.missions) {
+  for (const c of m.req.caps || []) if (!SC.capLabels[c]) err.push(`missione ${m.id}: capability ${c} sconosciuta`);
+  for (const k of ['title', 'text', ...(m.topoHint ? ['topoHint'] : [])]) if (!EN.strings[m[k]]) err.push(`missione ${m.id}: ${k} senza traduzione EN`);
+  for (const k of ['b', 'p']) if (!m.why?.[k] || !EN.strings[m.why[k]]) err.push(`missione ${m.id}: spiegazione why/${k} mancante o senza traduzione EN`);
+  const sol = [];
+  for (const p of P.protocols) for (const t of TP.topologies.map(x => x.id)) {
+    const x = SC.matrix[p.id], r = m.req;
+    const ok = (!m.topoAllowed || m.topoAllowed.includes(t)) && p.attrs.topo.includes(t) && (r.maxCycleUs == null || (x.cycleMinUs <= r.maxCycleUs && !(x.rt === 'none' && x.cycleMinUs * 5 > r.maxCycleUs)))
+      && (!r.rtMin || RANK[x.rt] >= RANK[r.rtMin]) && (!r.nodes || x.maxNodes >= r.nodes) && (r.caps || []).every(c => x.caps[c] === 'yes');
+    if (ok) sol.push(`${p.id}/${t}`);
+  }
+  if (!sol.length) err.push(`missione ${m.id}: nessuna combinazione bus/topologia la risolve`);
+}
+for (const lv of ['beginner', 'professional']) if (GM.build.missions.filter(m => m.level === lv).length < 3) err.push(`costruisci la rete ${lv}: meno di 3 missioni`);
 // Topologie: ogni topologia citata dai protocolli deve esistere, con testi b/p e traduzione EN
 const tids = TP.topologies.map(t => t.id);
 for (const p of P.protocols) for (const t of p.attrs.topo) if (!tids.includes(t)) err.push(`${p.id}: topologia ${t} senza scheda in topologies.json`);

@@ -16,7 +16,7 @@ const base = `http://127.0.0.1:${server.address().port}/`;
 
 const data = id => JSON.parse(fs.readFileSync(`wwwroot/data/${id}.json`, 'utf8'));
 const ids = data('protocols').protocols.map(p => p.id);
-const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
+const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/test/rete', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
 const errs = [];
 const b = await chromium.launch();
 for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile', { width: 390, height: 800 }]]) {
@@ -36,6 +36,32 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       }
       if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
+  }
+  // gioco «Costruisci la rete»: trascinamento (mouse), posa a clic, verifica e badge disegnati
+  {
+    await pg.selectOption('#langSel', 'it'); await pg.evaluate(h => (location.hash = h), '/test/rete'); await pg.click('#lvB'); await pg.waitForTimeout(150);
+    const m = data('game').build.missions.filter(x => x.level === 'beginner')[1]; // linea di robot: EtherCAT in linea
+    await pg.locator('button.card', { hasText: m.title }).click(); await pg.waitForTimeout(120);
+    await pg.click('.bench button.primary');
+    if (!(await pg.locator('.fb.ko').count())) errs.push(`${label} rete: la verifica di un banco vuoto non avvisa`);
+    const put = async (chip, target) => { await chip.scrollIntoViewIfNeeded(); await chip.click(); await target.click(); await pg.waitForTimeout(60); };
+    if (label === 'desktop') {
+      const drag = async (from, to) => { await from.scrollIntoViewIfNeeded(); const a = await from.boundingBox(), b = await to.boundingBox(); await pg.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await pg.mouse.down(); await pg.mouse.move(a.x + a.width / 2 + 14, a.y, { steps: 3 }); await pg.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 6 }); await pg.mouse.up(); await pg.waitForTimeout(100); };
+      await drag(pg.locator('.pick', { hasText: 'EtherCAT' }), pg.locator('.dropzone[data-drop=bus]'));
+      if (!(await pg.locator('.dropzone[data-drop=bus]').textContent()).includes('EtherCAT')) errs.push('rete: il trascinamento del bus non funziona');
+    } else await put(pg.locator('.pick', { hasText: 'EtherCAT' }), pg.locator('.dropzone[data-drop=bus]'));
+    await put(pg.locator('.traygrp').nth(1).locator('.pick').nth(2), pg.locator('[data-drop=topo]').last()); // stella: non adatta
+    for (let n; (n = await pg.locator('.tnode.slot').count());) { await pg.locator('.devchip').first().click(); await pg.locator('.tnode.slot').first().dispatchEvent('click'); await pg.waitForTimeout(40); }
+    await pg.click('.bench button.primary'); await pg.waitForTimeout(100);
+    if (!(await pg.locator('.chk.fail').count())) errs.push(`${label} rete: una topologia non adatta viene accettata`);
+    await put(pg.locator('.traygrp').nth(1).locator('.pick').nth(1), pg.locator('[data-drop=topo]').last()); // linea
+    for (let n; (n = await pg.locator('.tnode.slot').count());) { await pg.locator('.devchip').first().click(); await pg.locator('.tnode.slot').first().dispatchEvent('click'); await pg.waitForTimeout(40); }
+    await pg.click('.bench button.primary'); await pg.waitForTimeout(100);
+    if (await pg.locator('.chk.fail, .chk.warn').count() || !(await pg.locator('.chk.ok').count())) errs.push(`${label} rete: la soluzione corretta non viene riconosciuta`);
+    const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    if (ov > 2) errs.push(`${label} rete: overflow orizzontale ${ov}px`);
+    await pg.evaluate(h => (location.hash = h), '/profilo'); await pg.waitForTimeout(100);
+    if ((await pg.locator('.badge .badgeart').count()) !== data('game').badges.length) errs.push(`${label} profilo: grafica dei badge mancante`);
   }
   // temi: chiaro → scuro → alto contrasto, con illustrazione del bus e transizione di pagina
   {

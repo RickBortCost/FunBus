@@ -4,7 +4,7 @@ export const S = { lang: 'it', raw: null, level: 'beginner', levelChosen: false,
 export const defProgress = () => ({
   xp: 0, xpPro: 0, badges: {},
   stats: { quizDone: 0, bestStreak: 0, quizBest: {}, matchPerfect: 0 },
-  matchDone: {}, scenariosSolved: [], visited: [], animated: [], wrong: []
+  matchDone: {}, scenariosSolved: [], visited: [], animated: [], wrong: [], built: []
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');
@@ -90,7 +90,9 @@ const BADGE_COND = {
   feasibility: p => p.scenariosSolved.length >= 3,
   explorer: p => p.visited.length >= S.data.protocols.protocols.length,
   animator: p => p.animated.length >= 4,
-  pro: p => p.xpPro >= 100
+  pro: p => p.xpPro >= 100,
+  builder: p => (p.built || []).length >= 3,
+  architect: p => (p.built || []).length >= 5
 };
 
 export function checkBadges() {

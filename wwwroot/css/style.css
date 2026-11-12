@@ -307,3 +307,31 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
 [data-theme=hc] .qband,[data-theme=hc] .sband{stroke:var(--border);stroke-width:1}
 [data-theme=hc] .badge.locked{opacity:.7}
 @media(forced-colors:active){.pkt>*,.mk,.tbox,.iu{forced-color-adjust:none}}
+
+/* Gioco «Costruisci la rete»: banco con zone di rilascio, vassoio di pezzi trascinabili */
+.bench{user-select:none;-webkit-user-select:none}
+.benchtop{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem}
+.dropzone{display:flex;flex-direction:column;gap:.25rem;align-items:flex-start;justify-content:center;min-height:4rem;padding:.5rem .8rem;border:2px dashed var(--muted);border-radius:var(--r-sm);background:var(--surface);cursor:pointer}
+.dropzone.full{border-style:solid;border-color:var(--border)}
+.dropzone.canvas{min-height:11rem;align-items:center;text-align:center}
+.dzlabel{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.dropzone.ready,.canvasbox.ready{border-color:var(--accent);border-style:dashed;background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.dropzone.over,.canvasbox.over{border-style:solid;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+.canvasbox{border:2px solid transparent}
+.tnode.slot{cursor:pointer}.tnode.slot .tbox{stroke-dasharray:5 4;fill:var(--surface2)}
+.tnode.slot.ready .tbox{stroke:var(--accent);stroke-width:3}.tnode.slot.over .tbox{stroke:var(--accent);stroke-width:3;stroke-dasharray:none;fill:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+.tray{display:grid;gap:.6rem;margin-top:.6rem;padding:.7rem;border-radius:var(--r-sm);background:var(--surface2)}
+.traygrp .row{margin-top:.3rem;gap:.35rem}
+.pick{display:inline-flex;align-items:center;gap:.35rem;font-size:.85rem;padding:.35rem .75rem;margin:0;background:var(--surface);cursor:grab;touch-action:none}
+.pick.picked{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);font-weight:600}
+.pick.ghost{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-60%) rotate(-3deg);box-shadow:0 8px 20px rgba(0,0,0,.3);opacity:.95;cursor:grabbing}
+.devico{display:inline-block;width:20px;height:13px;border:2px solid var(--muted);border-radius:4px}
+/* Badge con grafica dedicata */
+.badgeart{flex:none}
+.bbase{fill:var(--bc)}.bribbon{fill:var(--bc);opacity:.65}
+.brim{fill:none;stroke:#fff;stroke-width:1.2;opacity:.55}
+.bst{fill:none;stroke:#fff;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}.bfl{fill:#fff}
+.badgeart.off{--bc:var(--muted)!important}.badgeart.off .bst,.badgeart.off .bfl,.badgeart.off .brim{stroke:var(--surface)}.badgeart.off .bfl{fill:var(--surface)}
+.badge.locked{filter:none;opacity:.7}
+[data-theme=hc] .dropzone{border-color:var(--border)}
+@media(max-width:560px){.benchtop{grid-template-columns:1fr}}

@@ -1,5 +1,6 @@
 import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress } from './core.js';
 import { exportProgress, importProgress } from './extra.js';
+import { badgeArt, hasArt } from './badges.js';
 
 const lvKey = () => (isPro() ? 'professional' : 'beginner');
 
@@ -13,7 +14,8 @@ export function hub(app) {
       h('a', { class: 'card', href: '#/test/match' }, h('h3', {}, '🧩 Collega le schede'), h('p', { class: 'muted' }, 'Abbina protocolli, caratteristiche e topologie.')),
       h('a', { class: 'card', href: '#/test/ripasso' }, h('h3', {}, '🔁 Ripasso errori'), h('p', { class: 'muted' }, `Rivedi le domande sbagliate (${(S.progress.wrong || []).length}).`)),
       h('a', { class: 'card', href: '#/test/frame' }, h('h3', {}, '🔍 Decodifica il frame'), h('p', { class: 'muted' }, 'Leggi un frame in esadecimale e rispondi (Professional).')),
-      h('a', { class: 'card', href: '#/test/scenari' }, h('h3', {}, '📐 Scenari di fattibilità'), h('p', { class: 'muted' }, 'Scegli il protocollo giusto per un requisito e scopri perché.'))));
+      h('a', { class: 'card', href: '#/test/scenari' }, h('h3', {}, '📐 Scenari di fattibilità'), h('p', { class: 'muted' }, 'Scegli il protocollo giusto per un requisito e scopri perché.')),
+      h('a', { class: 'card', href: '#/test/rete' }, h('h3', {}, '🏗 Costruisci la rete'), h('p', { class: 'muted' }, 'Trascina bus, topologia e dispositivi: l\'app verifica cicli, nodi e requisiti.'))));
 }
 
 /* ---------- QUIZ ---------- */
@@ -175,7 +177,7 @@ export function scenari(app) {
   list.length ? menu() : box.append(h('p', {}, 'Nessuno scenario per questo livello.'));
 }
 
-function reqTags(r) {
+export function reqTags(r) {
   const sc = S.data.scenarios, t = [];
   if (r.maxCycleUs != null) t.push(`ciclo ≤ ${fmtUs(r.maxCycleUs)}`);
   if (r.rtMin) t.push(sc.rtLabels[r.rtMin]);
@@ -194,12 +196,13 @@ export function profilo(app, { rerender }) {
       h('div', { class: 'progress' }, h('i', { style: `width:${li.pct}%` })),
       h('p', { class: 'muted' }, `${p.xp} XP${li.next ? ` · prossimo livello a ${li.next} XP` : ' · livello massimo'}`)),
     h('h2', {}, 'Badge'),
-    h('div', { class: 'grid' }, S.data.game.badges.map(b => h('div', { class: 'badge' + (p.badges[b.id] ? '' : ' locked') }, h('span', { class: 'ic' }, b.icon), h('div', {}, h('strong', {}, b.name), h('div', { class: 'muted' }, b.desc))))),
+    h('div', { class: 'grid' }, S.data.game.badges.map(b => h('div', { class: 'badge' + (p.badges[b.id] ? '' : ' locked') }, hasArt(b.id) ? badgeArt(b.id, !!p.badges[b.id]) : h('span', { class: 'ic' }, b.icon), h('div', {}, h('strong', {}, b.name), h('div', { class: 'muted' }, b.desc))))),
     h('h2', {}, 'Statistiche'),
     h('ul', { class: 'clean' },
       h('li', {}, `Quiz completati: ${st.quizDone} (miglior serie: ${st.bestStreak})`),
       h('li', {}, `Abbinamenti completati: ${Object.keys(p.matchDone).length}`),
       h('li', {}, `Scenari risolti: ${p.scenariosSolved.length}`),
+      h('li', {}, `Reti costruite: ${(p.built || []).length}`),
       h('li', {}, `Schede aperte: ${p.visited.length}/${S.data.protocols.protocols.length}`)),
     h('div', { class: 'row', style: 'margin-top:1rem' },
       h('a', { class: 'btn', href: '#/certificato' }, '🎓 Certificato'),
