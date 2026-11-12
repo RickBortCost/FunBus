@@ -3,6 +3,8 @@ import fs from 'node:fs';
 const rd = f => JSON.parse(fs.readFileSync(`wwwroot/data/${f}.json`, 'utf8'));
 const P = rd('protocols'), A = rd('animations'), Q = rd('quiz'), M = rd('matching'), SC = rd('scenarios'), D = rd('decode');
 rd('game'); rd('glossary'); rd('topics');
+const EN = JSON.parse(fs.readFileSync('wwwroot/data/lang/en.json', 'utf8'));
+for (const [re] of EN.patterns) new RegExp(re);
 const err = [];
 const ids = P.protocols.map(p => p.id);
 if (new Set(ids).size !== ids.length) err.push('id protocollo duplicati');

@@ -41,8 +41,8 @@ dl.spec dt{font-weight:600;color:var(--muted)}dl.spec dd{margin:0}
 ul.clean{margin:.2rem 0;padding-left:1.2rem}
 /* tabella confronto */
 .tablewrap{overflow:auto;max-height:calc(100vh - 190px);border:1px solid var(--border);border-radius:12px;background:var(--surface)}
-table.cmp{border-collapse:collapse;table-layout:fixed;width:max(100%,calc(120px + var(--n,3)*150px))}
-table.cmp th,table.cmp td{padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top;text-align:left;overflow-wrap:anywhere;font-size:clamp(.78rem,.9vw + .45rem,1rem)}
+table.cmp{border-collapse:collapse;table-layout:fixed;width:max(100%,calc(110px + var(--n,3)*104px))}
+table.cmp th,table.cmp td{padding:.5rem .7rem;border-bottom:1px solid var(--border);vertical-align:top;text-align:left;overflow-wrap:break-word;hyphens:auto;font-size:clamp(.78rem,.9vw + .45rem,1rem)}
 table.cmp th:first-child,table.cmp td:first-child{width:120px;position:sticky;left:0;background:var(--surface2);font-weight:600;z-index:1}
 table.cmp thead th{background:var(--surface2);position:sticky;top:0;z-index:2}
 table.cmp tr.diff td:not(:first-child){background:var(--diff)}
@@ -130,3 +130,9 @@ a.card:hover{box-shadow:0 10px 26px rgba(20,40,80,.14)}
 input,select,textarea{border-radius:var(--r-sm)}
 table.cmp thead th:first-child{border-top-left-radius:var(--r)}table.cmp thead th:last-child{border-top-right-radius:var(--r)}
 svg polygon{stroke-linejoin:round}
+
+/* Confronto a tutta larghezza della finestra */
+main.wide{max-width:none;padding-inline:clamp(.6rem,2vw,2rem)}
+main.wide .tablewrap{width:100%}
+
+select.lang{border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;padding:.35rem .7rem;cursor:pointer}

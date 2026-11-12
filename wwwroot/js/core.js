@@ -1,5 +1,5 @@
 // Stato globale, utilità DOM, persistenza, XP e badge.
-export const S = { level: 'beginner', levelChosen: false, theme: null, progress: null, data: {} };
+export const S = { lang: 'it', raw: null, level: 'beginner', levelChosen: false, theme: null, progress: null, data: {} };
 
 export const defProgress = () => ({
   xp: 0, xpPro: 0, badges: {},
@@ -36,13 +36,14 @@ export async function loadData(onStep = () => {}) {
   const names = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode'];
   const res = await Promise.all(names.map(n => fetch(`data/${n}.json`, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(n); return r.json(); }).then(j => { onStep(n); return j; })));
   names.forEach((n, i) => (S.data[n] = res[i]));
+  S.raw = S.data;
 }
 
 let saveTimer;
 export function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
-    const body = JSON.stringify({ level: S.level, levelChosen: S.levelChosen, theme: S.theme, progress: S.progress });
+    const body = JSON.stringify({ lang: S.lang, level: S.level, levelChosen: S.levelChosen, theme: S.theme, progress: S.progress });
     try { localStorage.setItem('ipl', body); } catch { /* ignora */ }
     try { await fetch('/api/state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body }); } catch { /* ignora */ }
   }, 250);
@@ -54,6 +55,7 @@ export async function loadState() {
   if (!st.progress) { try { st = JSON.parse(localStorage.getItem('ipl') || '{}'); } catch { st = {}; } }
   S.level = st.level === 'professional' ? 'professional' : 'beginner';
   S.levelChosen = !!st.levelChosen;
+  S.lang = st.lang === 'en' ? 'en' : 'it';
   S.theme = st.theme || null;
   S.progress = Object.assign(defProgress(), st.progress || {});
   S.progress.stats = Object.assign(defProgress().stats, S.progress.stats || {});
