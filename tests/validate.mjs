@@ -18,6 +18,8 @@ for (const p of P.protocols) {
   if (!A[p.id]) err.push(`${p.id}: animazione mancante`);
   if (!SC.matrix[p.id]) err.push(`${p.id}: matrice scenari mancante`);
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);
+  if (!p.illus?.left || !p.illus?.right || !p.illus?.conn || !/^#[0-9a-f]{6}$/i.test(p.illus.cable || '')) err.push(`${p.id}: illustrazione (illus) incompleta`);
+  else if (!EN.strings[p.illus.text]) err.push(`${p.id}: didascalia dell'illustrazione senza traduzione EN`);
   if (!(p.attrs.mbps > 0)) err.push(`${p.id}: attrs.mbps (bit rate tipico in Mbit/s, usato dai grafici) mancante`);
 }
 // Topologie: ogni topologia citata dai protocolli deve esistere, con testi b/p e traduzione EN
@@ -78,13 +80,13 @@ for (const it of D.items) for (const q of it.q) if (q.a >= q.o.length) err.push(
 // Contrasto WCAG AA (4.5:1) per le coppie principali del tema
 const css = fs.readFileSync('wwwroot/css/style.css', 'utf8');
 const vars = blk => Object.fromEntries([...blk.matchAll(/--([\w-]+):\s*(#[0-9a-fA-F]{3,6})\b/g)].map(m => [m[1], m[2].length === 4 ? '#' + [...m[2].slice(1)].map(c => c + c).join('') : m[2]]));
-const light = vars(css.match(/:root\{([^}]*)\}/)[1]), dark = { ...light, ...vars(css.match(/\[data-theme=dark\]\{([^}]*)\}/)[1]) };
+const light = vars(css.match(/:root\{([^}]*)\}/)[1]), dark = { ...light, ...vars(css.match(/\[data-theme=dark\]\{([^}]*)\}/)[1]) }, hc = { ...light, ...vars(css.match(/\[data-theme=hc\]\{([^}]*)\}/)[1]) };
 const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
-for (const [name, t] of [['chiaro', light], ['scuro', dark]]) {
-  for (const [fg, bg] of [['text', 'bg'], ['text', 'surface'], ['muted', 'surface'], ['muted', 'bg'], ['accent-t', 'accent'], ['accent', 'surface'], ['ok', 'surface'], ['bad', 'surface'], ['warn', 'surface']]) {
+for (const [name, t, min] of [['chiaro', light, 4.5], ['scuro', dark, 4.5], ['alto contrasto', hc, 7]]) {
+  for (const [fg, bg] of [['text', 'bg'], ['text', 'surface'], ['text', 'surface2'], ['text', 'diff'], ['muted', 'surface'], ['muted', 'surface2'], ['muted', 'bg'], ['accent-t', 'accent'], ['accent', 'surface'], ['ok', 'surface'], ['bad', 'surface'], ['warn', 'surface'], ['k-t', 'ok'], ['k-t', 'bad']]) {
     const r = ratio(t[fg], t[bg]);
-    if (r < 4.5) err.push(`contrasto tema ${name}: ${fg} su ${bg} = ${r.toFixed(2)}`);
+    if (r < (fg === 'k-t' ? 4.5 : min)) err.push(`contrasto tema ${name}: ${fg} su ${bg} = ${r.toFixed(2)}`);
   }
   // Elementi grafici (WCAG 1.4.11, 3:1): colori dei tipi di pacchetto sugli sfondi delle animazioni
   for (const k of ['k-cyc', 'k-acy', 'k-alm', 'k-tok', 'k-err', 's1', 's2', 's3', 's4', 's5', 's6']) for (const bg of ['surface', 'surface2']) {

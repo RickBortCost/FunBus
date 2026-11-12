@@ -1,4 +1,5 @@
 :root{--r:18px;--r-sm:12px;--bg:#f5f7fa;--surface:#fff;--surface2:#eef2f7;--text:#1b2733;--muted:#5d6b7a;--border:#d5dce4;--accent:#0b6bcb;--accent-t:#fff;--ok:#1a7f37;--warn:#8a5a0b;--bad:#c62828;--diff:#fff4cc;--k-cyc:#1a7f37;--k-acy:#0b6bcb;--k-alm:#b45309;--k-tok:#6d3fc4;--k-err:#c62828;--k-t:#fff;--s1:#2a78d6;--s2:#c9541e;--s3:#0f8a5f;--s4:#a17a00;--s5:#c2407a;--s6:#6250d6;--shadow:0 6px 18px rgba(20,40,80,.08),0 1px 3px rgba(20,40,80,.06)}
+[data-theme=hc]{--bg:#000;--surface:#000;--surface2:#1c1c1c;--text:#fff;--muted:#d6d6d6;--border:#fff;--accent:#ffd800;--accent-t:#000;--ok:#5dfc8a;--warn:#ffd24a;--bad:#ff9d94;--diff:#3d3200;--k-cyc:#5dfc8a;--k-acy:#6fc3ff;--k-alm:#ffb347;--k-tok:#d5b8ff;--k-err:#ff9d94;--k-t:#000;--s1:#6fc3ff;--s2:#ffa366;--s3:#5dfc8a;--s4:#ffd24a;--s5:#ff9ecb;--s6:#c4b5ff;--shadow:none}
 [data-theme=dark]{--bg:#12171d;--surface:#1b222b;--surface2:#242d38;--text:#e6ebf0;--muted:#9aa8b6;--border:#34404d;--accent:#4aa3ff;--accent-t:#06121f;--ok:#4cc26a;--warn:#e0b04a;--bad:#ff7b72;--diff:#4a3f12;--k-cyc:#4cc26a;--k-acy:#4aa3ff;--k-alm:#f0a23b;--k-tok:#b99bff;--k-err:#ff7b72;--k-t:#06121f;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#9085e9;--shadow:0 6px 18px rgba(0,0,0,.28)}
 *{box-sizing:border-box}
 body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -68,8 +69,8 @@ table.cmp tr.diff td:not(:first-child){background:var(--diff)}
 .progress{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent)}
 .opts{display:grid;gap:.5rem;margin:1rem 0}
 .opts button{text-align:left;padding:.7rem 1rem}
-.opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
-.opts button.wrong{background:var(--bad);color:#fff;border-color:var(--bad)}
+.opts button.right{background:var(--ok);color:var(--k-t);border-color:var(--ok)}
+.opts button.wrong{background:var(--bad);color:var(--k-t);border-color:var(--bad)}
 .fb{padding:.7rem 1rem;border-radius:8px;margin:.5rem 0}.fb.ok{background:color-mix(in srgb,var(--ok) 20%,transparent)}.fb.ko{background:color-mix(in srgb,var(--bad) 20%,transparent)}
 .match{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .match button{display:block;width:100%;margin:.3rem 0;text-align:left}
@@ -253,3 +254,56 @@ select.lang{border-radius:999px;border:1px solid var(--border);background:var(--
 .ssample{flex:none}
 table.cmp.scoretbl th:first-child,table.cmp.scoretbl td:first-child{width:190px}
 .filters .seg button{padding:.3rem .8rem}
+
+/* Illustrazioni dei bus (cavo, connettore, apparecchi stilizzati) */
+.phead{display:flex;flex-wrap:wrap;gap:.5rem 2rem;align-items:center;justify-content:space-between}
+.pheadmain{flex:1 1 320px;min-width:0}
+.illusfig{margin:0;flex:0 1 360px;min-width:min(280px,100%)}
+.illusfig figcaption{margin-top:.2rem}
+.illus{display:block;width:100%;height:auto}
+.illus text{font-family:inherit}
+.iu{fill:var(--surface);stroke:var(--text);stroke-width:1.8;stroke-linejoin:round}
+.iu2{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.iacc{fill:var(--pc);stroke:var(--text);stroke-width:1.2;stroke-linejoin:round}
+.iacc.line{fill:none;stroke:var(--text);stroke-width:2;stroke-linecap:round}
+.iled{fill:var(--ok)}.idot{fill:var(--muted)}
+.ibubble{fill:var(--surface);stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4}
+.icout{fill:none;stroke:var(--text);stroke-width:9;stroke-linecap:round}.icout.flat{stroke-width:13;stroke-linecap:butt}
+.icable.line{fill:none;stroke:var(--cable);stroke-width:6;stroke-linecap:round}.icable.line.flat{stroke-width:10;stroke-linecap:butt}.icable.line.any{stroke-dasharray:1 10}
+.iconn .icable{fill:var(--cable);stroke:var(--text);stroke-width:1.2;stroke-linejoin:round}
+.ipair{fill:none;stroke:var(--surface);stroke-width:1.6;stroke-dasharray:7 6}
+.ired{fill:#d64541;stroke:var(--text);stroke-width:1.2}
+.ilbl{font-size:11px;fill:var(--muted)}
+
+/* Transizione leggera tra le pagine */
+#app.enter{animation:pagein .22s ease-out}
+@keyframes pagein{from{opacity:0;transform:translateY(8px)}}
+
+/* Alternative al colore (daltonismo): segni, forme e tratteggi oltre alla tinta */
+table.cmp tr.diff td:first-child::after{content:" ≠";font-weight:800;color:var(--text)}
+table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradient(135deg,transparent 0 9px,color-mix(in srgb,var(--text) 9%,transparent) 9px 10.5px)}
+.opts button.right::before{content:"✔ ";font-weight:700}.opts button.wrong::before{content:"✖ ";font-weight:700}
+.match button.done::after{content:" ✔";font-weight:700}
+#nav a.on{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px}
+.chip.on{font-weight:600}
+
+/* Barra di navigazione su una riga scorrevole negli schermi stretti */
+@media(max-width:760px){#nav{flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}#nav::-webkit-scrollbar{display:none}.brand{flex:none}}
+
+/* Tema ad alto contrasto: nero/bianco, accento giallo, bordi pieni, niente ombre o sfumature */
+[data-theme=hc] body{background:var(--bg)}
+[data-theme=hc] .card,[data-theme=hc] .sim,[data-theme=hc] .tablewrap,[data-theme=hc] .badge,[data-theme=hc] #cert,[data-theme=hc] .note,[data-theme=hc] .fielddesc,[data-theme=hc] .topobox,[data-theme=hc] .chk,[data-theme=hc] .hex{border:2px solid var(--border);box-shadow:none}
+[data-theme=hc] .note,[data-theme=hc] .chk{border-left-width:8px}
+[data-theme=hc] .topbar{border-bottom:2px solid var(--border);box-shadow:none;backdrop-filter:none}
+[data-theme=hc] a.card{border-left:8px solid var(--pc,var(--accent))}
+[data-theme=hc] .tag,[data-theme=hc] button,[data-theme=hc] .btn,[data-theme=hc] select,[data-theme=hc] input,[data-theme=hc] .seg{border:1.5px solid var(--border)}
+[data-theme=hc] .seg button{border:0}
+[data-theme=hc] button.primary,[data-theme=hc] .chip.on,[data-theme=hc] .tabs button.on,[data-theme=hc] .tabs .topotab.on{border-color:var(--accent);box-shadow:none}
+[data-theme=hc] #nav a.on{background:var(--accent);color:var(--accent-t)}
+[data-theme=hc] a{text-decoration-thickness:2px}
+[data-theme=hc] :focus-visible{outline-width:4px}
+[data-theme=hc] .opoly{stroke:var(--text)!important}
+[data-theme=hc] .charttip{border:2px solid var(--bg)}
+[data-theme=hc] .qband,[data-theme=hc] .sband{stroke:var(--border);stroke-width:1}
+[data-theme=hc] .badge.locked{opacity:.7}
+@media(forced-colors:active){.pkt>*,.mk,.tbox,.iu{forced-color-adjust:none}}

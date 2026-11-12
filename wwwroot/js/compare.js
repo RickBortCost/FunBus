@@ -74,7 +74,7 @@ export function compare(app, { cleanups }) {
       return h('tr', { class: diff ? 'diff' : '' }, h('td', {}, r.label), ps.map(p => h('td', {}, r.pre ? h('strong', {}, r.pre(p) + ' — ') : null, r.get(p))));
     }));
     out.replaceChildren(h('div', { class: 'tablewrap' }, h('table', { class: 'cmp', style: `--n:${ps.length}` }, thead, tbody)),
-      h('p', { class: 'muted' }, isPro() ? 'Righe in giallo: differenze rilevanti per il livello Professional (stack, mezzo, topologia, modello, determinismo e ciclo).' : 'Righe in giallo: differenze rilevanti per il livello Beginner (famiglia, mezzo, topologia, modello, determinismo).'));
+      h('p', { class: 'muted' }, isPro() ? 'Righe evidenziate (giallo, tratteggio e segno ≠): differenze rilevanti per il livello Professional (stack, mezzo, topologia, modello, determinismo e ciclo).' : 'Righe evidenziate (giallo, tratteggio e segno ≠): differenze rilevanti per il livello Beginner (famiglia, mezzo, topologia, modello, determinismo).'));
   };
   if (view === 'charts') S.data.protocols.protocols.slice(0, 3).forEach(p => toggle(p.id));
   app.append(h('h1', {}, 'Confronto'), h('p', {}, 'Filtra i protocolli, spunta quelli da confrontare (almeno 2) e usa "Affianca selezionati"; passa a «Grafici» per radar, mappa e piramidi OSI.'), bar, out);

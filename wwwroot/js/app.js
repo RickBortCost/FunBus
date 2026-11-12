@@ -1,4 +1,4 @@
-import { S, h, loadData, loadState, save, DATA_FILES } from './core.js';
+import { S, h, loadData, loadState, save, toast, DATA_FILES } from './core.js';
 import * as pages from './pages.js';
 import { compare } from './compare.js';
 import * as games from './games.js';
@@ -15,6 +15,7 @@ function parse() {
   return { root: p[0] || 'home', sub: p[1] };
 }
 
+let lastHash = null;
 function render(scroll = false) {
   cleanups.splice(0).forEach(f => f());
   app.replaceChildren();
@@ -36,15 +37,21 @@ function render(scroll = false) {
   } catch (e) { app.append(h('pre', {}, 'Errore: ' + e.message)); console.error(e); }
   app.classList.toggle('wide', root === 'confronto');
   document.querySelectorAll('#nav a').forEach(a => { const on = a.dataset.r === root; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  // transizione leggera solo al cambio di pagina (disattivata da prefers-reduced-motion nel CSS)
+  if (location.hash !== lastHash) { lastHash = location.hash; app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); }
+  const cur = document.querySelector('#nav a.on'), nav = document.getElementById('nav');
+  if (cur && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = cur.offsetLeft - nav.offsetLeft - (nav.clientWidth - cur.offsetWidth) / 2;
   app.focus({ preventScroll: true });
   document.getElementById('lvB').classList.toggle('on', S.level === 'beginner');
   document.getElementById('lvP').classList.toggle('on', S.level === 'professional');
   if (scroll) window.scrollTo(0, 0);
 }
 
+const THEMES = { light: ['◐', 'chiaro'], dark: ['◑', 'scuro'], hc: ['◉', 'alto contrasto'] };
 function applyTheme() {
-  const t = S.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const t = THEMES[S.theme] ? S.theme : matchMedia('(prefers-contrast: more)').matches ? 'hc' : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   document.documentElement.dataset.theme = t;
+  document.getElementById('themeBtn').textContent = THEMES[t][0];
 }
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -78,7 +85,8 @@ async function init() {
   sel.addEventListener('change', async () => { await setLang(sel.value, true); });
   document.querySelectorAll('[data-level]').forEach(b => b.addEventListener('click', () => { S.level = b.dataset.level; S.levelChosen = true; save(); render(); }));
   document.getElementById('themeBtn').addEventListener('click', () => {
-    S.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save();
+    const k = Object.keys(THEMES); S.theme = k[(k.indexOf(document.documentElement.dataset.theme) + 1) % k.length]; applyTheme(); save();
+    toast(`Tema: ${THEMES[S.theme][1]}`);
   });
   window.addEventListener('hashchange', () => render(true));
   render();

@@ -19,6 +19,8 @@ const G = {
   iolink: '<circle cx="10" cy="24" r="6"/><path d="M16 24H30"/><rect x="30" y="16" width="12" height="16" rx="2"/>'
 };
 
+import { onColor } from './core.js';
+
 // Se esiste logos/<id>.svg (o .png) viene usato il logo ufficiale, altrimenti il pittogramma.
 export function logo(p, size = 40) {
   const box = document.createElement('span');
@@ -42,6 +44,6 @@ function pictogram(p, size) {
   s.setAttribute('viewBox', '0 0 48 48'); s.setAttribute('width', size); s.setAttribute('height', size);
   s.setAttribute('role', 'img'); s.setAttribute('aria-label', `Pittogramma ${p.name}`);
   s.style.flex = 'none';
-  s.innerHTML = `<rect width="48" height="48" rx="10" fill="${p.color}"/><g stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">${G[p.id] || ''}</g>`;
+  s.innerHTML = `<rect width="48" height="48" rx="10" fill="${p.color}"/><g stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">${G[p.id] || ''}</g>`.replaceAll('#fff', onColor(p.color, 3));
   return s;
 }

@@ -160,6 +160,13 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "io",
+    "conn": "rj45",
+    "cable": "#2e9e4f",
+    "text": "Cavo Ethernet industriale verde a 2 coppie (4 fili), con connettori RJ45 o M12 D-coded; fino a 100 m per tratta in rame."
    }
   },
   {
@@ -284,6 +291,13 @@
      7
     ],
     "via": []
+   },
+   "illus": {
+    "left": "plc",
+    "right": "drive",
+    "conn": "dsub9",
+    "cable": "#7d3c98",
+    "text": "Cavo viola schermato a due fili (tipo A) e connettore D-sub a 9 poli con terminazione inseribile; PROFIBUS PA usa invece cavo e morsetti per l'area di processo."
    }
   },
   {
@@ -412,6 +426,13 @@
      4,
      5
     ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "plc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Viaggia sulla rete Ethernet dell'impianto (RJ45), tra PC, HMI e PLC; storicamente anche su MPI e PROFIBUS."
    }
   },
   {
@@ -538,6 +559,13 @@
      7
     ],
     "via": []
+   },
+   "illus": {
+    "left": "ipc",
+    "right": "drive",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Cavo Ethernet standard (100BASE-TX) con RJ45 o M8/M12: ogni slave ha una porta di ingresso e una di uscita. EtherCAT P porta sullo stesso cavo anche l'alimentazione."
    }
   },
   {
@@ -660,6 +688,13 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "ipc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Normale rete Ethernet/TCP-IP tra PC e controllori TwinCAT; sulla stessa macchina i messaggi passano dal router AMS, senza cavo."
    }
   },
   {
@@ -788,6 +823,14 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "sensor",
+    "right": "cloud",
+    "conn": "net",
+    "cable": "#7f8c8d",
+    "wire": "any",
+    "text": "Qualsiasi rete IP: Ethernet, Wi-Fi o rete cellulare, verso un broker in locale o nel cloud."
    }
   },
   {
@@ -918,6 +961,13 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "server",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Rete Ethernet/TCP-IP (porta 4840 per il protocollo binario): dal PLC ai sistemi di supervisione e IT."
    }
   },
   {
@@ -1047,6 +1097,13 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "io",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Ethernet standard con connettori RJ45 o M12 D-coded; i dispositivi a due porte permettono linea e anello DLR."
    }
   },
   {
@@ -1175,6 +1232,13 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "meter",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Ethernet standard con RJ45 (porta TCP 502); un gateway collega le linee seriali Modbus RTU."
    }
   },
   {
@@ -1301,6 +1365,13 @@
      1,
      2
     ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "drive",
+    "conn": "dsub9",
+    "cable": "#7d3c98",
+    "text": "Doppino schermato CAN_H/CAN_L con terminazioni da 120 Ω alle due estremità; connettore D-sub a 9 poli o M12 a 5 poli."
    }
   },
   {
@@ -1424,6 +1495,13 @@
      7
     ],
     "via": []
+   },
+   "illus": {
+    "left": "io",
+    "right": "sensor",
+    "conn": "m12",
+    "cable": "#2c3e50",
+    "text": "Cavo standard non schermato a 3 fili con connettore M12 (o M8); fino a 20 m tra master e dispositivo."
    }
   },
   {
@@ -1548,6 +1626,14 @@
     "via": [
      1
     ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "meter",
+    "conn": "terminal",
+    "cable": "#7f8c8d",
+    "wire": "pair",
+    "text": "Doppino schermato RS-485 su morsetti a vite (o D-sub), con terminazione da 120 Ω alle due estremità della linea."
    }
   },
   {
@@ -1673,6 +1759,14 @@
      7
     ],
     "via": []
+   },
+   "illus": {
+    "left": "plc",
+    "right": "sensor",
+    "conn": "asi",
+    "cable": "#f1c40f",
+    "wire": "flat",
+    "text": "Cavo piatto giallo a due fili per dati e alimentazione (≈ 30 V): i moduli si collegano a perforazione d'isolante, senza tagliare il cavo."
    }
   },
   {
@@ -1801,6 +1895,13 @@
      2,
      4
     ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "hvac",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Rete Ethernet/IP dell'edificio (porta UDP 47808); BACnet MS/TP usa invece un doppino RS-485."
    }
   },
   {
@@ -1926,6 +2027,14 @@
      7
     ],
     "via": []
+   },
+   "illus": {
+    "left": "button",
+    "right": "lamp",
+    "conn": "knx",
+    "cable": "#27ae60",
+    "wire": "pair",
+    "text": "Cavo bus verde a doppino (TP1) con morsetto rosso/nero: porta dati e alimentazione a circa 30 V."
    }
   },
   {
@@ -2049,6 +2158,14 @@
      7
     ],
     "via": []
+   },
+   "illus": {
+    "left": "plc",
+    "right": "transmitter",
+    "conn": "terminal",
+    "cable": "#7f8c8d",
+    "wire": "pair",
+    "text": "Lo stesso doppino del segnale 4–20 mA: il segnale digitale è sovrapposto alla corrente. Serve una resistenza di anello, tipicamente 250 Ω."
    }
   },
   {
@@ -2180,6 +2297,13 @@
      3,
      4
     ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "plc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "La stessa rete EtherNet/IP dei dispositivi di campo: Ethernet con RJ45 tra i controllori."
    }
   }
  ],
