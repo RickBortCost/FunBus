@@ -4,6 +4,7 @@ import { logo } from './logos.js';
 import { pyramid, pyramidLegend } from './osi.js';
 import { securityBox } from './normative.js';
 import { topoChips } from './topo.js';
+import { illustration } from './illus.js';
 
 const FIELDS = () => S.data.protocols.fields;
 
@@ -66,9 +67,9 @@ export function protocol(app, { id, cleanups }) {
   };
   app.append(
     h('a', { href: '#/protocolli' }, '← Tutti i protocolli'),
-    h('div', { class: 'row' }, logo(p, 56), h('h1', { style: 'margin:0' }, p.name)),
-    h('p', {}, T(p.tagline)),
-    h('span', { class: 'tag' }, p.family),
+    h('div', { class: 'phead' },
+      h('div', { class: 'pheadmain' }, h('div', { class: 'row' }, logo(p, 56), h('h1', { style: 'margin:0' }, p.name)), h('p', {}, T(p.tagline)), h('span', { class: 'tag' }, p.family)),
+      illustration(p)),
     tabs, body);
   show(tab === 'animazione' ? 'animazione' : 'scheda');
 }

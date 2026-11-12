@@ -30,6 +30,12 @@ export function svgEl(tag, attrs) {
   for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
   return e;
 }
+// Colore del testo/segno (bianco o scuro) leggibile su un colore pieno: min = 4.5 per il testo, 3 per i segni grafici.
+export function onColor(hex, min = 4.5) {
+  const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  const l = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  return 1.05 / (l + 0.05) >= min ? '#fff' : '#0b1520';
+}
 export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export const DATA_FILES = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode', 'normative', 'topologies'];

@@ -37,6 +37,22 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
   }
+  // temi: chiaro → scuro → alto contrasto, con illustrazione del bus e transizione di pagina
+  {
+    const seen = [];
+    for (let i = 0; i < 3; i++) { await pg.click('#themeBtn'); seen.push(await pg.evaluate(() => document.documentElement.dataset.theme)); }
+    if (new Set(seen).size !== 3 || !seen.includes('hc')) errs.push(`${label}: il pulsante del tema non passa per chiaro/scuro/alto contrasto (${seen})`);
+    while ((await pg.evaluate(() => document.documentElement.dataset.theme)) !== 'hc') await pg.click('#themeBtn');
+    for (const r of ['/', '/protocolli/' + ids[0], '/confronto', '/topologie/ring', '/test/quiz']) {
+      await pg.evaluate(h => (location.hash = h), r); await pg.waitForTimeout(80);
+      if ((await pg.textContent('#app')).length < 20) errs.push(`${label} alto contrasto ${r}: pagina vuota`);
+      if (!(await pg.evaluate(() => document.getElementById('app').classList.contains('enter')))) errs.push(`${label} ${r}: transizione di pagina assente`);
+      const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      if (ov > 2 && r !== '/confronto') errs.push(`${label} alto contrasto ${r}: overflow orizzontale ${ov}px`);
+    }
+    for (const id of ids) { await pg.evaluate(h => (location.hash = h), '/protocolli/' + id); await pg.waitForTimeout(40); if (!(await pg.locator('.illusfig svg').count())) errs.push(`${id}: illustrazione mancante`); }
+    while ((await pg.evaluate(() => document.documentElement.dataset.theme)) !== 'light') await pg.click('#themeBtn');
+  }
   // confronto: vista grafici (radar, piramidi OSI sovrapposte, mappa a quadranti)
   for (const lang of ['it', 'en']) {
     await pg.selectOption('#langSel', lang); await pg.evaluate(h => (location.hash = h), '/confronto'); await pg.waitForTimeout(120);
