@@ -97,6 +97,6 @@ function commSection() {
     h('div', { class: 'note analogy' }, T(P.commIntro)),
     h('div', { class: 'grid', style: 'grid-template-columns:repeat(auto-fit,minmax(280px,1fr))' }, col('polling'), col('both'), col('notify')),
     h('div', { class: 'note' }, h('strong', {}, 'Performance vs determinismo: '), isPro()
-      ? 'nei protocolli ibridi la modalità scelta per ogni variabile decide il compromesso. Ciclico = carico costante e latenza limitata; on-change = banda e latenza migliori in media, ma il caso peggiore (tutte le variabili cambiano insieme) non è limitato.'
+      ? 'nei protocolli ibridi la modalità scelta per ogni variabile decide il compromesso. Ciclico = carico costante e, su un mezzo deterministico, latenza limitata; on-change = banda e latenza migliori in media, ma il caso peggiore (tutte le variabili cambiano insieme) non è limitato.'
       : 'nei protocolli che fanno entrambe le cose, scegli «ciclico» quando servono tempi certi e «a notifica» quando vuoi risparmiare traffico e reagire subito.'));
 }
