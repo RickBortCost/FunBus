@@ -2533,9 +2533,54 @@
 "Cosa succede": "What happens",
 "Disegno interattivo della topologia": "Interactive drawing of the topology",
 "Apri il disegno interattivo": "Open the interactive drawing",
-"Topologia non trovata.": "Topology not found."
+"Topologia non trovata.": "Topology not found.",
+"▦ Tabella": "▦ Table",
+"📊 Grafici": "📊 Charts",
+"Vista": "View",
+"Filtra i protocolli, spunta quelli da confrontare (almeno 2) e usa \"Affianca selezionati\"; passa a «Grafici» per radar, mappa e piramidi OSI.": "Filter the protocols, tick the ones to compare (at least 2) and use “Compare selected”; switch to “Charts” for the radar, the map and the OSI pyramids.",
+"Protocolli nei grafici (da 1 a 6):": "Protocols in the charts (1 to 6):",
+"Protocolli nei grafici": "Protocols in the charts",
+"Massimo 6 protocolli nei grafici: deselezionane uno.": "At most 6 protocols in the charts: deselect one.",
+"Seleziona da 1 a 6 protocolli qui sopra.": "Select 1 to 6 protocols above.",
+"Radar: profilo a colpo d'occhio": "Radar: profile at a glance",
+"Grafico radar dei protocolli selezionati": "Radar chart of the selected protocols",
+"Piramidi OSI sovrapposte": "Overlaid OSI pyramids",
+"Piramidi OSI sovrapposte dei protocolli selezionati": "Overlaid OSI pyramids of the selected protocols",
+"Ogni livello è diviso in una fetta per protocollo, nell'ordine dei numeri della selezione.": "Every layer is split into one slice per protocol, in the order of the selection numbers.",
+"Mappa: determinismo e performance": "Map: determinism and performance",
+"Mappa determinismo e performance": "Determinism and performance map",
+"Clicca su un protocollo per aggiungerlo o toglierlo dai grafici. Performance = media dei punteggi di ciclo e velocità.": "Click a protocol to add it to or remove it from the charts. Performance = average of the cycle and speed scores.",
+"Tabella dei punteggi": "Score table",
+"valori indicativi da 0 a 5 ricavati dai dati dell'app. Ciclo: ciclo minimo tipico, in scala logaritmica (≈ 30 µs → 5; 0,5 s → 0,5). Determinismo: classe real-time (hard 5, deterministico 4, soft 2,5, nessuno 1). Sicurezza: funzioni di cybersicurezza native o parziali della pagina Normative. Velocità: bit rate tipico del mezzo, in scala logaritmica (per i protocolli su TCP/IP dipende dalla rete). Topologie: quante delle 5 topologie sono supportate. I valori reali dipendono da versione, dispositivi e configurazione.": "indicative values from 0 to 5 derived from the app data. Cycle: typical minimum cycle, on a logarithmic scale (≈ 30 µs → 5; 0.5 s → 0.5). Determinism: real-time class (hard 5, deterministic 4, soft 2.5, none 1). Security: native or partial cybersecurity functions from the Regulations page. Speed: typical bit rate of the medium, on a logarithmic scale (for TCP/IP-based protocols it depends on the network). Topologies: how many of the 5 topologies are supported. Real values depend on version, devices and configuration.",
+"sono voti indicativi da 0 a 5 calcolati dai dati dell'app, utili per confrontare i protocolli tra loro. Non dicono quale sia «il migliore»: dipende da cosa serve all'impianto.": "they are indicative marks from 0 to 5 calculated from the app data, useful for comparing the protocols with each other. They do not say which one is “the best”: it depends on what the plant needs.",
+"Deterministico, più lento": "Deterministic, slower",
+"Deterministico e veloce": "Deterministic and fast",
+"Senza garanzie, più lento": "No guarantees, slower",
+"Veloce, senza garanzie": "Fast, no guarantees",
+"Deterministico ma più lento: sensori, attuatori, bus seriali": "Deterministic but slower: sensors, actuators, serial buses",
+"Deterministico e veloce: motion e I/O rapidi": "Deterministic and fast: motion and fast I/O",
+"Lento e senza garanzie: edifici e strumentazione": "Slow with no guarantees: buildings and instrumentation",
+"Veloce ma senza garanzie: dati, supervisione, IT": "Fast but with no guarantees: data, supervision, IT",
+"← più lento": "← slower",
+"più veloce →": "faster →",
+"Performance": "Performance",
+"Ciclo": "Cycle",
+"Sicurezza": "Security",
+"Come leggere i punteggi:": "How to read the scores:"
 },
 "patterns": [
+[
+"^(\\d+) su (\\d+)$",
+"$1 of $2"
+],
+[
+"^(.*) · L(\\d) (.*)$",
+"$1 · L$2 $3"
+],
+[
+"^(.*) · (Ciclo|Determinismo|Sicurezza|Velocità|Topologie): (.*)$",
+"$1 · $2: $3"
+],
 [
 "^(.*) · (Nodo spento|Non raggiungibile)$",
 "$1 · $2"

@@ -18,6 +18,7 @@ for (const p of P.protocols) {
   if (!A[p.id]) err.push(`${p.id}: animazione mancante`);
   if (!SC.matrix[p.id]) err.push(`${p.id}: matrice scenari mancante`);
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);
+  if (!(p.attrs.mbps > 0)) err.push(`${p.id}: attrs.mbps (bit rate tipico in Mbit/s, usato dai grafici) mancante`);
 }
 // Topologie: ogni topologia citata dai protocolli deve esistere, con testi b/p e traduzione EN
 const tids = TP.topologies.map(t => t.id);
@@ -86,7 +87,7 @@ for (const [name, t] of [['chiaro', light], ['scuro', dark]]) {
     if (r < 4.5) err.push(`contrasto tema ${name}: ${fg} su ${bg} = ${r.toFixed(2)}`);
   }
   // Elementi grafici (WCAG 1.4.11, 3:1): colori dei tipi di pacchetto sugli sfondi delle animazioni
-  for (const k of ['k-cyc', 'k-acy', 'k-alm', 'k-tok', 'k-err']) for (const bg of ['surface', 'surface2']) {
+  for (const k of ['k-cyc', 'k-acy', 'k-alm', 'k-tok', 'k-err', 's1', 's2', 's3', 's4', 's5', 's6']) for (const bg of ['surface', 'surface2']) {
     const r = ratio(t[k], t[bg]);
     if (r < 3) err.push(`contrasto grafico tema ${name}: ${k} su ${bg} = ${r.toFixed(2)}`);
   }

@@ -128,7 +128,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [
@@ -254,7 +255,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 12
    },
    "story": {
     "b": [
@@ -377,7 +379,8 @@
     ],
     "model": [
      "client-server"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [
@@ -506,7 +509,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [
@@ -624,7 +628,8 @@
     ],
     "model": [
      "client-server"
-    ]
+    ],
+    "mbps": 1000
    },
    "story": {
     "b": [
@@ -751,7 +756,8 @@
     ],
     "model": [
      "pub-sub"
-    ]
+    ],
+    "mbps": 1000
    },
    "story": {
     "b": [
@@ -878,7 +884,8 @@
     "model": [
      "client-server",
      "pub-sub"
-    ]
+    ],
+    "mbps": 1000
    },
    "story": {
     "b": [
@@ -1006,7 +1013,8 @@
     ],
     "model": [
      "pub-sub"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [
@@ -1135,7 +1143,8 @@
     ],
     "model": [
      "client-server"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [
@@ -1262,7 +1271,8 @@
     "model": [
      "master-slave",
      "pub-sub"
-    ]
+    ],
+    "mbps": 1
    },
    "story": {
     "b": [
@@ -1385,7 +1395,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 0.2304
    },
    "story": {
     "b": [
@@ -1507,7 +1518,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 0.1152
    },
    "story": {
     "b": [
@@ -1632,7 +1644,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 0.167
    },
    "story": {
     "b": [
@@ -1756,7 +1769,8 @@
     "model": [
      "client-server",
      "pub-sub"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [
@@ -1881,7 +1895,8 @@
     ],
     "model": [
      "pub-sub"
-    ]
+    ],
+    "mbps": 0.0096
    },
    "story": {
     "b": [
@@ -2005,7 +2020,8 @@
     ],
     "model": [
      "master-slave"
-    ]
+    ],
+    "mbps": 0.0012
    },
    "story": {
     "b": [
@@ -2130,7 +2146,8 @@
     "model": [
      "pub-sub",
      "client-server"
-    ]
+    ],
+    "mbps": 100
    },
    "story": {
     "b": [

@@ -37,6 +37,21 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
   }
+  // confronto: vista grafici (radar, piramidi OSI sovrapposte, mappa a quadranti)
+  for (const lang of ['it', 'en']) {
+    await pg.selectOption('#langSel', lang); await pg.evaluate(h => (location.hash = h), '/confronto'); await pg.waitForTimeout(120);
+    await pg.click('.filters .seg button >> nth=1'); await pg.waitForTimeout(200);
+    for (const c of ['.radar .rarea', '.osi .oslice.own', '.quad .qdot', '.scoretbl']) if (!(await pg.locator(c).count())) errs.push(`${label}/${lang} grafici: manca ${c}`);
+    if ((await pg.locator('.quad .qdot').count()) !== ids.length) errs.push(`${label}/${lang} grafici: la mappa non mostra tutti i protocolli`);
+    const before = await pg.locator('.pchip.sel').count();
+    await pg.locator('.pchip:not(.sel)').first().click(); await pg.waitForTimeout(120);
+    if ((await pg.locator('.pchip.sel').count()) !== before + 1 || (await pg.locator('.radar .rarea').count()) !== before + 1) errs.push(`${label}/${lang} grafici: la selezione non aggiorna il radar`);
+    const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    if (ov > 2) errs.push(`${label}/${lang} grafici: overflow orizzontale ${ov}px`);
+    if ((await pg.textContent('#app')).includes('null')) errs.push(`${label}/${lang} grafici: testo "null" nella pagina`);
+    await pg.click('.filters .seg button >> nth=0');
+  }
+  await pg.selectOption('#langSel', 'it');
   // topologie: guasto di cavo e di nodo, anello con ripristino
   for (const t of data('topologies').topologies) {
     await pg.evaluate(h => (location.hash = h), '/topologie/' + t.id); await pg.waitForTimeout(150);
