@@ -881,6 +881,104 @@
    ],
    "a": 0,
    "e": "Requested Packet Interval della connessione CIP."
+  },
+  {
+   "id": "b28",
+   "level": "beginner",
+   "d": 2,
+   "q": "Quale tra questi bus ha sicurezza nativa completa (certificati, cifratura, ruoli)?",
+   "o": [
+    "OPC UA",
+    "Modbus RTU",
+    "AS-Interface",
+    "HART cablato"
+   ],
+   "a": 0,
+   "e": "OPC UA nasce con un modello di sicurezza integrato; gli altri non hanno autenticazione né cifratura."
+  },
+  {
+   "id": "b29",
+   "level": "beginner",
+   "d": 2,
+   "q": "Un bus senza sicurezza come PROFIBUS o Modbus come si protegge?",
+   "o": [
+    "Isolandolo e proteggendo cavi e gateway",
+    "Non serve proteggerlo",
+    "Cambiando colore del cavo",
+    "Con più slave"
+   ],
+   "a": 0,
+   "e": "Si usano segmentazione, protezione fisica e firewall ai confini."
+  },
+  {
+   "id": "p37",
+   "level": "professional",
+   "d": 2,
+   "q": "Quali sono i tempi di notifica di un incidente significativo secondo NIS2?",
+   "o": [
+    "Preallarme 24 ore, notifica 72 ore, relazione finale a un mese",
+    "Entro 7 giorni",
+    "Solo a fine anno",
+    "Non è prevista notifica"
+   ],
+   "a": 0,
+   "e": "Art. 23: early warning entro 24 ore, notifica entro 72 ore, relazione finale entro un mese."
+  },
+  {
+   "id": "p38",
+   "level": "professional",
+   "d": 3,
+   "q": "A chi si rivolgono principalmente gli obblighi del CRA (Regolamento UE 2024/2847)?",
+   "o": [
+    "Ai fabbricanti, importatori e distributori di prodotti con elementi digitali",
+    "Solo ai gestori di energia",
+    "Solo agli utenti finali",
+    "Solo ai provider cloud"
+   ],
+   "a": 0,
+   "e": "Il CRA riguarda i prodotti; NIS2 riguarda i soggetti che gestiscono servizi essenziali o importanti."
+  },
+  {
+   "id": "p39",
+   "level": "professional",
+   "d": 3,
+   "q": "Quale Foundational Requirement IEC 62443 corrisponde all'autenticazione di utenti e dispositivi?",
+   "o": [
+    "FR1 — IAC",
+    "FR4 — DC",
+    "FR5 — RDF",
+    "FR7 — RA"
+   ],
+   "a": 0,
+   "e": "FR1 Identification and Authentication Control; FR4 è la riservatezza dei dati (DC)."
+  },
+  {
+   "id": "p40",
+   "level": "professional",
+   "d": 3,
+   "q": "Perché PROFIsafe o FSoE non bastano come misura di cybersicurezza?",
+   "o": [
+    "Il black channel rileva errori casuali ma non offre autenticazione né riservatezza",
+    "Perché sono troppo lenti",
+    "Perché usano il Wi-Fi",
+    "Perché non hanno CRC"
+   ],
+   "a": 0,
+   "e": "I protocolli safety sono pensati contro guasti casuali; la security richiede misure aggiuntive (IEC TR 63074)."
+  },
+  {
+   "id": "p41",
+   "level": "professional",
+   "d": 3,
+   "q": "Da quando si applica in generale il Regolamento Macchine (UE) 2023/1230?",
+   "o": [
+    "20 gennaio 2027",
+    "1 gennaio 2020",
+    "È già abrogato",
+    "Non ha una data"
+   ],
+   "a": 0,
+   "e": "Si applica dal 20/01/2027 e sostituisce la direttiva 2006/42/CE (verificare)."
   }
  ]
 }

@@ -31,7 +31,8 @@
   "simpleOpen": "semplicità di implementazione e specifica aperta",
   "building": "automazione di edifici (luci, clima, accessi)",
   "analog420": "riuso di anelli analogici 4–20 mA esistenti",
-  "powerOnBus": "alimentazione e dati sullo stesso cavo"
+  "powerOnBus": "alimentazione e dati sullo stesso cavo",
+  "nativeSec": "autenticazione e cifratura native nel protocollo"
  },
  "matrix": {
   "profinet": {
@@ -47,7 +48,8 @@
     "vendorNeutral": "yes",
     "safety": "yes",
     "redundancy": "yes",
-    "siemensIO": "yes"
+    "siemensIO": "yes",
+    "nativeSec": "partial"
    },
    "notes": {
     "security": "Le Security Class dipendono dalla versione della specifica e dai dispositivi.",
@@ -87,7 +89,8 @@
     "security": "partial",
     "safety": "no",
     "redundancy": "partial",
-    "siemensData": "yes"
+    "siemensData": "yes",
+    "nativeSec": "partial"
    },
    "notes": {
     "security": "S7CommPlus (S7-1200/1500) aggiunge integrità; S7comm classico no.",
@@ -127,7 +130,8 @@
     "vendorNeutral": "partial",
     "redundancy": "partial",
     "plcBeckhoff": "yes",
-    "simpleOpen": "partial"
+    "simpleOpen": "partial",
+    "nativeSec": "partial"
    },
    "notes": {
     "security": "ADS Secure (TLS) nelle versioni recenti; altrimenti solo route ADS.",
@@ -152,7 +156,8 @@
     "siemensData": "partial",
     "plcBeckhoff": "partial",
     "plcRockwell": "partial",
-    "simpleOpen": "partial"
+    "simpleOpen": "partial",
+    "nativeSec": "partial"
    },
    "notes": {
     "security": "TLS e autenticazione sono a carico di broker e client.",
@@ -181,7 +186,8 @@
     "siemensData": "partial",
     "plcBeckhoff": "partial",
     "plcRockwell": "partial",
-    "simpleOpen": "partial"
+    "simpleOpen": "partial",
+    "nativeSec": "yes"
    },
    "notes": {
     "wan": "Possibile via HTTPS/PubSub su MQTT, ma più pesante di MQTT.",
@@ -206,7 +212,8 @@
     "vendorNeutral": "yes",
     "safety": "yes",
     "redundancy": "yes",
-    "plcRockwell": "yes"
+    "plcRockwell": "yes",
+    "nativeSec": "partial"
    },
    "notes": {
     "pubsub": "Producer/consumer implicito, non un broker.",
@@ -315,7 +322,8 @@
     "itint": "partial",
     "building": "yes",
     "pubsub": "partial",
-    "simpleOpen": "partial"
+    "simpleOpen": "partial",
+    "nativeSec": "partial"
    },
    "notes": {
     "security": "BACnet/SC (TLS) disponibile nelle versioni recenti.",
@@ -335,7 +343,9 @@
     "notify": "yes",
     "pubsub": "partial",
     "building": "yes",
-    "powerOnBus": "yes"
+    "powerOnBus": "yes",
+    "nativeSec": "partial",
+    "security": "partial"
    },
    "notes": {
     "pubsub": "Group address: i dispositivi iscritti reagiscono al telegramma."
@@ -373,7 +383,8 @@
     "vendorNeutral": "yes",
     "safety": "yes",
     "redundancy": "yes",
-    "plcRockwell": "yes"
+    "plcRockwell": "yes",
+    "nativeSec": "partial"
    },
    "notes": {
     "notify": "Produced tag ciclici o COS, non un push on-change generico.",
@@ -634,6 +645,30 @@
     "caps": [
      "building",
      "vendorNeutral",
+     "itint"
+    ]
+   }
+  },
+  {
+   "id": "sb10",
+   "level": "beginner",
+   "title": "Azienda soggetta a NIS2",
+   "text": "Un'azienda soggetta a NIS2 deve far arrivare i dati delle macchine ai sistemi informatici in modo protetto, con autenticazione e cifratura.",
+   "req": {
+    "caps": [
+     "nativeSec"
+    ]
+   }
+  },
+  {
+   "id": "sp11",
+   "level": "professional",
+   "title": "Prodotto soggetto a CRA",
+   "text": "Un fabbricante di macchine deve esporre dati a un servizio cloud con autenticazione, cifratura, integrità e gestione dei ruoli (CRA e IEC 62443-4-2), con modello dati standard.",
+   "req": {
+    "caps": [
+     "nativeSec",
+     "security",
      "itint"
     ]
    }
