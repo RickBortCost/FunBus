@@ -1,5 +1,5 @@
-:root{--r:18px;--r-sm:12px;--bg:#f5f7fa;--surface:#fff;--surface2:#eef2f7;--text:#1b2733;--muted:#5d6b7a;--border:#d5dce4;--accent:#0b6bcb;--accent-t:#fff;--ok:#1a7f37;--warn:#8a5a0b;--bad:#c62828;--diff:#fff4cc;--shadow:0 6px 18px rgba(20,40,80,.08),0 1px 3px rgba(20,40,80,.06)}
-[data-theme=dark]{--bg:#12171d;--surface:#1b222b;--surface2:#242d38;--text:#e6ebf0;--muted:#9aa8b6;--border:#34404d;--accent:#4aa3ff;--accent-t:#06121f;--ok:#4cc26a;--warn:#e0b04a;--bad:#ff7b72;--diff:#4a3f12;--shadow:0 6px 18px rgba(0,0,0,.28)}
+:root{--r:18px;--r-sm:12px;--bg:#f5f7fa;--surface:#fff;--surface2:#eef2f7;--text:#1b2733;--muted:#5d6b7a;--border:#d5dce4;--accent:#0b6bcb;--accent-t:#fff;--ok:#1a7f37;--warn:#8a5a0b;--bad:#c62828;--diff:#fff4cc;--k-cyc:#1a7f37;--k-acy:#0b6bcb;--k-alm:#b45309;--k-tok:#6d3fc4;--k-err:#c62828;--k-t:#fff;--shadow:0 6px 18px rgba(20,40,80,.08),0 1px 3px rgba(20,40,80,.06)}
+[data-theme=dark]{--bg:#12171d;--surface:#1b222b;--surface2:#242d38;--text:#e6ebf0;--muted:#9aa8b6;--border:#34404d;--accent:#4aa3ff;--accent-t:#06121f;--ok:#4cc26a;--warn:#e0b04a;--bad:#ff7b72;--diff:#4a3f12;--k-cyc:#4cc26a;--k-acy:#4aa3ff;--k-alm:#f0a23b;--k-tok:#b99bff;--k-err:#ff7b72;--k-t:#06121f;--shadow:0 6px 18px rgba(0,0,0,.28)}
 *{box-sizing:border-box}
 body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
 a{color:var(--accent)}
@@ -58,7 +58,6 @@ table.cmp tr.diff td:not(:first-child){background:var(--diff)}
 .node text,.lbl{fill:var(--text);font-size:13px;text-anchor:middle;font-family:inherit}
 .node.act rect{stroke:var(--accent);stroke-width:3}
 .link{stroke:var(--muted);stroke-width:3}
-.pkt{stroke:var(--text);stroke-width:1}
 .pktlbl{font-size:11px;font-weight:600;fill:var(--text);text-anchor:middle;paint-order:stroke;stroke:var(--surface2);stroke-width:4px}
 .frame{display:flex;flex-wrap:wrap;gap:3px;margin:.5rem 0}
 .frame button{padding:.35rem .5rem;border-radius:4px;border:1px solid var(--border);background:var(--surface2);text-align:center;min-width:56px}
@@ -136,3 +135,49 @@ main.wide{max-width:none;padding-inline:clamp(.6rem,2vw,2rem)}
 main.wide .tablewrap{width:100%}
 
 select.lang{border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;padding:.35rem .7rem;cursor:pointer}
+
+/* Animazioni: tipi di pacchetto (forma + colore + tratteggio), legenda, guasti, diagramma a sequenza */
+[hidden]{display:none!important}
+.small{font-size:.85rem}
+.k-cyc{--k:var(--k-cyc)}.k-acy{--k:var(--k-acy)}.k-alm{--k:var(--k-alm)}.k-tok{--k:var(--k-tok)}.k-err{--k:var(--k-err)}
+.pkt>*{fill:var(--k);stroke:var(--text);stroke-width:1;stroke-linejoin:round}
+.pkt .pd{fill:none;stroke:var(--k-t);stroke-width:2;stroke-linecap:round}
+.pkt.lost{opacity:.75}.pkt.lost>*{stroke-dasharray:3 2}
+.pktlbl.lost{fill:var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;margin:.5rem 0 0;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.sim .legend svg{width:30px;height:26px;background:none;flex:none}
+.faultbtn.on{border-color:var(--bad);color:var(--bad);font-weight:600}
+.faults{margin:-.2rem 0 .6rem}
+.faults button.tag{font-size:.85rem;padding:.3rem .8rem;margin:0}
+.note.fault{border-left-color:var(--bad)}.note.fault p{margin:.3rem 0}
+.link.broken{stroke:var(--bad);stroke-dasharray:6 6}
+.link.noisy{stroke:var(--warn);stroke-dasharray:2 5;stroke-linecap:round}
+.node.dead rect{stroke:var(--bad);stroke-dasharray:6 4;fill:var(--surface2)}.node.dead text{fill:var(--muted);text-decoration:line-through}
+.fmark circle{fill:var(--surface);stroke:var(--bad);stroke-width:2}
+.fmark path{fill:none;stroke:var(--bad);stroke-width:2.5;stroke-linecap:round}
+.fmark.noise circle{stroke:var(--warn)}.fmark .bolt{fill:var(--warn);stroke:var(--warn);stroke-width:1;stroke-linejoin:round}
+.frame button.tx{outline:3px solid var(--accent);outline-offset:-1px;background:color-mix(in srgb,var(--accent) 22%,var(--surface2))}
+.frame button.bad{border-color:var(--bad);border-style:dashed;border-width:2px;color:var(--bad)}
+.seq{margin:.3rem 0}
+.sim .seq svg{background:none;border-radius:0;max-width:100%;height:auto}
+.seq text{font-family:inherit;fill:var(--text)}
+.seq .shead{font-size:11px;font-weight:600;fill:var(--muted)}.seq .shead.sm{font-size:9.5px}
+.slife{stroke:var(--border);stroke-width:1.5;stroke-dasharray:3 4}
+.sband{fill:color-mix(in srgb,var(--accent) 9%,transparent);stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4}
+.seq .scycle{font-size:12px;font-weight:700;fill:var(--accent)}
+.srow{cursor:pointer}.srow:focus{outline:none}
+.sbg{fill:transparent}
+.srow:hover .sbg{fill:color-mix(in srgb,var(--text) 7%,transparent)}
+.srow.on .sbg{fill:color-mix(in srgb,var(--accent) 20%,transparent);stroke:var(--accent);stroke-width:1.5}
+.srow:focus-visible .sbg{stroke:var(--accent);stroke-width:3}
+.seq .snum{font-size:11px;fill:var(--muted)}
+.seq .slbl{font-size:11.5px;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.srow.on .slbl{font-weight:700}
+.seq .stime{font-size:11.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.sline{fill:none;stroke:var(--k);stroke-width:2}
+.shd{fill:var(--k);stroke:var(--k);stroke-width:1;stroke-linejoin:round}
+.svia{fill:var(--surface);stroke:var(--k);stroke-width:1.5}
+.k-acy .sline{stroke-dasharray:8 3}.k-alm .sline{stroke-dasharray:2 3}.k-tok .sline{stroke-dasharray:9 3 2 3}.k-err .sline{stroke-dasharray:1 5;stroke-linecap:round;stroke-width:3}
+.sfail circle{fill:var(--surface);stroke:var(--bad);stroke-width:1.5}.sfail path{stroke:var(--bad);stroke-width:2;stroke-linecap:round}
+.sdot{fill:var(--text);stroke:var(--surface);stroke-width:1.5}

@@ -42,6 +42,8 @@
    ]
   ],
   "loopFrom": 3,
+  "cycleUs": 1000,
+  "timeNote": "Frame da 64 byte a 100 Mbit/s attraverso uno switch; ciclo RT configurabile (tipico 1–4 ms, IRT da 250 µs).",
   "steps": [
    {
     "from": "c",
@@ -51,7 +53,8 @@
     ],
     "label": "DCP Identify",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 25,
     "note": {
      "b": "Il controllore chiede a tutti: «chi c'è e come vi chiamate?»",
      "p": "DCP Identify Request: multicast L2 (01:0E:CF:00:00:00), EtherType 0x8892, FrameID 0xFEFE. Il device risponde con nome stazione, IP, vendor/device ID."
@@ -62,7 +65,8 @@
     "to": "c",
     "label": "Identify Resp",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 1000,
     "note": {
      "b": "I dispositivi rispondono presentandosi.",
      "p": "DCP Identify Response (FrameID 0xFEFF). Il nome di stazione (NameOfStation) deve corrispondere alla configurazione ingegnerizzata."
@@ -73,7 +77,8 @@
     "to": "d1",
     "label": "Connect (AR)",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 20000,
     "note": {
      "b": "Controllore e dispositivo stabiliscono un 'contratto' di comunicazione.",
      "p": "Connect Request via DCE/RPC su UDP (porta 34964): crea Application Relation con IOCR (input/output), AlarmCR, Expected Submodule. Seguono Write (parametri), PrmEnd, ApplicationReady."
@@ -87,7 +92,8 @@
     ],
     "label": "Dati out (RT)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "frame": "pn_rt",
     "note": {
      "b": "Ogni pochi ms il controllore invia i comandi ai dispositivi.",
@@ -99,7 +105,8 @@
     "to": "c",
     "label": "Dati in (RT)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "frame": "pn_rt",
     "note": {
      "b": "I dispositivi rispondono con lo stato di sensori e ingressi.",
@@ -111,7 +118,8 @@
     "to": "c",
     "label": "Allarme",
     "t": "evento",
-    "color": "#c0392b",
+    "kind": "alm",
+    "us": 1000,
     "note": {
      "b": "Se qualcosa va storto, un dispositivo lancia un allarme.",
      "p": "Alarm CR: frame RT con priorità alta (FrameID 0xFC01 Alarm High) con conferma Alarm-ACK. Tipi: diagnosi, process, pull/plug."
@@ -190,6 +198,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "d2"
+    ],
+    "b": "Il cavo verso IO-Device 2 è interrotto: il controllore non riceve più i suoi dati e segnala il guasto; gli altri dispositivi continuano a lavorare.",
+    "p": "Il watchdog della IOCR scade dopo DataHoldFactor × ciclo (tipicamente 3 cicli): l'AR viene chiusa, il controllore segnala «stazione guasta» e ritenta periodicamente la connessione; il device porta le uscite ai valori sostitutivi. In un anello MRP il traffico verrebbe deviato sull'altro lato (riconfigurazione tipica entro ~200 ms)."
+   },
+   "node": {
+    "id": "d1",
+    "b": "IO-Device 1 è spento: non risponde più. Il controllore se ne accorge dopo pochi cicli e avvisa il programma; il resto dell'impianto continua.",
+    "p": "Mancano i frame ciclici del device: allo scadere del watchdog (DataHoldFactor × ciclo) il controllore chiude l'AR, marca i dati come non validi (IOPS/IOCS bad), genera la diagnostica di stazione guasta (es. OB86 sui controllori SIMATIC) e ripete il Connect a intervalli."
+   },
+   "crc": {
+    "b": "Un disturbo ha rovinato il messaggio: chi lo riceve se ne accorge dal controllo finale e lo butta via. Un messaggio perso non è un problema: conta il prossimo ciclo.",
+    "p": "L'FCS (CRC-32) non corrisponde: lo switch o la scheda di rete scartano il frame senza ritrasmetterlo. Il consumer tollera frame mancanti fino a DataHoldFactor; i contatori di errore delle porte aiutano a trovare il cavo o il connettore difettoso."
+   }
   }
  },
  "profibus": {
@@ -255,13 +282,16 @@
    ]
   ],
   "loopFrom": 3,
+  "cycleUs": 680,
+  "timeNote": "Calcolo a 1,5 Mbit/s (11 bit per carattere) con 4 byte di I/O per slave: il ciclo cresce con il numero di slave e scende con il baud rate.",
   "steps": [
    {
     "from": "m1",
     "to": "s1",
     "label": "Set_Prm",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 300,
     "frame": "pb_sd2",
     "note": {
      "b": "Il master configura lo slave prima dell'avvio.",
@@ -273,7 +303,8 @@
     "to": "m1",
     "label": "SC 0xE5",
     "t": "setup",
-    "color": "#7f8c8d",
+    "kind": "tok",
+    "us": 30,
     "note": {
      "b": "Lo slave conferma.",
      "p": "Short acknowledge (SC = 0xE5) o risposta con diagnosi (Slave_Diag, SD2)."
@@ -284,7 +315,8 @@
     "to": "s1",
     "label": "Chk_Cfg",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 200,
     "note": {
      "b": "Il master verifica che la configurazione degli I/O sia corretta.",
      "p": "Chk_Cfg: sequenza di byte di configurazione (tipo e lunghezza dei moduli di I/O)."
@@ -295,7 +327,8 @@
     "to": "s1",
     "label": "Data_Exchange",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 100,
     "frame": "pb_sd2",
     "note": {
      "b": "Il master invia i comandi e lo slave risponde con i suoi ingressi.",
@@ -307,7 +340,8 @@
     "to": "m1",
     "label": "Input dati",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 110,
     "frame": "pb_sd2",
     "note": {
      "b": "Lo slave 3 risponde.",
@@ -319,7 +353,8 @@
     "to": "s2",
     "label": "Data_Exchange",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 100,
     "note": {
      "b": "Poi tocca allo slave 4.",
      "p": "Il master esegue il polling in sequenza (round robin) di tutti gli slave in Data_Exchange."
@@ -330,7 +365,8 @@
     "to": "m1",
     "label": "Input dati",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 110,
     "note": {
      "b": "Risposta dello slave 4.",
      "p": "Frame di risposta con lunghezza dati configurata."
@@ -341,7 +377,8 @@
     "to": "s3",
     "label": "Data_Exchange",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 100,
     "note": {
      "b": "Infine lo slave 5.",
      "p": "Ultimo slave nel ciclo DP; poi il master può eseguire servizi aciclici (DP-V1) nel tempo residuo."
@@ -352,7 +389,8 @@
     "to": "m1",
     "label": "Input dati",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 110,
     "note": {
      "b": "Risposta dello slave 5. Il ciclo è completo.",
      "p": "Fine ciclo DP. Il ciclo si ripete finché il master mantiene il token."
@@ -363,7 +401,8 @@
     "to": "m2",
     "label": "Token",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "tok",
+    "us": 25,
     "frame": "pb_token",
     "note": {
      "b": "Il master passa il 'microfono' (token) a un altro master.",
@@ -466,6 +505,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "bus",
+     "s3"
+    ],
+    "b": "Il cavo si interrompe prima dello Slave 5: quello slave non risponde più. Su un bus a linea, però, un'interruzione può disturbare anche gli altri, perché manca la terminazione in fondo al cavo.",
+    "p": "Lo slave oltre l'interruzione non risponde: il master ripete la richiesta (max_retry_limit), poi lo segna assente, continua il polling degli altri e lo interroga periodicamente con Slave_Diag. Il tratto rimasto senza terminazione genera riflessioni: possibili errori anche sugli slave ancora collegati, soprattutto ad alti baud rate."
+   },
+   "node": {
+    "id": "s2",
+    "b": "Lo Slave 4 è spento: il master lo interroga, non riceve risposta e dopo qualche tentativo lo dichiara guasto. Gli altri slave continuano normalmente.",
+    "p": "Nessuna risposta entro lo slot time (TSL): il master ritenta fino a max_retry_limit, poi segnala lo slave come guasto (diagnostica nel master, es. OB86) e passa al successivo. Se è il master a mancare, lo slave rileva lo scadere del proprio watchdog e porta le uscite nello stato sicuro."
+   },
+   "crc": {
+    "b": "Un disturbo ha alterato qualche bit: il destinatario se ne accorge dai controlli e non risponde; il master ripete la richiesta.",
+    "p": "PROFIBUS non usa un CRC ma un FCS (somma dei byte modulo 256), con bit di parità per ogni carattere e delimitatori ridondanti (distanza di Hamming 4). Il frame errato viene ignorato: nessuna risposta, il master ripete fino a max_retry_limit."
+   }
   }
  },
  "s7": {
@@ -501,13 +559,15 @@
    ]
   ],
   "loopFrom": 5,
+  "timeNote": "Latenza tipica 5–50 ms per richiesta: dipende dal ciclo e dal carico della CPU e dalla rete.",
   "steps": [
    {
     "from": "pc",
     "to": "plc",
     "label": "TCP SYN",
     "t": "setup",
-    "color": "#7f8c8d",
+    "kind": "acy",
+    "us": 200,
     "note": {
      "b": "Il client bussa alla porta del PLC.",
      "p": "Three-way handshake TCP verso la porta 102 (SYN, SYN-ACK, ACK)."
@@ -518,7 +578,8 @@
     "to": "pc",
     "label": "SYN-ACK",
     "t": "setup",
-    "color": "#7f8c8d",
+    "kind": "acy",
+    "us": 200,
     "note": {
      "b": "Il PLC apre la porta.",
      "p": "SYN-ACK; poi ACK dal client completa la connessione TCP."
@@ -529,7 +590,8 @@
     "to": "plc",
     "label": "COTP CR",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 500,
     "note": {
      "b": "Si stabilisce il canale di comunicazione.",
      "p": "COTP Connection Request (PDU type 0xE0) con TSAP sorgente/destinazione (es. rack/slot della CPU)."
@@ -540,7 +602,8 @@
     "to": "pc",
     "label": "COTP CC",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 500,
     "note": {
      "b": "Il PLC accetta.",
      "p": "COTP Connection Confirm (0xD0)."
@@ -551,7 +614,8 @@
     "to": "plc",
     "label": "Setup comm (0xF0)",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 2000,
     "note": {
      "b": "Concordano quanto grandi possono essere i messaggi.",
      "p": "S7 Job, funzione 0xF0 Setup Communication: AmQ calling/called e PDU length proposta; il PLC risponde con la PDU negoziata (es. 240/480/960 B)."
@@ -562,7 +626,8 @@
     "to": "plc",
     "label": "Read Var (0x04)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 500,
     "frame": "s7_read",
     "note": {
      "b": "Il client chiede: «quanto vale questa variabile?»",
@@ -574,7 +639,8 @@
     "to": "pc",
     "label": "Ack_Data + valore",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 10000,
     "note": {
      "b": "Il PLC risponde con il valore.",
      "p": "Ack_Data (ROSCTR 3) con Error class/code e data item (return code 0xFF = successo). Il PDU reference collega richiesta e risposta."
@@ -585,7 +651,8 @@
     "to": "plc",
     "label": "Write Var (0x05)",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 500,
     "note": {
      "b": "Il client può anche scrivere un nuovo valore.",
      "p": "Write Var: stessa struttura del Read con payload dati; richiede permessi di accesso (PUT/GET su 1200/1500)."
@@ -596,7 +663,8 @@
     "to": "pc",
     "label": "Ack_Data OK",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 10000,
     "note": {
      "b": "Il PLC conferma.",
      "p": "Ack_Data con return code per ciascun item."
@@ -687,6 +755,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "plc"
+    ],
+    "b": "Il cavo verso il PLC è staccato: le richieste del client restano senza risposta e dopo un po' il programma segnala «connessione persa».",
+    "p": "TCP ritrasmette i segmenti con timeout crescenti; scaduto il timeout (dell'applicazione o del keep-alive) la connessione viene chiusa. Il client deve ripetere tutta la sequenza: TCP, COTP, Setup Communication. Il programma del PLC continua a girare: S7comm non trasporta l'I/O di campo."
+   },
+   "node": {
+    "id": "plc",
+    "b": "Il PLC è spento o in riavvio: nessuna risposta. Il client deve riconnettersi da capo quando il PLC torna disponibile.",
+    "p": "Se la CPU è spenta non arrivano ACK e la connessione scade; se la CPU si è riavviata, il primo segmento ricevuto provoca un RST TCP e il client se ne accorge subito. In entrambi i casi vanno rinegoziati COTP e dimensione della PDU. Una CPU in STOP, invece, risponde ancora alle letture."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato, ma TCP se ne accorge e lo rispedisce da solo: l'applicazione vede soltanto un piccolo ritardo.",
+    "p": "Il frame con FCS Ethernet errato è scartato dallo switch o dalla scheda di rete; il segmento TCP mancante non viene confermato e il mittente lo ritrasmette (RTO, tipicamente centinaia di ms). Nessun errore a livello S7, solo latenza: è uno dei motivi per cui i tempi non sono deterministici."
+   }
   }
  },
  "ethercat": {
@@ -732,6 +819,8 @@
    ]
   ],
   "loopFrom": 3,
+  "cycleUs": 1000,
+  "timeNote": "Frame minimo a 100 Mbit/s (≈ 7 µs) più ≈ 1 µs di ritardo per nodo; il ciclo è impostato dal master (tipico 100 µs–1 ms). Il passaggio a OP richiede da decine di ms a secondi.",
   "steps": [
    {
     "path": [
@@ -745,7 +834,8 @@
     ],
     "label": "BRD (conta slave)",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 15,
     "note": {
      "b": "Il master conta quanti dispositivi ci sono sulla linea.",
      "p": "Broadcast Read (BRD) su un registro ESC: ogni slave incrementa il Working Counter. WKC finale = numero di slave presenti."
@@ -763,7 +853,8 @@
     ],
     "label": "APWR indirizzi",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 15,
     "note": {
      "b": "Assegna un indirizzo a ciascun dispositivo.",
      "p": "Auto-increment write (APWR) per assegnare indirizzi di stazione, poi accesso con indirizzamento fisso (FPRD/FPWR)."
@@ -781,7 +872,7 @@
     ],
     "label": "BWR → OP",
     "t": "setup",
-    "color": "#e67e22",
+    "kind": "acy",
     "note": {
      "b": "Porta tutti i dispositivi nello stato operativo.",
      "p": "Scrittura su AL Control (0x0120): INIT → PRE-OP → SAFE-OP → OP. Gli slave rispondono nell'AL Status (0x0130)."
@@ -796,7 +887,8 @@
     ],
     "label": "LRW → (andata)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 8,
     "frame": "ec_frame",
     "note": {
      "b": "Il frame parte dal master e attraversa i dispositivi: ognuno legge i suoi comandi e inserisce i suoi ingressi 'al volo'.",
@@ -812,7 +904,8 @@
     ],
     "label": "LRW ← (ritorno)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 3,
     "note": {
      "b": "L'ultimo dispositivo rimanda il frame indietro fino al master.",
      "p": "L'ultimo slave rileva la porta aperta e fa il loopback; il frame torna al master che verifica il WKC (atteso = 2 × slave coinvolti) e consegna gli input."
@@ -897,6 +990,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "s2",
+     "s3"
+    ],
+    "b": "Il cavo tra Slave 2 e Slave 3 è interrotto: il frame torna indietro già da Slave 2. Il master si accorge che manca uno slave e segnala l'errore.",
+    "p": "La porta di Slave 2 perde il link e l'ESC chiude il loop (loopback automatico): il frame ritorna, ma il Working Counter è più basso dell'atteso. Il master invalida i dati del gruppo interessato e localizza il guasto leggendo lo stato dei link (registro DL Status). Con la cable redundancy (anello chiuso su una seconda porta del master) tutti gli slave resterebbero raggiungibili."
+   },
+   "node": {
+    "id": "s2",
+    "b": "Slave 2 è spento: essendo una catena, anche Slave 3 dietro di lui non è più raggiungibile. Slave 1 chiude il giro e rimanda indietro il frame.",
+    "p": "Slave 1 rileva la perdita del link sulla porta di uscita e fa il loopback: WKC inferiore all'atteso, dati di ingresso del gruppo non validi. Gli slave a valle restano senza frame: se configurato, il loro watchdog dei process data scade e porta le uscite nello stato sicuro."
+   },
+   "crc": {
+    "b": "Il frame si è rovinato lungo il percorso: gli slave lo segnalano e il master scarta i dati di quel ciclo, usando quelli del ciclo successivo.",
+    "p": "Ogni ESC verifica l'FCS mentre il frame passa: chi rileva l'errore incrementa i propri contatori (RX Error Counter, da 0x0300) e marca il frame, così gli slave successivi lo riconoscono come già corrotto (Forwarded RX Error). I dati non vengono applicati e il master scarta il frame; i contatori per porta indicano il tratto di cavo difettoso."
+   }
   }
  },
  "ads": {
@@ -932,13 +1044,15 @@
    ]
   ],
   "loopFrom": 5,
+  "timeNote": "Latenze tipiche in rete locale; nessun ciclo garantito: dipende dal task TwinCAT e dalla rete.",
   "steps": [
    {
     "from": "c",
     "to": "p",
     "label": "Read Device Info (1)",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 2000,
     "frame": "ads_msg",
     "note": {
      "b": "Il client chiede al PLC chi è.",
@@ -950,7 +1064,8 @@
     "to": "c",
     "label": "Risposta",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 2000,
     "note": {
      "b": "Il PLC risponde con nome e versione.",
      "p": "Response con Result 0 e nome device + versione (major/minor/build)."
@@ -961,7 +1076,8 @@
     "to": "p",
     "label": "ReadWrite (9) simbolo",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 2000,
     "note": {
      "b": "Il client chiede un 'numero di pratica' (handle) per una variabile per nome.",
      "p": "ReadWrite su IndexGroup 0xF003 (GetSymHandleByName), il nome simbolo (es. MAIN.nCount) è nel dato di scrittura; la risposta contiene l'handle."
@@ -972,7 +1088,8 @@
     "to": "c",
     "label": "Handle",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 2000,
     "note": {
      "b": "Il PLC restituisce l'handle.",
      "p": "Handle a 4 byte, valido finché il simbolo non cambia (ricarica del programma)."
@@ -983,7 +1100,8 @@
     "to": "p",
     "label": "Add Notification (6)",
     "t": "setup",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 2000,
     "note": {
      "b": "Il client dice: «avvisami quando cambia».",
      "p": "Add Device Notification: IndexGroup 0xF005 (valore per handle), lunghezza, TransmissionMode (OnChange/Cyclic), MaxDelay, CycleTime. Risposta: Notification Handle."
@@ -994,7 +1112,8 @@
     "to": "c",
     "label": "Notification (8)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "alm",
+    "us": 1000,
     "note": {
      "b": "Quando il valore cambia, il PLC manda un avviso senza essere interrogato.",
      "p": "Device Notification: stamp con timestamp (FILETIME), handle e dato. Più notifiche possono essere raggruppate in un unico frame (MaxDelay)."
@@ -1005,10 +1124,11 @@
     "to": "p",
     "label": "Write (3)",
     "t": "ciclo",
-    "color": "#c0392b",
+    "kind": "acy",
+    "us": 2000,
     "note": {
      "b": "Il client può anche scrivere un valore.",
-     "p": "Write: IndexGroup/Offset (o handle) + dati. Risposta con Result (codici errore ADS, es. 0x705 porta non trovata)."
+     "p": "Write: IndexGroup/Offset (o handle) + dati. Risposta con Result (codici errore ADS, es. 0x6 porta di destinazione non trovata)."
     }
    }
   ],
@@ -1090,6 +1210,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "r",
+     "p"
+    ],
+    "b": "Il collegamento verso il PLC è interrotto: le richieste restano senza risposta e le notifiche non arrivano più.",
+    "p": "Le richieste scadono con l'errore di timeout ADS (0x745, tipicamente dopo 5 s); la connessione TCP viene poi chiusa. Le notifiche registrate si perdono: dopo il ripristino il client deve richiedere di nuovo gli handle e ripetere Add Device Notification."
+   },
+   "node": {
+    "id": "p",
+    "b": "Il PLC TwinCAT è fermo o in riavvio: il client riceve un errore invece dei dati e deve registrarsi di nuovo quando il PLC riparte.",
+    "p": "Se il runtime è fermo ma il router AMS risponde, la richiesta torna con un codice di errore ADS (es. 0x6 porta di destinazione non trovata, 0x7 macchina di destinazione non trovata); se la macchina è spenta, timeout 0x745. Dopo un riavvio o un download del programma gli handle dei simboli non sono più validi e vanno richiesti di nuovo."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato e TCP lo rispedisce: l'applicazione nota solo un ritardo.",
+    "p": "FCS Ethernet errato: frame scartato, TCP ritrasmette il segmento. ADS non ha un proprio controllo di integrità e si affida a TCP ed Ethernet: l'unico effetto è una latenza maggiore, che può far arrivare in ritardo una notifica."
+   }
   }
  },
  "mqtt": {
@@ -1135,13 +1274,15 @@
    ]
   ],
   "loopFrom": 4,
+  "timeNote": "Su Internet la latenza è di decine di ms per messaggio (pochi ms in rete locale). Nessun ciclo: i messaggi partono a evento.",
   "steps": [
    {
     "from": "pub",
     "to": "b",
     "label": "CONNECT",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 20000,
     "frame": "mqtt_pub",
     "note": {
      "b": "Il sensore si presenta al broker.",
@@ -1153,7 +1294,8 @@
     "to": "pub",
     "label": "CONNACK",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "tok",
+    "us": 20000,
     "note": {
      "b": "Il broker accetta.",
      "p": "CONNACK con return code 0 (v3.1.1) o reason code (v5) e flag Session Present."
@@ -1164,7 +1306,8 @@
     "to": "b",
     "label": "SUBSCRIBE plant/+/temp",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 20000,
     "note": {
      "b": "L'HMI dice: «voglio i messaggi su questo argomento».",
      "p": "SUBSCRIBE con filtro topic (wildcard + = un livello, # = più livelli) e QoS richiesto. Il broker risponde con SUBACK."
@@ -1175,7 +1318,8 @@
     "to": "b",
     "label": "SUBSCRIBE plant/#",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 20000,
     "note": {
      "b": "Anche il cloud si iscrive.",
      "p": "Stessa procedura; più subscriber ricevono lo stesso messaggio."
@@ -1186,7 +1330,8 @@
     "to": "b",
     "label": "PUBLISH QoS1",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "alm",
+    "us": 20000,
     "frame": "mqtt_pub",
     "note": {
      "b": "Il sensore pubblica la temperatura su un argomento.",
@@ -1198,7 +1343,8 @@
     "to": "pub",
     "label": "PUBACK",
     "t": "ciclo",
-    "color": "#7f8c8d",
+    "kind": "tok",
+    "us": 20000,
     "note": {
      "b": "Il broker conferma di aver ricevuto.",
      "p": "PUBACK con lo stesso Packet Identifier. Se non arriva, il publisher ritrasmette con DUP=1 (almeno una consegna)."
@@ -1212,7 +1358,8 @@
     ],
     "label": "PUBLISH",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "alm",
+    "us": 20000,
     "note": {
      "b": "Il broker recapita il messaggio a tutti gli iscritti.",
      "p": "Il broker inoltra a ciascun subscriber con il QoS minimo tra quello del messaggio e quello della sottoscrizione."
@@ -1261,6 +1408,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "pub",
+     "b"
+    ],
+    "b": "Il sensore perde la connessione: il broker se ne accorge perché non riceve più segnali di vita e può avvisare gli altri con un messaggio di «ultime volontà» preparato in anticipo.",
+    "p": "Senza pacchetti entro 1,5 × Keep Alive il broker chiude la sessione e pubblica il Last Will (se configurato nel CONNECT). Al ripristino il client si riconnette; con una sessione persistente (Clean Session = 0, Session Expiry in v5) i messaggi QoS 1 e 2 in sospeso vengono riconsegnati."
+   },
+   "node": {
+    "id": "b",
+    "b": "Il broker è fermo: nessuno può più pubblicare né ricevere. È il punto debole dell'architettura: per questo negli impianti si usano broker ridondati.",
+    "p": "Il broker è un single point of failure: i client rilevano la caduta dalla connessione TCP o dal PINGRESP mancante e ritentano la connessione (di solito con backoff). I messaggi QoS 1/2 restano in coda sul client per la ritrasmissione, quelli QoS 0 si perdono. L'alta disponibilità (cluster, bridge) non fa parte dello standard MQTT: dipende dal prodotto."
+   },
+   "crc": {
+    "b": "TCP rimedia da solo ai messaggi rovinati: vengono rispediti, con un piccolo ritardo.",
+    "p": "Il frame corrotto è scartato a livello Ethernet e TCP ritrasmette: MQTT non vede errori. Il QoS non riguarda i bit errati ma la perdita di messaggi quando cade la connessione: con QoS 1 il mittente ritrasmette con DUP=1 finché non riceve il PUBACK (possibili duplicati)."
+   }
   }
  },
  "opcua": {
@@ -1286,13 +1452,16 @@
    ]
   ],
   "loopFrom": 8,
+  "cycleUs": 100000,
+  "timeNote": "Il periodo è il publishing interval scelto dal client (qui 100 ms). L'apertura del canale sicuro usa crittografia asimmetrica: da decine a centinaia di ms secondo il dispositivo.",
   "steps": [
    {
     "from": "c",
     "to": "s",
     "label": "HEL",
     "t": "setup",
-    "color": "#7f8c8d",
+    "kind": "acy",
+    "us": 1000,
     "frame": "ua_hel",
     "note": {
      "b": "Il client saluta il server.",
@@ -1304,7 +1473,8 @@
     "to": "c",
     "label": "ACK",
     "t": "setup",
-    "color": "#7f8c8d",
+    "kind": "tok",
+    "us": 1000,
     "note": {
      "b": "Il server risponde.",
      "p": "Acknowledge con i parametri negoziati (buffer e dimensioni massime)."
@@ -1315,7 +1485,8 @@
     "to": "s",
     "label": "OpenSecureChannel",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 50000,
     "note": {
      "b": "Si crea un canale protetto.",
      "p": "OPN: scelta della SecurityPolicy (es. Basic256Sha256) e SecurityMode (None, Sign, SignAndEncrypt); scambio dei certificati e dei nonce."
@@ -1326,7 +1497,8 @@
     "to": "c",
     "label": "OPN Response",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 50000,
     "note": {
      "b": "Il server conferma e fornisce l'identificativo del canale.",
      "p": "SecureChannelId e TokenId; le chiavi di sessione sono derivate dai nonce."
@@ -1337,7 +1509,8 @@
     "to": "s",
     "label": "CreateSession",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 10000,
     "note": {
      "b": "Il client apre una sessione di lavoro.",
      "p": "CreateSessionRequest/Response (certificato applicazione, nonce, timeout). Quindi ActivateSession con identità utente (anonimo, user/password, certificato)."
@@ -1348,7 +1521,8 @@
     "to": "s",
     "label": "ActivateSession",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 10000,
     "note": {
      "b": "Il client si autentica.",
      "p": "UserIdentityToken (Anonymous, UserName, X509, IssuedToken); firma con il nonce del server."
@@ -1359,7 +1533,8 @@
     "to": "s",
     "label": "CreateSubscription",
     "t": "setup",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 5000,
     "note": {
      "b": "Il client si iscrive ai valori che gli interessano.",
      "p": "CreateSubscription (PublishingInterval) + CreateMonitoredItems (NodeId, SamplingInterval, Deadband)."
@@ -1370,7 +1545,8 @@
     "to": "c",
     "label": "Risposta",
     "t": "setup",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 5000,
     "note": {
      "b": "Il server conferma.",
      "p": "SubscriptionId e MonitoredItemIds; il client mantiene richieste Publish pendenti."
@@ -1381,7 +1557,8 @@
     "to": "s",
     "label": "PublishRequest",
     "t": "ciclo",
-    "color": "#7f8c8d",
+    "kind": "tok",
+    "us": 1000,
     "note": {
      "b": "Il client lascia al server una 'busta' vuota da riempire quando ci sono novità.",
      "p": "PublishRequest con acknowledgement delle notifiche precedenti; il server ne tiene più di una in coda."
@@ -1392,7 +1569,8 @@
     "to": "c",
     "label": "DataChange",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "alm",
+    "us": 1000,
     "note": {
      "b": "Quando un valore cambia, il server risponde con la novità.",
      "p": "PublishResponse con NotificationMessage (DataChangeNotification: ClientHandle, DataValue con valore, StatusCode, timestamp)."
@@ -1459,6 +1637,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "c",
+     "s"
+    ],
+    "b": "Il collegamento cade: il client non riceve più aggiornamenti e prova a ricollegarsi. Se torna in tempo, il server gli consegna anche i dati rimasti in coda.",
+    "p": "Il client rileva il guasto dal timeout delle richieste; il server mantiene sessione e subscription fino a SessionTimeout e alla scadenza del lifetime della subscription (LifetimeCount × PublishingInterval). Se il client riapre il SecureChannel e riattiva la sessione in tempo, recupera le notifiche in coda con Republish; altrimenti deve ricreare sessione e subscription."
+   },
+   "node": {
+    "id": "s",
+    "b": "Il server è fermo: il client lo scopre perché non arrivano più risposte e, quando il server riparte, deve rifare tutta la procedura di accesso.",
+    "p": "Dopo un riavvio del server sessione e subscription non esistono più: le richieste ricevono errori come BadSessionIdInvalid o BadSecureChannelIdInvalid e il client deve ricreare canale sicuro, sessione, subscription e monitored item. Per l'alta disponibilità OPC UA definisce server ridondati (trasparenti o non trasparenti), se supportati dal prodotto."
+   },
+   "crc": {
+    "b": "TCP rispedisce da solo il messaggio rovinato. In più, se la sicurezza è attiva, ogni messaggio è firmato: nessuno può modificarlo di nascosto.",
+    "p": "Errore di FCS: ritrasmissione TCP, invisibile all'applicazione. Con SecurityMode Sign o SignAndEncrypt ogni chunk porta una firma: un messaggio alterato intenzionalmente (non dal rumore, già fermato dai livelli inferiori) fallisce la verifica e il canale viene chiuso con un errore di sicurezza."
+   }
   }
  },
  "enip": {
@@ -1504,6 +1701,8 @@
    ]
   ],
   "loopFrom": 3,
+  "cycleUs": 10000,
+  "timeNote": "Il ciclo è l'RPI impostato per ogni connessione (qui 10 ms; tipico 2–100 ms). I frame di I/O impiegano decine di µs a 100 Mbit/s.",
   "steps": [
    {
     "from": "o",
@@ -1513,7 +1712,8 @@
     ],
     "label": "List Identity",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 1000,
     "note": {
      "b": "Lo scanner chiede a tutti: «chi sei?»",
      "p": "ListIdentity (comando 0x0063) via UDP 44818 broadcast/multicast. Risposta con vendor ID, product type, serial, IP."
@@ -1524,7 +1724,8 @@
     "to": "a1",
     "label": "RegisterSession",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 2000,
     "frame": "enip_encap",
     "note": {
      "b": "Apre un canale di conversazione con il dispositivo.",
@@ -1536,7 +1737,8 @@
     "to": "a1",
     "label": "Forward_Open",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 5000,
     "note": {
      "b": "Concorda ogni quanto scambiare i dati e di che dimensione.",
      "p": "SendRRData (0x006F) con CIP Forward_Open al Connection Manager: RPI O→T e T→O, dimensioni, trasporto, connection IDs, trigger (cyclic/COS)."
@@ -1547,7 +1749,8 @@
     "to": "a1",
     "label": "Output I/O (UDP 2222)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "frame": "enip_io",
     "note": {
      "b": "Ogni ciclo lo scanner invia i comandi al dispositivo.",
@@ -1559,7 +1762,8 @@
     "to": "o",
     "label": "Input I/O (UDP 2222)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "note": {
      "b": "Il dispositivo invia lo stato dei suoi ingressi.",
      "p": "Il target produce i dati T→O in multicast o unicast (IGMP). Se la connessione non riceve dati per RPI × timeout multiplier, viene chiusa."
@@ -1570,7 +1774,8 @@
     "to": "a2",
     "label": "Output I/O (UDP 2222)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "note": {
      "b": "Lo stesso per il secondo dispositivo.",
      "p": "Ogni connessione I/O ha RPI e Connection ID propri."
@@ -1581,7 +1786,8 @@
     "to": "o",
     "label": "Input I/O (UDP 2222)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "note": {
      "b": "Risposta dello stato del secondo dispositivo.",
      "p": "Dati prodotti con il proprio RPI."
@@ -1689,6 +1895,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "a2"
+    ],
+    "b": "Il cavo verso Adapter 2 è interrotto: lo scanner non riceve più i suoi dati e dopo pochi cicli segnala l'errore; Adapter 1 continua a funzionare.",
+    "p": "La connessione I/O va in timeout dopo RPI × timeout multiplier (es. 4 × RPI): lo scanner segnala il fault della connessione (in Logix il modulo va in errore, es. codice 16#0203) e ritenta periodicamente il Forward_Open; l'adapter porta le uscite nello stato configurato. In un anello DLR il supervisor richiuderebbe il percorso in pochi millisecondi."
+   },
+   "node": {
+    "id": "a1",
+    "b": "Adapter 1 è spento: lo scanner smette di ricevere i suoi dati, segnala il guasto del modulo e continua a provare a ricollegarsi.",
+    "p": "Timeout della connessione implicita (RPI × timeout multiplier): lo scanner chiude la connessione, segnala il fault e ripete il Forward_Open finché l'adapter non torna. Anche l'adapter controlla il timeout: se è lo scanner a sparire, le uscite vanno nello stato di fault configurato."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato; essendo dati ciclici non viene rispedito: si aspetta semplicemente il prossimo.",
+    "p": "I dati di I/O viaggiano su UDP: il frame con FCS errato è scartato e non ritrasmesso. Il consumatore nota il salto nel sequence number e usa il pacchetto successivo; solo più perdite consecutive, fino al timeout della connessione, causano un fault. I messaggi espliciti su TCP, invece, vengono ritrasmessi."
+   }
   }
  },
  "modbus": {
@@ -1724,13 +1949,16 @@
    ]
   ],
   "loopFrom": 1,
+  "cycleUs": 100000,
+  "timeNote": "Il periodo è l'intervallo di polling scelto dal client (qui 100 ms; tipico 10–1000 ms). Il tempo di risposta dipende dal server.",
   "steps": [
    {
     "from": "c",
     "to": "s",
     "label": "TCP connect :502",
     "t": "setup",
-    "color": "#7f8c8d",
+    "kind": "acy",
+    "us": 500,
     "note": {
      "b": "Il client apre il collegamento con il dispositivo.",
      "p": "Handshake TCP verso la porta 502. Il client può mantenere la connessione aperta e riusarla per molte richieste."
@@ -1741,7 +1969,8 @@
     "to": "s",
     "label": "Read Holding Regs (03)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 500,
     "frame": "mb_adu",
     "note": {
      "b": "Il client chiede: «dammi i registri da 100 a 102».",
@@ -1753,7 +1982,8 @@
     "to": "c",
     "label": "Risposta + valori",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 5000,
     "note": {
      "b": "Il dispositivo risponde con i valori dei registri.",
      "p": "Risposta FC 0x03: Byte Count e N×2 byte di dati (big endian per ogni registro)."
@@ -1764,7 +1994,8 @@
     "to": "s",
     "label": "Write Single Reg (06)",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 500,
     "note": {
      "b": "Il client scrive un nuovo valore in un registro.",
      "p": "FC 0x06: indirizzo e valore a 16 bit; la risposta è l'eco della richiesta."
@@ -1775,7 +2006,8 @@
     "to": "c",
     "label": "Eco conferma",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 5000,
     "note": {
      "b": "Il dispositivo conferma ripetendo la richiesta.",
      "p": "Eco identico alla richiesta: segnala che il valore è stato scritto."
@@ -1786,7 +2018,8 @@
     "to": "s",
     "label": "Read indirizzo 9999",
     "t": "evento",
-    "color": "#7f8c8d",
+    "kind": "acy",
+    "us": 500,
     "note": {
      "b": "Se il client chiede un registro che non esiste...",
      "p": "Richiesta con indirizzo fuori mappa."
@@ -1797,7 +2030,8 @@
     "to": "c",
     "label": "Eccezione 0x83 / 02",
     "t": "evento",
-    "color": "#c0392b",
+    "kind": "err",
+    "us": 5000,
     "note": {
      "b": "...il dispositivo risponde con un errore.",
      "p": "Function code 0x83 (0x03 + 0x80) e exception code 02 (Illegal Data Address). Altri: 01 funzione non valida, 03 valore non valido, 04 guasto del server."
@@ -1852,6 +2086,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "s"
+    ],
+    "b": "Il cavo è staccato: il client non riceve risposta, aspetta un po' (timeout) e poi segnala l'errore di comunicazione.",
+    "p": "Nessuna risposta: scade il timeout dell'applicazione client (tipicamente 0,5–2 s, configurabile) e la richiesta viene ripetuta o segnalata come errore. Quando la connessione TCP cade, il client deve riaprirla sulla porta 502. Il protocollo non definisce un watchdog: lo stato sicuro delle uscite dipende dal dispositivo."
+   },
+   "node": {
+    "id": "s",
+    "b": "Il server è spento: nessuna risposta. Attenzione: un dispositivo acceso ma con un problema risponde invece con un messaggio di errore (eccezione).",
+    "p": "Server spento: timeout o connessione rifiutata. Diverso il caso di un gateway verso una linea seriale: se lo slave dietro il gateway non risponde, torna l'eccezione 0x0B (Gateway Target Device Failed to Respond). L'eccezione 0x04 indica invece un guasto interno del server."
+   },
+   "crc": {
+    "b": "TCP rispedisce il messaggio rovinato: il client nota al massimo un ritardo.",
+    "p": "Modbus TCP non ha un proprio CRC (a differenza di Modbus RTU): l'integrità è affidata all'FCS Ethernet e al checksum TCP. Il frame corrotto è scartato e ritrasmesso da TCP; se il ritardo supera il timeout del client, la richiesta risulta fallita e viene ripetuta."
+   }
   }
  },
  "canopen": {
@@ -1897,6 +2150,8 @@
    ]
   ],
   "loopFrom": 3,
+  "cycleUs": 5000,
+  "timeNote": "Durata dei frame a 1 Mbit/s (≈ 130 µs con 8 byte di dati e bit stuffing); il ciclo è il periodo del SYNC (qui 5 ms; tipico 1–10 ms).",
   "steps": [
    {
     "from": "m",
@@ -1906,7 +2161,8 @@
     ],
     "label": "NMT Start (0x000)",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 70,
     "frame": "can_std",
     "note": {
      "b": "Il master dice a tutti: «iniziate a lavorare».",
@@ -1918,7 +2174,8 @@
     "to": "n1",
     "label": "SDO read 0x1000",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 130,
     "note": {
      "b": "Il master legge un'informazione del nodo (per esempio il tipo di dispositivo).",
      "p": "SDO upload: COB-ID 0x600+Node-ID, comando 0x40, indice 0x1000 sub 0 (Device Type)."
@@ -1929,7 +2186,8 @@
     "to": "m",
     "label": "SDO risposta",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 1000,
     "note": {
      "b": "Il nodo risponde.",
      "p": "COB-ID 0x580+Node-ID, comando 0x43 (4 byte validi) con il valore dell'oggetto."
@@ -1943,7 +2201,8 @@
     ],
     "label": "SYNC (0x080)",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "tok",
+    "us": 50,
     "note": {
      "b": "Un 'via' comune: tutti campionano gli ingressi nello stesso istante.",
      "p": "Frame SYNC senza dati, COB-ID 0x080 (priorità alta). I PDO sincroni vengono campionati/trasmessi in risposta."
@@ -1954,7 +2213,8 @@
     "to": "m",
     "label": "TPDO1 (0x181)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 130,
     "frame": "can_std",
     "note": {
      "b": "Il nodo 1 manda i suoi dati.",
@@ -1966,7 +2226,8 @@
     "to": "m",
     "label": "TPDO1 (0x182)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 130,
     "note": {
      "b": "Poi il nodo 2.",
      "p": "COB-ID 0x182; se due nodi trasmettono insieme, vince l'ID più basso (arbitraggio bit-a-bit)."
@@ -1977,7 +2238,8 @@
     "to": "n1",
     "label": "RPDO1 (0x201)",
     "t": "ciclo",
-    "color": "#2980b9",
+    "kind": "cyc",
+    "us": 130,
     "note": {
      "b": "Il master invia un comando al nodo 1.",
      "p": "RPDO1 del nodo 1: COB-ID 0x200+1, dati di uscita (es. riferimento di velocità)."
@@ -1988,7 +2250,8 @@
     "to": "m",
     "label": "Heartbeat (0x701)",
     "t": "ciclo",
-    "color": "#7f8c8d",
+    "kind": "tok",
+    "us": 60,
     "note": {
      "b": "Il nodo segnala periodicamente: «sono vivo».",
      "p": "Heartbeat producer: COB-ID 0x700+Node-ID con 1 byte di stato NMT (0x05 = operational)."
@@ -2055,6 +2318,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "bus",
+     "n2"
+    ],
+    "b": "Il cavo si interrompe prima del Nodo 2: il nodo sparisce dalla rete e il master se ne accorge perché non sente più il suo «battito».",
+    "p": "Il nodo isolato non riceve ACK, accumula errori di trasmissione e diventa error passive. Il master rileva la mancanza dell'heartbeat (heartbeat consumer time) e reagisce secondo la configurazione (es. arresto degli altri nodi). Il tratto rimasto senza terminazione da 120 Ω può disturbare anche il resto del bus."
+   },
+   "node": {
+    "id": "n1",
+    "b": "Il Nodo 1 è spento: non manda più dati né il suo «battito». Il master se ne accorge entro un tempo prefissato e mette l'impianto in sicurezza.",
+    "p": "Mancano TPDO e heartbeat del nodo: allo scadere dell'heartbeat consumer time il consumer segnala l'errore di heartbeat (EMCY) e reagisce come definito dall'oggetto 0x1029 (Error Behavior) e dall'applicazione. Gli altri nodi continuano a comunicare: il bus CAN non dipende da un singolo nodo."
+   },
+   "crc": {
+    "b": "Un nodo si accorge che il messaggio è rovinato e lo segnala subito a tutti: il mittente lo ripete automaticamente.",
+    "p": "Il CRC a 15 bit non corrisponde: il ricevitore trasmette un error frame (6 bit dominanti), tutti scartano il messaggio e il mittente lo ritrasmette automaticamente appena il bus è libero. I contatori TEC/REC crescono: oltre 127 il nodo diventa error passive, con TEC oltre 255 va in bus-off e si scollega."
+   }
   }
  },
  "iolink": {
@@ -2100,13 +2382,16 @@
    ]
   ],
   "loopFrom": 4,
+  "cycleUs": 2300,
+  "timeNote": "Stima per COM2 (38,4 kbit/s) con pochi byte di process data; il ciclo minimo è dichiarato dal device (da 400 µs in COM3). L'impulso di wake-up dura ≈ 80 µs; un ISDU occupa più cicli.",
   "steps": [
    {
     "from": "m",
     "to": "d1",
     "label": "Wake-up",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 80,
     "note": {
      "b": "Il master 'sveglia' il sensore.",
      "p": "Wake-up request: impulso del master sulla linea C/Q; il device passa dalla modalità SIO alla comunicazione IO-Link e il master prova COM3, COM2, COM1."
@@ -2117,7 +2402,8 @@
     "to": "d1",
     "label": "Leggi Vendor ID (ISDU)",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 1100,
     "note": {
      "b": "Il master legge l'identità del sensore.",
      "p": "Fase Preoperate: lettura parametri di identificazione e Min Cycle Time tramite canale pagina/ISDU; verifica rispetto al progetto."
@@ -2128,7 +2414,8 @@
     "to": "m",
     "label": "Identificazione",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 900,
     "note": {
      "b": "Il sensore risponde presentandosi.",
      "p": "Risposta con Vendor ID, Device ID e versione IO-Link; Data Storage eventualmente ripristina i parametri."
@@ -2139,7 +2426,8 @@
     "to": "d1",
     "label": "Operate",
     "t": "setup",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 1100,
     "note": {
      "b": "Si parte con il lavoro vero.",
      "p": "Master command Device Operate: da qui lo scambio dei process data è ciclico con il Min Cycle Time."
@@ -2150,7 +2438,8 @@
     "to": "d1",
     "label": "PDout (M-sequence)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 1100,
     "frame": "il_mseq",
     "note": {
      "b": "Il master invia i comandi al sensore.",
@@ -2162,7 +2451,8 @@
     "to": "m",
     "label": "PDin (risposta)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 900,
     "note": {
      "b": "Il sensore risponde con il suo valore.",
      "p": "Risposta del device: process data in ingresso, OD e CKS (checksum con flag evento e PD valid)."
@@ -2173,7 +2463,8 @@
     "to": "plc",
     "label": "PD → fieldbus",
     "t": "ciclo",
-    "color": "#2980b9",
+    "kind": "cyc",
+    "us": 1000,
     "note": {
      "b": "Il master gira i dati al PLC attraverso la rete di fabbrica.",
      "p": "Il master mappa i process data di tutte le porte nell'immagine di processo del fieldbus (es. PROFINET, EtherCAT, EtherNet/IP)."
@@ -2184,7 +2475,8 @@
     "to": "m",
     "label": "Comandi dal PLC",
     "t": "ciclo",
-    "color": "#2980b9",
+    "kind": "cyc",
+    "us": 1000,
     "note": {
      "b": "Il PLC manda i comandi per gli attuatori.",
      "p": "Process data di uscita dal PLC verso il master, poi distribuiti alle porte."
@@ -2195,7 +2487,8 @@
     "to": "d2",
     "label": "PDout attuatore",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 1100,
     "note": {
      "b": "Il master aziona l'attuatore.",
      "p": "Stessa M-sequence verso il device 2, con il proprio ciclo."
@@ -2206,7 +2499,8 @@
     "to": "m",
     "label": "PDin attuatore",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 900,
     "note": {
      "b": "L'attuatore conferma il suo stato.",
      "p": "Process data in ingresso del device 2."
@@ -2217,7 +2511,8 @@
     "to": "d1",
     "label": "ISDU parametro",
     "t": "evento",
-    "color": "#c0392b",
+    "kind": "acy",
+    "us": 20000,
     "note": {
      "b": "Su richiesta, il PLC cambia un'impostazione del sensore.",
      "p": "On-request data: ISDU write di un parametro (indice/sub-indice) senza fermare lo scambio ciclico."
@@ -2272,6 +2567,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "m",
+     "d1"
+    ],
+    "b": "Il cavo del sensore è scollegato: il master se ne accorge subito, perché ogni porta è un collegamento diretto, e lo comunica al PLC. L'altro dispositivo continua a funzionare.",
+    "p": "Dopo alcune M-sequence senza risposta valida il master dichiara persa la comunicazione sulla porta, invalida i process data (qualificatore verso il fieldbus) e ritenta il wake-up. Essendo un collegamento punto-punto, il guasto resta confinato a quella porta."
+   },
+   "node": {
+    "id": "d2",
+    "b": "L'attuatore è guasto o scollegato: il master segnala al PLC quale porta ha il problema. Quando lo sostituisci, il master può ricaricare da solo i parametri nel nuovo dispositivo.",
+    "p": "Porta in errore (evento di comunicazione persa); alla sostituzione il master verifica Vendor ID e Device ID e, se il Data Storage è attivo, riscrive automaticamente i parametri nel nuovo device (IO-Link dalla versione 1.1)."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato e il master ripete lo scambio; se succede spesso, la porta va in errore.",
+    "p": "Ogni M-sequence è protetta da un checksum a 6 bit (in CKT e CKS) oltre alla parità di ogni byte UART. In caso di errore il master ripete il messaggio (fino a 2 tentativi), poi considera persa la comunicazione sulla porta."
+   }
   }
  },
  "modbusrtu": {
@@ -2317,13 +2631,16 @@
    ]
   ],
   "loopFrom": 0,
+  "cycleUs": 26000,
+  "timeNote": "Calcolo a 19,2 kbit/s (11 bit per carattere ≈ 0,57 ms): 8 byte ≈ 4,6 ms, più il tempo di risposta dello slave e il silenzio di 3,5 caratteri. Il giro completo qui dura ≈ 26 ms.",
   "steps": [
    {
     "from": "m",
     "to": "s1",
     "label": "FC03 → slave 1",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 4600,
     "frame": "rtu",
     "note": {
      "b": "Il master chiede i registri allo slave 1. Gli altri ascoltano ma non rispondono.",
@@ -2335,7 +2652,8 @@
     "to": "m",
     "label": "Risposta",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 6000,
     "note": {
      "b": "Lo slave 1 risponde con i valori.",
      "p": "Risposta: indirizzo, FC, byte count, dati, CRC. Il master attende fino al timeout."
@@ -2346,7 +2664,8 @@
     "to": "s2",
     "label": "FC06 → slave 2",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 4600,
     "note": {
      "b": "Poi tocca allo slave 2: scrittura di un valore.",
      "p": "Write Single Register: indirizzo 2, FC 0x06, registro e valore."
@@ -2357,7 +2676,8 @@
     "to": "m",
     "label": "Eco",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 6000,
     "note": {
      "b": "Lo slave 2 conferma.",
      "p": "Eco della richiesta come conferma."
@@ -2371,7 +2691,8 @@
     ],
     "label": "Broadcast (addr 0)",
     "t": "evento",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 4600,
     "note": {
      "b": "Il master può anche parlare a tutti insieme, ma nessuno risponde.",
      "p": "Indirizzo 0: broadcast solo per scritture; nessuna risposta, il master attende un tempo di turnaround."
@@ -2425,6 +2746,25 @@
       "d": "Il silenzio finale delimita la fine del frame."
      }
     ]
+   }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "bus",
+     "s2"
+    ],
+    "b": "Il cavo si interrompe prima dello Slave 2: il master lo interroga, aspetta la risposta fino al timeout e poi passa oltre. Ogni slave che non risponde rallenta tutto il giro.",
+    "p": "Nessuna risposta: il master attende il response timeout (tipicamente 100 ms–1 s), eventualmente ritenta e poi prosegue con lo slave successivo; ogni slave assente allunga il ciclo di polling di un timeout per tentativo. Il tratto di RS-485 rimasto senza terminazione (120 Ω) può causare errori anche sugli altri slave."
+   },
+   "node": {
+    "id": "s1",
+    "b": "Lo Slave 1 è spento: il master non ottiene risposta, aspetta il timeout e lo segnala come non raggiungibile. Il protocollo non prevede altro: è l'applicazione a decidere cosa fare.",
+    "p": "Timeout sul master a ogni interrogazione dello slave assente. Modbus RTU non ha heartbeat né watchdog standard: lo stato sicuro delle uscite quando è il master a mancare dipende dal dispositivo (alcuni offrono un timeout di comunicazione configurabile)."
+   },
+   "crc": {
+    "b": "Lo slave si accorge che il messaggio è rovinato e non risponde affatto: il master aspetta il timeout e ripete la richiesta.",
+    "p": "Il CRC-16 calcolato non corrisponde a quello ricevuto: lo slave scarta il frame in silenzio (nessuna eccezione, perché l'indirizzo stesso potrebbe essere errato). Il master va in timeout e ritenta. Errori frequenti indicano cablaggio, terminazione o messa a terra da verificare."
    }
   }
  },
@@ -2481,13 +2821,16 @@
    ]
   ],
   "loopFrom": 0,
+  "cycleUs": 600,
+  "timeNote": "Una transazione dura ≈ 150 µs (chiamata da 14 bit, pausa e risposta da 7 bit a ≈ 167 kbit/s): qui 3 slave più una chiamata di gestione; con 31 slave il ciclo è ≈ 5 ms.",
   "steps": [
    {
     "from": "m",
     "to": "s1",
     "label": "Master call A1",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 84,
     "frame": "asi_call",
     "note": {
      "b": "Il master chiama lo slave 1 e gli invia i dati di uscita.",
@@ -2499,7 +2842,8 @@
     "to": "m",
     "label": "Risposta 7 bit",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 66,
     "note": {
      "b": "Lo slave 1 risponde con i suoi ingressi.",
      "p": "Slave response a 7 bit: ST, 4 bit di dati, parità, EB, dopo la pausa slave."
@@ -2510,7 +2854,8 @@
     "to": "s2",
     "label": "Master call A2",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 84,
     "note": {
      "b": "Poi lo slave 2.",
      "p": "Polling sequenziale a ciclo fisso."
@@ -2521,7 +2866,8 @@
     "to": "m",
     "label": "Risposta",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 66,
     "note": {
      "b": "Risposta dello slave 2.",
      "p": "7 bit di risposta."
@@ -2532,7 +2878,8 @@
     "to": "s3",
     "label": "Master call A3",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 84,
     "note": {
      "b": "E lo slave 3.",
      "p": "Fino a 31 (o 62) slave nel ciclo; ≈ 5 ms per 31 slave."
@@ -2543,7 +2890,8 @@
     "to": "m",
     "label": "Risposta",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 66,
     "note": {
      "b": "Risposta dello slave 3: il giro è completo.",
      "p": "Fine ciclo, il polling riparte."
@@ -2554,7 +2902,8 @@
     "to": "s2",
     "label": "Parametri / chiamata evento",
     "t": "evento",
-    "color": "#c0392b",
+    "kind": "acy",
+    "us": 150,
     "note": {
      "b": "Ogni tanto il master cambia un parametro o verifica uno slave guasto.",
      "p": "Chiamate speciali (parametri, reset, indirizzo): interrompono brevemente il polling."
@@ -2603,6 +2952,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "bus",
+     "s3"
+    ],
+    "b": "Il cavo giallo si interrompe prima dello Slave 3: lo slave resta senza dati e anche senza alimentazione, perché viaggiano sullo stesso cavo. Il master lo segnala come mancante.",
+    "p": "Lo slave non risponde alle chiamate: dopo più errori consecutivi (tipicamente 3 cicli) il master lo toglie dalla lista degli slave attivi (LAS) e segnala un errore di configurazione; i suoi ingressi vengono azzerati nell'immagine di processo. Il resto della rete continua: AS-i non richiede terminazioni."
+   },
+   "node": {
+    "id": "s2",
+    "b": "Lo Slave 2 è guasto: il master se ne accorge in pochi millisecondi. Con la sostituzione il nuovo slave può ricevere automaticamente lo stesso indirizzo.",
+    "p": "Slave rimosso dalla LAS dopo le chiamate senza risposta, con segnalazione di errore di configurazione. Se è abilitato l'indirizzamento automatico e manca un solo slave, il master assegna al sostituto (stesso profilo, indirizzo 0 di fabbrica) l'indirizzo di quello guasto."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene riconosciuto e ripetuto subito dal master, senza perdere il ciclo.",
+    "p": "AS-i non usa un CRC: ogni telegramma ha un bit di parità e il ricevitore verifica la forma del segnale (codifica Manchester con modulazione APM: alternanza degli impulsi, pause, lunghezza). Il telegramma errato è scartato e il master ripete la chiamata; gli errori ripetuti sono contati per la diagnostica."
+   }
   }
  },
  "bacnet": {
@@ -2648,6 +3016,8 @@
    ]
   ],
   "loopFrom": 3,
+  "cycleUs": 1000000,
+  "timeNote": "Il periodo è l'intervallo di polling del supervisore (qui 1 s; tipico da 100 ms a minuti). Le notifiche COV arrivano solo quando il valore cambia.",
   "steps": [
    {
     "from": "w",
@@ -2657,7 +3027,8 @@
     ],
     "label": "Who-Is (broadcast)",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 1000,
     "note": {
      "b": "Il supervisore chiede a tutti: «chi c'è?»",
      "p": "Who-Is (servizio non confermato 8) in broadcast UDP 47808; con BBMD inoltrato tra sottoreti."
@@ -2668,7 +3039,8 @@
     "to": "w",
     "label": "I-Am",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 10000,
     "note": {
      "b": "Le centraline rispondono presentandosi.",
      "p": "I-Am con Device Instance, vendor ID, max APDU e segmentazione."
@@ -2679,7 +3051,8 @@
     "to": "w",
     "label": "I-Am",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 10000,
     "note": {
      "b": "Anche il sensore risponde.",
      "p": "Il supervisore costruisce la tabella dei dispositivi."
@@ -2690,7 +3063,8 @@
     "to": "c1",
     "label": "ReadProperty AI1",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 1000,
     "frame": "bacnet",
     "note": {
      "b": "Il supervisore chiede la temperatura corrente.",
@@ -2702,7 +3076,8 @@
     "to": "w",
     "label": "ComplexACK 22,4",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 20000,
     "note": {
      "b": "La centralina risponde con il valore.",
      "p": "ComplexACK con Present_Value (real)."
@@ -2713,7 +3088,8 @@
     "to": "c2",
     "label": "SubscribeCOV",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 1000,
     "note": {
      "b": "Il supervisore chiede di essere avvisato quando cambia.",
      "p": "SubscribeCOV con lifetime e processo ID; il sensore invia notifiche quando il valore cambia oltre l'incremento."
@@ -2724,7 +3100,8 @@
     "to": "w",
     "label": "COV notification",
     "t": "ciclo",
-    "color": "#c0392b",
+    "kind": "alm",
+    "us": 1000,
     "note": {
      "b": "Il sensore avvisa: «la temperatura è cambiata».",
      "p": "UnconfirmedCOVNotification (o confermata) con Present_Value e Status_Flags."
@@ -2803,6 +3180,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "c2"
+    ],
+    "b": "Il sensore di sala non è più raggiungibile: il supervisore non riceve aggiornamenti e, dopo un po', mostra il punto come fuori linea.",
+    "p": "Le richieste confermate vanno in timeout (APDU_Timeout, tipicamente 3–10 s) e sono ripetute per Number_Of_APDU_Retries. Le notifiche COV non confermate si perdono senza avviso: per questo le sottoscrizioni hanno un lifetime e vanno rinnovate, spesso affiancate da un polling lento di controllo."
+   },
+   "node": {
+    "id": "c1",
+    "b": "La centralina è spenta: il supervisore non riceve risposta e segnala il dispositivo come fuori linea; gli altri dispositivi continuano a regolare in autonomia.",
+    "p": "Timeout e ripetizioni dell'APDU, poi il dispositivo è marcato offline sul supervisore. Al riavvio la centralina può annunciarsi con I-Am; le sottoscrizioni COV non persistenti vanno ricreate dal client."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato. Le richieste importanti vengono ripetute dopo un'attesa; le notifiche semplici, invece, vanno perse.",
+    "p": "BACnet/IP usa UDP: il datagramma corrotto (FCS Ethernet o checksum UDP) è scartato senza ritrasmissione a livello di trasporto. Per i servizi confermati è BACnet stesso a ritrasmettere allo scadere di APDU_Timeout; i servizi non confermati (Who-Is, COV non confermato) si perdono."
+   }
   }
  },
  "knx": {
@@ -2858,6 +3254,7 @@
    ]
   ],
   "loopFrom": 0,
+  "timeNote": "A 9600 bit/s (KNX TP1) un telegramma con 1 byte di dati dura ≈ 12 ms, più attese e ACK (≈ 20 ms in tutto). Nessun ciclo: i telegrammi partono a evento.",
   "steps": [
    {
     "from": "sw",
@@ -2867,7 +3264,8 @@
     ],
     "label": "Write 1/1/1 = ON",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "alm",
+    "us": 12000,
     "frame": "knx",
     "note": {
      "b": "L'interruttore invia «ON» al gruppo 1/1/1.",
@@ -2879,7 +3277,8 @@
     "to": "sw",
     "label": "ACK",
     "t": "ciclo",
-    "color": "#7f8c8d",
+    "kind": "tok",
+    "us": 2700,
     "note": {
      "b": "La lampada conferma di aver ricevuto.",
      "p": "ACK a livello 2 (carattere 0xCC), inviato da almeno un dispositivo destinatario."
@@ -2890,7 +3289,8 @@
     "to": "sw",
     "label": "Read 1/1/2",
     "t": "ciclo",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 12000,
     "note": {
      "b": "Il sensore chiede lo stato del gruppo 1/1/2.",
      "p": "GroupValue_Read (APCI 0x00): chi ha il valore risponde con GroupValue_Response."
@@ -2901,7 +3301,8 @@
     "to": "pr",
     "label": "Response",
     "t": "ciclo",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 12000,
     "note": {
      "b": "Il dimmer risponde con lo stato.",
      "p": "GroupValue_Response (APCI 0x40) con valore."
@@ -2956,6 +3357,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "bus",
+     "l2"
+    ],
+    "b": "Il tratto verso il dimmer è interrotto: il dimmer non riceve più i comandi (e nemmeno l'alimentazione del bus). Gli altri dispositivi continuano a funzionare, perché non c'è un «capo» centrale.",
+    "p": "I dispositivi oltre l'interruzione perdono dati e tensione di bus (≈ 30 V DC sullo stesso doppino). Non c'è un master da avvisare: se nessun destinatario del gruppo conferma, il mittente ripete il telegramma (fino a 3 volte). KNX TP non richiede terminazioni, quindi il resto della linea non è disturbato."
+   },
+   "node": {
+    "id": "l1",
+    "b": "L'attuatore della lampada è guasto: il comando parte lo stesso e gli altri dispositivi del gruppo lo eseguono. Nessuno, però, segnala da solo che un dispositivo manca.",
+    "p": "L'ACK di livello 2 è cumulativo: basta che un destinatario del gruppo risponda perché il mittente consideri consegnato il telegramma, quindi un attuatore assente passa inosservato. Per rilevarlo servono oggetti di stato (feedback) o un monitoraggio ciclico realizzato a livello applicativo."
+   },
+   "crc": {
+    "b": "Chi riceve il messaggio rovinato risponde «non ho capito» e il mittente lo ripete, fino a tre volte.",
+    "p": "KNX TP1 non usa un CRC: ogni carattere ha un bit di parità e il telegramma termina con un byte di checksum (parità trasversale). Il destinatario che rileva l'errore risponde NACK (0x0C) e il mittente ripete il telegramma, fino a 3 volte, con il flag di ripetizione attivo."
+   }
   }
  },
  "hart": {
@@ -2991,13 +3411,16 @@
    ]
   ],
   "loopFrom": 2,
+  "cycleUs": 500000,
+  "timeNote": "A 1200 bit/s ogni byte dura ≈ 9 ms (11 bit): una transazione completa richiede 300–500 ms. Il segnale 4–20 mA è continuo e non ha tempi di trasmissione.",
   "steps": [
    {
     "from": "h",
     "to": "t",
     "label": "Cmd 0 (identità)",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 120000,
     "frame": "hart",
     "note": {
      "b": "L'host chiede allo strumento: «chi sei?»",
@@ -3009,7 +3432,8 @@
     "to": "h",
     "label": "Risposta + ID",
     "t": "setup",
-    "color": "#8e44ad",
+    "kind": "acy",
+    "us": 250000,
     "note": {
      "b": "Lo strumento risponde con il suo codice.",
      "p": "Risposta con produttore, tipo, revisione, ID univoco: usato poi per indirizzare a 5 byte."
@@ -3020,7 +3444,8 @@
     "to": "t",
     "label": "Cmd 3 (variabili)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 120000,
     "note": {
      "b": "L'host legge le misure e la corrente del loop.",
      "p": "Command 3: Read Dynamic Variables, corrente + PV, SV, TV, QV."
@@ -3031,7 +3456,8 @@
     "to": "h",
     "label": "Risposta dati",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 300000,
     "note": {
      "b": "Lo strumento risponde con i valori.",
      "p": "Response code a 2 byte (comunicazione + stato dispositivo) e dati."
@@ -3042,7 +3468,7 @@
     "to": "h",
     "label": "4–20 mA continuo",
     "t": "evento",
-    "color": "#2980b9",
+    "kind": "cyc",
     "note": {
      "b": "Intanto il segnale analogico non si ferma mai.",
      "p": "Il segnale FSK ha media nulla e non altera il valore 4–20 mA letto dal PLC."
@@ -3103,6 +3529,25 @@
      }
     ]
    }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "l",
+     "t"
+    ],
+    "b": "L'anello è interrotto: la corrente scende a zero. Il PLC se ne accorge subito, perché un segnale valido non scende mai sotto i 4 mA.",
+    "p": "Con l'anello aperto la corrente va a 0 mA: l'ingresso analogico rileva la rottura del filo (valore sotto 3,6 mA, soglie NAMUR NE 43) e anche la comunicazione HART si interrompe; il master va in timeout e ritenta. È il vantaggio dello «zero vivo» del 4–20 mA."
+   },
+   "node": {
+    "id": "t",
+    "b": "Il trasmettitore è guasto: porta la corrente a un valore di allarme fuori scala, così il PLC capisce che la misura non è valida anche senza comunicazione digitale.",
+    "p": "In caso di guasto interno il trasmettitore forza la corrente di allarme (≤ 3,6 mA o ≥ 21 mA secondo NAMUR NE 43, configurabile). Se risponde ancora via HART, lo stato del dispositivo nel response code (es. bit «device malfunction») e il comando 48 forniscono la diagnostica di dettaglio."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato e il master ripete la domanda. La misura a 4–20 mA non ne risente: continua ad arrivare in analogico.",
+    "p": "HART non usa un CRC: parità dispari su ogni byte e un byte di checksum (XOR longitudinale). Lo slave che riceve un frame errato lo segnala nel primo byte del response code (errori di comunicazione: parità, overrun, checksum) oppure non risponde; il master ritenta. Il valore analogico resta valido."
+   }
   }
  },
  "cip": {
@@ -3148,13 +3593,16 @@
    ]
   ],
   "loopFrom": 1,
+  "cycleUs": 20000,
+  "timeNote": "Il ciclo è l'RPI del produced tag (qui 20 ms; tipico 2–100 ms). I messaggi espliciti non hanno una cadenza garantita.",
   "steps": [
    {
     "from": "c",
     "to": "p",
     "label": "Forward_Open (consumer)",
     "t": "setup",
-    "color": "#2980b9",
+    "kind": "acy",
+    "us": 5000,
     "note": {
      "b": "Il PLC B dice al PLC A: «voglio ricevere la tua variabile ogni 20 ms».",
      "p": "Il consumatore apre la connessione verso il produttore (Forward_Open con RPI, tag path e dimensione): da qui parte la produzione ciclica."
@@ -3165,7 +3613,8 @@
     "to": "c",
     "label": "Produced tag (RPI)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "frame": "cip_tag",
     "note": {
      "b": "Il PLC A 'pubblica' la variabile e il PLC B la riceve da solo.",
@@ -3177,7 +3626,8 @@
     "to": "p",
     "label": "Read Tag (0x4C)",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 1000,
     "note": {
      "b": "L'HMI chiede una volta sola il valore di un tag.",
      "p": "Servizio esplicito 0x4C con percorso simbolico verso il tag, via TCP 44818 (UCMM o connesso)."
@@ -3188,7 +3638,8 @@
     "to": "h",
     "label": "Valore (DINT)",
     "t": "ciclo",
-    "color": "#e67e22",
+    "kind": "acy",
+    "us": 5000,
     "note": {
      "b": "Il PLC A risponde con il valore.",
      "p": "Risposta con tipo (es. 0xC4 DINT) e valore, status 0 = successo."
@@ -3199,7 +3650,8 @@
     "to": "c",
     "label": "Produced tag (RPI)",
     "t": "ciclo",
-    "color": "#27ae60",
+    "kind": "cyc",
+    "us": 25,
     "note": {
      "b": "Intanto la pubblicazione continua a ritmo fisso.",
      "p": "Se il consumatore non riceve dati entro RPI × timeout multiplier, la connessione scade e il tag consumato va in fault."
@@ -3253,6 +3705,25 @@
       "d": "Contenuto del produced tag (struttura o array)."
      }
     ]
+   }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "c"
+    ],
+    "b": "PLC B non riceve più i dati di PLC A: dopo pochi cicli segnala che il collegamento è caduto e il programma può reagire. L'HMI continua a leggere normalmente.",
+    "p": "Il consumed tag non riceve pacchetti entro RPI × timeout multiplier: la connessione scade e il tag va in fault (rilevabile con il membro CONNECTION_STATUS, se il tipo di dato lo include, o con GSV). Il consumatore ritenta periodicamente il Forward_Open."
+   },
+   "node": {
+    "id": "p",
+    "b": "PLC A è spento: nessun dato prodotto e nessuna risposta all'HMI. PLC B rileva la caduta del collegamento, l'HMI mostra un errore di comunicazione.",
+    "p": "Il consumatore va in timeout sulla connessione (RPI × timeout multiplier) e marca il tag come in fault; i messaggi espliciti dell'HMI falliscono per timeout o per la chiusura della connessione TCP. Al ritorno del produttore il consumatore riapre la connessione con Forward_Open."
+   },
+   "crc": {
+    "b": "Il pacchetto rovinato viene scartato e non ripetuto: arriverà quello del ciclo successivo.",
+    "p": "Produced tag su UDP: il frame con FCS errato è scartato, senza ritrasmissione; il consumatore rileva il salto del sequence number e attende il pacchetto seguente. I messaggi espliciti (Read Tag) viaggiano su TCP e vengono ritrasmessi."
    }
   }
  }

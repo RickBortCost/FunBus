@@ -29,16 +29,27 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       await pg.evaluate(h => (location.hash = h), r); await pg.waitForTimeout(80);
       const t = await pg.textContent('#app');
       if (t.length < 20 || t.startsWith('Errore')) errs.push(`${label}/${lang}/${lv} ${r}: pagina vuota o in errore`);
+      if (ids.includes(r.split('/')[2]) && lv === 'lvP') { await pg.click('button[role=tab] >> nth=1'); await pg.waitForTimeout(60); if (!(await pg.locator('.seq svg').count())) errs.push(`${label}/${lang} ${r}: animazione senza diagramma`); }
       if (label === 'mobile' && !r.startsWith('/confronto')) {
         const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (ov > 2) errs.push(`mobile/${lv} ${r}: overflow orizzontale ${ov}px`);
       }
+      if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
   }
   // animazione di ogni protocollo
   if (label === 'desktop') for (const id of ids) {
     await pg.evaluate(h => (location.hash = h), '/protocolli/' + id); await pg.click('#lvP');
     await pg.click('button[role=tab] >> nth=1'); await pg.click('button.primary:has-text("Play")'); await pg.waitForTimeout(150);
+    // diagramma a sequenza e guasti simulati
+    const rows = await pg.locator('.seq .srow').count();
+    if (rows !== data('animations')[id].steps.length) errs.push(`${id}: diagramma a sequenza con ${rows} righe`);
+    await pg.click('.faultbtn');
+    for (const f of ['cable', 'node', 'crc']) {
+      await pg.click(`.faults [data-f=${f}]`); await pg.locator('.seq .srow').last().click(); await pg.waitForTimeout(60);
+      if (!(await pg.locator('.note.fault').count())) errs.push(`${id}: guasto ${f} senza spiegazione`);
+    }
+    if (!(await pg.locator('.frame button').count())) errs.push(`${id}: frame non mostrato in Professional`);
     await pg.click('button[role=tab] >> nth=0');
   }
   await pg.close();
