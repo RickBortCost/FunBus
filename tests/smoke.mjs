@@ -16,7 +16,7 @@ const base = `http://127.0.0.1:${server.address().port}/`;
 
 const data = id => JSON.parse(fs.readFileSync(`wwwroot/data/${id}.json`, 'utf8'));
 const ids = data('protocols').protocols.map(p => p.id);
-const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/certificato', ...ids.map(i => '/protocolli/' + i)];
+const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', ...ids.map(i => '/protocolli/' + i)];
 const errs = [];
 const b = await chromium.launch();
 for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile', { width: 390, height: 800 }]]) {

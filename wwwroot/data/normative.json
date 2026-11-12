@@ -1,0 +1,480 @@
+{
+ "disclaimer": {
+  "b": "Nessun protocollo è «conforme a CRA o NIS2» di per sé: queste norme riguardano prodotti, organizzazioni e processi. Il protocollo conta perché offre (o no) funzioni di sicurezza e perché cambia la superficie d'attacco. Questa pagina è didattica e non è consulenza legale: verifica sempre testi ufficiali, recepimenti nazionali e date.",
+  "p": "Il protocollo non determina la conformità: CRA si applica ai prodotti con elementi digitali (obblighi del fabbricante), NIS2 ai soggetti essenziali e importanti (misure di gestione del rischio e notifica incidenti), IEC 62443 a sistemi e componenti industriali. La scelta del bus incide su funzioni native (autenticazione, cifratura, integrità, controllo accessi, audit) e su esposizione e misure compensative. Pagina didattica, non consulenza legale: verificare testi ufficiali, recepimento nazionale e date di applicazione."
+ },
+ "regs": [
+  {
+   "id": "cra",
+   "name": "CRA — Cyber Resilience Act",
+   "kind": "Regolamento UE 2024/2847",
+   "short": {
+    "b": "Regola UE sulla cybersicurezza dei prodotti con parti digitali (macchine, dispositivi, software) venduti in Europa: devono essere sicuri fin dalla progettazione e aggiornabili.",
+    "p": "Regolamento (UE) 2024/2847: requisiti essenziali di sicurezza (Allegato I) per prodotti con elementi digitali, gestione delle vulnerabilità per l'intero ciclo di vita, documentazione tecnica, marcatura CE e segnalazione all'ENISA/CSIRT delle vulnerabilità attivamente sfruttate e degli incidenti gravi."
+   },
+   "who": {
+    "b": "Chi fabbrica o importa dispositivi, PLC, gateway, software e componenti.",
+    "p": "Fabbricanti, importatori e distributori di prodotti con elementi digitali; gli utilizzatori finali non sono destinatari diretti, ma ne ricevono i requisiti nei prodotti acquistati."
+   },
+   "dates": {
+    "b": "In vigore dal 10 dicembre 2024; segnalazioni dall'11 settembre 2026; obblighi principali dall'11 dicembre 2027 (verificare).",
+    "p": "Entrata in vigore 10/12/2024; obblighi di segnalazione di vulnerabilità sfruttate e incidenti dall'11/09/2026; applicazione generale dall'11/12/2027. Verificare atti delegati e norme armonizzate."
+   },
+   "impact": {
+    "b": "Un'interfaccia IP senza autenticazione né cifratura è difficile da giustificare; un bus chiuso richiede comunque un'analisi dei rischi documentata. Contano gli aggiornamenti sicuri del firmware.",
+    "p": "Impatto sui bus: interfacce esposte (IP, gateway, web) devono offrire autenticazione, protezione di integrità/riservatezza dove proporzionato e riduzione della superficie d'attacco; per fieldbus chiusi serve valutazione dei rischi e configurazione sicura di default. Il fabbricante risponde del prodotto, non solo del protocollo."
+   }
+  },
+  {
+   "id": "nis2",
+   "name": "NIS2",
+   "kind": "Direttiva UE 2022/2555",
+   "short": {
+    "b": "Direttiva UE che obbliga molte aziende (energia, acqua, trasporti, sanità, manifattura critica, ecc.) a gestire i rischi informatici e a notificare gli incidenti.",
+    "p": "Direttiva (UE) 2022/2555: misure di gestione del rischio (art. 21: controllo degli accessi, crittografia, sicurezza della catena di fornitura, gestione delle vulnerabilità, continuità operativa), responsabilità degli organi di gestione, notifica degli incidenti significativi (preallarme 24 ore, notifica 72 ore, relazione finale a un mese)."
+   },
+   "who": {
+    "b": "Chi gestisce l'impianto: soggetti essenziali e importanti nei settori coperti.",
+    "p": "Soggetti essenziali e importanti nei settori degli Allegati I e II (compresa parte della manifattura); in Italia è recepita dal D.Lgs. 138/2024 con l'Agenzia per la Cybersicurezza Nazionale (ACN) come autorità."
+   },
+   "dates": {
+    "b": "Termine di recepimento 17 ottobre 2024; in Italia in vigore dal 16 ottobre 2024 (verificare).",
+    "p": "Recepimento entro il 17/10/2024; in Italia D.Lgs. 138/2024 in vigore dal 16/10/2024 con obblighi graduali definiti dall'ACN. Sanzioni fino a 10 M€ o 2 % del fatturato (essenziali) e 7 M€ o 1,4 % (importanti), secondo la direttiva."
+   },
+   "impact": {
+    "b": "Servono segmentazione, accessi remoti controllati e inventario degli asset: i bus senza sicurezza vanno isolati e protetti ai confini.",
+    "p": "Impatto sui bus: i flussi che attraversano zone o arrivano da IT/cloud/accesso remoto devono usare protocolli con autenticazione e cifratura (OPC UA, MQTT con TLS, CIP Security, ADS Secure) o essere protetti da gateway/firewall e VPN; i bus di campo privi di sicurezza richiedono isolamento fisico/logico e monitoraggio."
+   }
+  },
+  {
+   "id": "iec62443",
+   "name": "IEC 62443",
+   "kind": "Serie IEC/ISA (non ISO)",
+   "short": {
+    "b": "Lo standard di riferimento per la sicurezza dell'automazione industriale: divide l'impianto in zone protette e definisce livelli di sicurezza dei componenti.",
+    "p": "Serie IEC 62443: 2-1 (programma di sicurezza), 3-2 (valutazione dei rischi, zone e conduit), 3-3 (requisiti di sistema), 4-1 (ciclo di sviluppo sicuro), 4-2 (requisiti dei componenti) con Security Level SL 1–4 sui sette Foundational Requirements: FR1 IAC, FR2 UC, FR3 SI, FR4 DC, FR5 RDF, FR6 TRE, FR7 RA."
+   },
+   "who": {
+    "b": "Integratori, costruttori e gestori d'impianto.",
+    "p": "Asset owner, integratori di sistema e fornitori di prodotti; è lo standard più usato per dimostrare «appropriate measures» in CRA e NIS2."
+   },
+   "dates": {
+    "b": "Standard IEC/ISA, non ISO. È una serie in evoluzione: controlla le edizioni correnti.",
+    "p": "Standard IEC con ISA; la serie è in evoluzione (edizioni e parti diverse): verificare la versione applicabile. Si cita spesso come riferimento tecnico per CRA/NIS2, ma non è automaticamente una presunzione di conformità."
+   },
+   "impact": {
+    "b": "È il filtro tecnico più utile: guarda quali funzioni di sicurezza offre il bus e a quale livello (zone e conduit).",
+    "p": "Mappatura delle cinque funzioni usate qui: autenticazione ↔ FR1 (IAC), controllo accessi ↔ FR2 (UC), integrità ↔ FR3 (SI), cifratura ↔ FR4 (DC), audit/log ↔ FR6 (TRE). I conduit tra zone con bus privi di sicurezza richiedono gateway/firewall; OPC UA e CIP Security consentono di raggiungere SL più alti sul canale."
+   }
+  },
+  {
+   "id": "iso27001",
+   "name": "ISO/IEC 27001:2022",
+   "kind": "Norma ISO/IEC",
+   "short": {
+    "b": "Lo standard ISO per gestire la sicurezza delle informazioni in azienda con un sistema di gestione (ISMS).",
+    "p": "ISO/IEC 27001:2022: sistema di gestione della sicurezza delle informazioni basato sul rischio; Allegato A con 93 controlli (organizzativi, persone, fisici, tecnologici). Controlli rilevanti per le reti: A.8.20 sicurezza delle reti, A.8.21 servizi di rete, A.8.22 segregazione, A.8.24 crittografia."
+   },
+   "who": {
+    "b": "Organizzazioni che vogliono certificare il proprio sistema di sicurezza.",
+    "p": "Qualsiasi organizzazione; copre l'IT e, se incluso nel perimetro, anche l'OT. Non è specifica dell'automazione: per l'OT si affianca IEC 62443."
+   },
+   "dates": {
+    "b": "Edizione 2022 (transizione dalle certificazioni 2013 conclusa nel 2025, verificare).",
+    "p": "Edizione 2022 con 93 controlli; le certificazioni ISO/IEC 27001:2013 avevano un periodo di transizione fino a ottobre 2025 (verificare con l'ente di certificazione)."
+   },
+   "impact": {
+    "b": "Aiuta a decidere dove usare protocolli sicuri e dove segregare le reti con bus senza sicurezza.",
+    "p": "Nel trattamento del rischio, i bus senza sicurezza nativa si gestiscono con segregazione (A.8.22), controllo dei confini (A.8.20/8.21) e crittografia al perimetro (A.8.24); i protocolli con TLS/certificati semplificano la dimostrazione dei controlli."
+   }
+  },
+  {
+   "id": "machinery",
+   "name": "Regolamento Macchine",
+   "kind": "Regolamento UE 2023/1230",
+   "short": {
+    "b": "Il nuovo regolamento UE sulle macchine: richiede, tra l'altro, di proteggere i comandi di sicurezza dalla manomissione.",
+    "p": "Regolamento (UE) 2023/1230: requisiti essenziali di salute e sicurezza, compresa la protezione contro la corruzione dei sistemi di controllo legati alla sicurezza (Allegato III, 1.1.9) e il software di sicurezza; sostituisce la direttiva 2006/42/CE."
+   },
+   "who": {
+    "b": "Costruttori di macchine e di componenti di sicurezza.",
+    "p": "Costruttori, importatori e distributori di macchine e componenti di sicurezza."
+   },
+   "dates": {
+    "b": "Si applica dal 20 gennaio 2027 (verificare).",
+    "p": "Applicazione generale dal 20/01/2027; la direttiva 2006/42/CE cessa da quella data. Verificare le norme armonizzate (es. ISO 13849, IEC 62061) e l'IEC TR 63074 sui rapporti safety/security."
+   },
+   "impact": {
+    "b": "I bus safety (PROFIsafe, FSoE, CIP Safety…) proteggono da errori casuali, non da attacchi: serve anche la security.",
+    "p": "Il black channel dei protocolli safety rileva errori casuali (CRC, contatori, timeout) ma non è un meccanismo di autenticazione o riservatezza: contro la manomissione servono misure di security del canale e del sistema (IEC TR 63074)."
+   }
+  }
+ ],
+ "reqs": [
+  {
+   "id": "auth",
+   "label": "Autenticazione",
+   "fr": "FR1 · IAC",
+   "desc": {
+    "b": "Chi parla è davvero chi dice di essere?",
+    "p": "Identificazione e autenticazione di dispositivi e utenti (certificati, PSK, password)."
+   }
+  },
+  {
+   "id": "access",
+   "label": "Controllo accessi",
+   "fr": "FR2 · UC",
+   "desc": {
+    "b": "Chi può fare cosa (leggere, scrivere, configurare).",
+    "p": "Autorizzazioni e ruoli (RBAC), separazione dei privilegi."
+   }
+  },
+  {
+   "id": "integ",
+   "label": "Integrità",
+   "fr": "FR3 · SI",
+   "desc": {
+    "b": "I dati non possono essere modificati di nascosto.",
+    "p": "Protezione contro la manomissione dei messaggi (MAC/firma), non solo CRC."
+   }
+  },
+  {
+   "id": "enc",
+   "label": "Cifratura",
+   "fr": "FR4 · DC",
+   "desc": {
+    "b": "Chi ascolta sul cavo non può leggere i dati.",
+    "p": "Riservatezza dei dati in transito (TLS/DTLS, AES)."
+   }
+  },
+  {
+   "id": "audit",
+   "label": "Audit e log",
+   "fr": "FR6 · TRE",
+   "desc": {
+    "b": "Si può ricostruire cosa è successo.",
+    "p": "Registrazione degli eventi e tracciabilità (audit event, log del broker/dispositivo)."
+   }
+  }
+ ],
+ "levels": {
+  "native": {
+   "label": "nativa",
+   "icon": "●"
+  },
+  "partial": {
+   "label": "parziale/opzionale",
+   "icon": "◐"
+  },
+  "none": {
+   "label": "assente",
+   "icon": "○"
+  }
+ },
+ "exposure": {
+  "field": "Locale (accesso fisico o gateway)",
+  "net": "Rete industriale locale (L2/IP)",
+  "ip": "Instradabile su IP (anche remoto/WAN)"
+ },
+ "profiles": {
+  "high": "Alto",
+  "medium": "Medio",
+  "low": "Basso (servono misure compensative)"
+ },
+ "bus": {
+  "opcua": {
+   "auth": "native",
+   "access": "native",
+   "integ": "native",
+   "enc": "native",
+   "audit": "native",
+   "exposure": "ip",
+   "note": {
+    "b": "È nato con la sicurezza: certificati, firma e cifratura, utenti e ruoli, eventi di audit.",
+    "p": "Security Model (Part 2/4/6): SecurityPolicy e SecurityMode (Sign, SignAndEncrypt), certificati X.509, identità utente, ruoli (Part 18), audit event; mappabile ai requisiti IEC 62443-4-2. Attenzione alle policy deprecate (Basic128Rsa15, Basic256) e alla gestione dei certificati."
+   },
+   "comp": {
+    "b": "Usa SignAndEncrypt, disattiva la modalità None, gestisci i certificati.",
+    "p": "Disattivare None e policy deprecate, trust list e rinnovo dei certificati, firewall sulla 4840, utenti con ruoli minimi, raccolta degli audit event."
+   }
+  },
+  "mqtt": {
+   "auth": "partial",
+   "access": "partial",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "ip",
+   "note": {
+    "b": "La sicurezza dipende da TLS e dal broker: bene se configurati, altrimenti nessuna.",
+    "p": "TLS (8883), certificati client, utente/password, ACL sui topic nel broker; MQTT 5 aggiunge enhanced authentication. Nessuna sicurezza end-to-end del payload né audit nel protocollo (log del broker)."
+   },
+   "comp": {
+    "b": "Sempre TLS, certificati per client, ACL per topic, broker ridondato e protetto.",
+    "p": "TLS 1.2/1.3 obbligatorio, mutual TLS, ACL sui topic, rate limiting, log del broker, segmentazione e hardening; cifratura del payload se si attraversano broker terzi."
+   }
+  },
+  "enip": {
+   "auth": "partial",
+   "access": "partial",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "net",
+   "note": {
+    "b": "CIP Security aggiunge autenticazione e cifratura, ma solo sui dispositivi che la supportano.",
+    "p": "CIP Security (ODVA): TLS/DTLS, certificati o PSK, profili di sicurezza; supporto non uniforme nei dispositivi. Il resto dei dispositivi EtherNet/IP classici non ha sicurezza nativa."
+   },
+   "comp": {
+    "b": "Abilita CIP Security dove disponibile, segmenta e filtra con firewall industriali.",
+    "p": "CIP Security sui dispositivi compatibili; VLAN e firewall con ispezione CIP, IGMP snooping, disabilitazione dei servizi web inutili, monitoraggio passivo del traffico."
+   }
+  },
+  "cip": {
+   "auth": "partial",
+   "access": "partial",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "net",
+   "note": {
+    "b": "CIP Security aggiunge autenticazione e cifratura, ma solo sui dispositivi che la supportano.",
+    "p": "CIP Security (ODVA): TLS/DTLS, certificati o PSK, profili di sicurezza; supporto non uniforme nei dispositivi. Il resto dei dispositivi EtherNet/IP classici non ha sicurezza nativa."
+   },
+   "comp": {
+    "b": "Abilita CIP Security dove disponibile, segmenta e filtra con firewall industriali.",
+    "p": "CIP Security sui dispositivi compatibili; VLAN e firewall con ispezione CIP, IGMP snooping, disabilitazione dei servizi web inutili, monitoraggio passivo del traffico."
+   }
+  },
+  "ads": {
+   "auth": "partial",
+   "access": "partial",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "ip",
+   "note": {
+    "b": "ADS Secure aggiunge TLS; senza, l'accesso si basa sulle route configurate.",
+    "p": "ADS Secure (TLS con certificati o PSK) nelle versioni recenti di TwinCAT; ADS classico protetto solo da route AMS e rete. Verificare versione e impostazioni del router."
+   },
+   "comp": {
+    "b": "Usa ADS Secure, limita le route e la porta 48898.",
+    "p": "ADS Secure con certificati, route minime, firewall su 48898/8016, segmentazione dei PC di engineering e log del router."
+   }
+  },
+  "s7": {
+   "auth": "partial",
+   "access": "partial",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "ip",
+   "note": {
+    "b": "L'S7comm classico è senza sicurezza; i nuovi PLC aggiungono protezioni dipendenti dal firmware.",
+    "p": "S7CommPlus (S7-1200/1500) con integrità e, nelle versioni recenti, comunicazione cifrata (TLS); livelli di protezione della CPU. S7comm classico e accesso PUT/GET senza autenticazione robusta."
+   },
+   "comp": {
+    "b": "Disattiva PUT/GET, usa i livelli di protezione, isola le reti.",
+    "p": "Firmware aggiornato, protezione CPU con password, PUT/GET disabilitato, TLS dove disponibile, filtro su TCP/102, segmentazione e monitoraggio."
+   }
+  },
+  "profinet": {
+   "auth": "partial",
+   "access": "none",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "net",
+   "note": {
+    "b": "La specifica prevede classi di sicurezza, ma pochi dispositivi le implementano: servono reti segmentate.",
+    "p": "PROFINET Security (Security Class 1–3 nelle specifiche recenti): autenticazione, integrità e cifratura opzionali del traffico; adozione nei dispositivi ancora limitata. Il traffico RT è L2 non instradabile oltre il segmento, riducendo l'esposizione remota."
+   },
+   "comp": {
+    "b": "Segmenta in zone, proteggi i confini, controlla l'accesso fisico alle porte.",
+    "p": "Zone e conduit (IEC 62443-3-2), VLAN, disabilitazione delle porte inutilizzate, port security/802.1X sugli switch, firewall al confine IT/OT, monitoraggio SNMP/LLDP, Security Class dove supportata."
+   }
+  },
+  "bacnet": {
+   "auth": "partial",
+   "access": "none",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "ip",
+   "note": {
+    "b": "BACnet/IP classico è senza sicurezza; BACnet/SC (TLS) è la variante sicura.",
+    "p": "BACnet/SC (ASHRAE 135, Addendum bj): connessioni TLS con autenticazione reciproca tramite certificati e hub; BACnet/IP e MS/TP non hanno autenticazione. La migrazione a SC dipende dai prodotti."
+   },
+   "comp": {
+    "b": "Passa a BACnet/SC dove possibile e separa la rete degli edifici dagli uffici.",
+    "p": "BACnet/SC con certificati, BBMD protetti, VLAN dedicate, firewall su UDP 47808, inventario dei dispositivi e aggiornamenti firmware."
+   }
+  },
+  "knx": {
+   "auth": "partial",
+   "access": "none",
+   "integ": "partial",
+   "enc": "partial",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "KNX Data Secure e IP Secure aggiungono protezione, ma vanno abilitati dispositivo per dispositivo.",
+    "p": "KNX Data Secure (autenticazione e cifratura dei telegrammi con AES-128 CCM) e KNX IP Secure per il tunneling/routing su IP; i dispositivi non Secure restano non protetti. Accesso fisico al doppino TP = accesso al bus."
+   },
+   "comp": {
+    "b": "Usa componenti Secure e proteggi fisicamente i cablaggi e i gateway IP.",
+    "p": "Data Secure e IP Secure con chiavi gestite in ETS, protezione fisica del doppino, gateway IP con firewall, separazione dalla rete uffici."
+   }
+  },
+  "modbus": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "ip",
+   "note": {
+    "b": "Modbus TCP classico non ha né password né cifratura: chiunque in rete può leggere e scrivere.",
+    "p": "Nessuna autenticazione, cifratura o integrità nel protocollo; esiste Modbus/TCP Security (TLS, porta 802, certificati con ruoli) ma è raro nei dispositivi. Porta 502 spesso esposta per errore."
+   },
+   "comp": {
+    "b": "Isolalo in una rete dedicata, usa gateway/firewall e una VPN per l'accesso remoto.",
+    "p": "Segmentazione rigorosa, allow-list di client e function code su firewall deep-packet, gateway sicuri (TLS), nessuna esposizione su Internet, monitoraggio delle scritture."
+   }
+  },
+  "profibus": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "Nessuna sicurezza nel protocollo: la protezione è fisica e al gateway.",
+    "p": "Nessuna autenticazione, cifratura o integrità oltre al controllo errori. La superficie d'attacco è l'accesso fisico al cavo e i gateway/master verso IP, non instradabile direttamente da Internet."
+   },
+   "comp": {
+    "b": "Proteggi gli armadi e i cavi e metti un firewall dove il bus si collega alle reti IP.",
+    "p": "Controllo accessi fisico, gateway/master con hardening e protezione delle porte di engineering, monitoraggio dei guasti anomali, aggiornamento progressivo a PROFINET con Security."
+   }
+  },
+  "ethercat": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "net",
+   "note": {
+    "b": "Nessuna sicurezza nativa: tutto dipende dall'isolamento del segmento.",
+    "p": "Nessuna autenticazione o cifratura nel protocollo; l'accesso a una porta del segmento permette di iniettare frame. L'ETG fornisce linee guida di sicurezza. Il frame non è instradabile oltre il segmento L2."
+   },
+   "comp": {
+    "b": "Tieni il segmento dedicato al master e proteggi le porte libere.",
+    "p": "Segmento dedicato su NIC separata, master hardenizzato, porte inutilizzate disabilitate o bloccate, protezione fisica degli armadi, controllo del Working Counter come indicatore di anomalie."
+   }
+  },
+  "modbusrtu": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "Nessuna sicurezza: serve protezione fisica del cavo e del gateway.",
+    "p": "Nessuna autenticazione, cifratura o integrità oltre al CRC; chiunque sul bus può parlare come master. L'esposizione remota avviene solo attraverso gateway TCP↔RTU."
+   },
+   "comp": {
+    "b": "Isola il bus e controlla i gateway verso Ethernet.",
+    "p": "Protezione fisica, gateway con filtro dei function code e allow-list, nessun accesso remoto diretto, monitoraggio dei timeout e delle risposte anomale."
+   }
+  },
+  "canopen": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "Nessuna sicurezza nativa: chiunque sul bus può inviare messaggi.",
+    "p": "CAN non ha autenticazione né cifratura; l'arbitraggio premia gli ID prioritari, quindi un nodo malevolo può saturare il bus. La protezione è fisica e a livello di gateway; CANopen Safety non è una misura di security."
+   },
+   "comp": {
+    "b": "Proteggi i cablaggi e i gateway CAN↔Ethernet.",
+    "p": "Accesso fisico controllato, gateway con filtro degli ID, segmentazione dei bus per funzione, monitoraggio del carico e degli ID insoliti, soluzioni di autenticazione a livello applicativo se necessario."
+   }
+  },
+  "iolink": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "Nessuna sicurezza nel protocollo, ma il collegamento punto-punto riduce l'esposizione.",
+    "p": "Nessuna autenticazione o cifratura; il master IO-Link è il confine di sicurezza verso il fieldbus. IO-Link Safety riguarda la safety, non la cybersicurezza."
+   },
+   "comp": {
+    "b": "Proteggi il master e i connettori; un sensore alla volta limita i danni.",
+    "p": "Master con firmware aggiornato e interfacce di gestione protette, Data Storage per ripristino controllato, protezione fisica, accesso ai parametri ISDU limitato."
+   }
+  },
+  "asi": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "Nessuna sicurezza nativa: la protezione è fisica.",
+    "p": "Nessuna autenticazione o cifratura; il cavo giallo è accessibile a chi lo perfora. ASIsafe è safety, non security. Il gateway è il punto di attacco verso PROFINET/PROFIBUS."
+   },
+   "comp": {
+    "b": "Chiudi gli armadi e proteggi il gateway.",
+    "p": "Protezione fisica dei cavi e dei moduli, gateway hardenizzato, modifica dell'indirizzamento controllata, monitoraggio di slave nuovi o mancanti."
+   }
+  },
+  "hart": {
+   "auth": "none",
+   "access": "none",
+   "integ": "none",
+   "enc": "none",
+   "audit": "none",
+   "exposure": "field",
+   "note": {
+    "b": "Il HART cablato non ha sicurezza; WirelessHART cifra, HART-IP dipende dall'implementazione.",
+    "p": "Il 4–20 mA con HART non ha autenticazione né cifratura (chi accede al loop può leggere e riconfigurare). WirelessHART usa cifratura AES-128 e chiavi di rete; HART-IP dipende dal prodotto."
+   },
+   "comp": {
+    "b": "Proteggi i modem HART e le cassette di campo; limita le scritture di parametri.",
+    "p": "Protezione fisica, asset management con controllo delle modifiche, write protect sugli strumenti, segmentazione di gateway e multiplexer HART, WirelessHART con chiavi gestite."
+   }
+  }
+ },
+ "howto": {
+  "b": "Come leggere la tabella: ● funzione nativa, ◐ parziale o opzionale (dipende da versione, dispositivo e configurazione), ○ assente. Il «profilo» riassume quante funzioni di sicurezza offre il protocollo, non la conformità.",
+  "p": "Valutazione indicativa per bus sulle cinque funzioni mappate su IEC 62443-4-2 (FR1, FR2, FR3, FR4, FR6): ● = 2 punti, ◐ = 1, ○ = 0; profilo Alto ≥ 8, Medio 3–7, Basso ≤ 2. Le valutazioni dipendono da versione, prodotto e configurazione; non sostituiscono un assessment."
+ },
+ "ui": {
+  "title": "Normative e cybersecurity",
+  "profile": "Profilo di sicurezza",
+  "exposure": "Esposizione",
+  "comp": "Misure compensative",
+  "regs": "Normative di riferimento",
+  "who": "A chi si applica",
+  "dates": "Date (verificare)",
+  "impact": "Impatto sulla scelta del bus",
+  "matrix": "Bus e funzioni di sicurezza",
+  "bus": "Bus",
+  "all": "Tutti",
+  "sort": "Ordina per profilo",
+  "safetynote": "Safety ≠ security: i protocolli safety (PROFIsafe, FSoE, CIP Safety, CANopen Safety, ASIsafe, IO-Link Safety) proteggono da errori casuali, non da attacchi.",
+  "cardtitle": "Sicurezza e normative",
+  "seeall": "Vedi la pagina Normative e cybersecurity",
+  "nav": "Normative"
+ }
+}

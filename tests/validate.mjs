@@ -5,6 +5,7 @@ const P = rd('protocols'), A = rd('animations'), Q = rd('quiz'), M = rd('matchin
 rd('game'); rd('glossary'); rd('topics');
 const EN = JSON.parse(fs.readFileSync('wwwroot/data/lang/en.json', 'utf8'));
 for (const [re] of EN.patterns) new RegExp(re);
+const NM = rd('normative');
 const err = [];
 const ids = P.protocols.map(p => p.id);
 if (new Set(ids).size !== ids.length) err.push('id protocollo duplicati');
@@ -12,6 +13,7 @@ for (const p of P.protocols) {
   for (const f of P.fields) if (!p.card[f.key]) err.push(`${p.id}: campo ${f.key} mancante`);
   for (const k of ['story', 'example', 'tagline']) if (!p[k]?.b || !p[k]?.p) err.push(`${p.id}: ${k} b/p mancante`);
   if (!p.osi?.own?.length || [...p.osi.own, ...p.osi.via].some(n => n < 1 || n > 7)) err.push(`${p.id}: livelli OSI mancanti o non validi`);
+  if (!NM.bus[p.id] || !NM.reqs.every(r => ['native', 'partial', 'none'].includes(NM.bus[p.id][r.id]))) err.push(`${p.id}: valutazione normative mancante o non valida`);
   if (!A[p.id]) err.push(`${p.id}: animazione mancante`);
   if (!SC.matrix[p.id]) err.push(`${p.id}: matrice scenari mancante`);
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);

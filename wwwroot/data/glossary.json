@@ -159,6 +159,36 @@
    "t": "CIP",
    "b": "Il linguaggio a oggetti comune di EtherNet/IP, DeviceNet e ControlNet.",
    "p": "Common Industrial Protocol (ODVA): oggetti, servizi e percorsi indipendenti dal trasporto."
+  },
+  {
+   "t": "CRA (Cyber Resilience Act)",
+   "b": "Regola UE: i prodotti con parti digitali devono essere sicuri e aggiornabili.",
+   "p": "Regolamento (UE) 2024/2847: requisiti di cybersicurezza per prodotti con elementi digitali, gestione delle vulnerabilità e segnalazioni a ENISA/CSIRT."
+  },
+  {
+   "t": "NIS2",
+   "b": "Direttiva UE che obbliga molte aziende a gestire il rischio informatico e a notificare gli incidenti.",
+   "p": "Direttiva (UE) 2022/2555: misure di gestione del rischio (art. 21) e notifica degli incidenti (art. 23) per soggetti essenziali e importanti."
+  },
+  {
+   "t": "IEC 62443",
+   "b": "La serie di standard per la sicurezza dell'automazione industriale.",
+   "p": "Serie IEC/ISA: zone e conduit, ciclo di sviluppo sicuro, requisiti di sistema e di componente con Security Level SL 1–4 sui sette FR."
+  },
+  {
+   "t": "Zona e conduit",
+   "b": "Zona = area protetta della rete; conduit = il collegamento controllato tra due zone.",
+   "p": "Concetto IEC 62443-3-2: raggruppamento di asset con requisiti di sicurezza comuni e canali di comunicazione tra zone da proteggere."
+  },
+  {
+   "t": "ISMS (ISO/IEC 27001)",
+   "b": "Il sistema con cui un'azienda gestisce la sicurezza delle informazioni.",
+   "p": "Information Security Management System secondo ISO/IEC 27001:2022, con 93 controlli nell'Allegato A."
+  },
+  {
+   "t": "Security Level (SL)",
+   "b": "Il livello di protezione di un sistema o componente, da 1 a 4.",
+   "p": "Livello IEC 62443 (SL 1–4) riferito al tipo di avversario atteso; si distinguono SL-T (target), SL-C (capability) e SL-A (achieved)."
   }
  ]
 }

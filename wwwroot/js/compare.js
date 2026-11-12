@@ -1,6 +1,7 @@
 import { S, h, T, isPro } from './core.js';
 import { logo } from './logos.js';
 import { pyramid } from './osi.js';
+import { profile, profileTag } from './normative.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
 const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', cip: 'L5–L7 su TCP/UDP/IP', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
@@ -23,6 +24,7 @@ const ROWS = [
   { label: 'Vantaggi', get: p => list(p.pros), lv: 'bp' },
   { label: 'Limiti', get: p => list(p.cons), lv: 'bp' },
   { label: 'Casi d\'uso', get: p => list(p.usecases), lv: 'bp' },
+  { label: 'Cybersicurezza', get: p => profileTag(p.id), cat: p => profile(p.id), lv: 'bp', hl: 'bp' },
   { label: 'Dati tecnici', get: p => h('div', {}, p.tech.map(([k, v]) => h('div', {}, h('strong', {}, k + ': '), v))), lv: 'p' }
 ];
 function list(a) { return h('ul', { class: 'clean' }, a.map(x => h('li', {}, x))); }
