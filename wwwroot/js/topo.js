@@ -28,7 +28,7 @@ export function topoChips(p) {
 
 /* ---- modelli geometrici (larghi e stretti) ---- */
 const dev = (n, x, y) => ({ id: 'd' + n, kind: 'dev', x, y, label: `Dispositivo ${n}` });
-function model(id, narrow, mech) {
+export function model(id, narrow, mech) {
   const M = (x, y, label = 'Master') => ({ id: 'm', kind: 'master', x, y, label });
   const sw = (id, x, y) => ({ id, kind: 'switch', x, y, label: 'Switch' });
   if (id === 'bus') {
@@ -63,8 +63,8 @@ function model(id, narrow, mech) {
   return { W: narrow ? 380 : 800, H: narrow ? 450 : 320, nodes, links: ids.map((a, i) => [a, ids[(i + 1) % ids.length]]), blocked: ids.length - 1 };
 }
 
-const SIZE = { master: [66, 42], dev: [62, 38], switch: [72, 30], term: [20, 30], junc: [0, 0] };
-function nodeShape(n) {
+export const SIZE = { master: [66, 42], dev: [62, 38], switch: [72, 30], term: [20, 30], junc: [0, 0] };
+export function nodeShape(n) {
   const [w, hh] = SIZE[n.kind], g = svgEl('g', { class: 'tnode k-' + n.kind });
   if (n.kind === 'junc') { g.append(svgEl('circle', { class: 'tj', cx: n.x, cy: n.y, r: 4 })); return g; }
   const x = n.x - w / 2, y = n.y - hh / 2;

@@ -1,6 +1,12 @@
 # FunBus
 
-App didattica sui bus di campo e protocolli industriali (Profinet, Profibus, S7, EtherCAT, ADS, MQTT, OPC UA, EtherNet/IP, Modbus TCP, CANopen, IO-Link). Livelli Beginner e Professional, animazioni, confronto e test a punti. Tutto simulato, nessun hardware.
+App didattica sui bus di campo e protocolli industriali (17 protocolli: PROFINET, PROFIBUS, S7, EtherCAT, ADS, MQTT, OPC UA, EtherNet/IP, CIP, Modbus TCP/RTU, CANopen, IO-Link, AS-Interface, BACnet/IP, KNX, HART). Livelli Beginner e Professional, italiano e inglese; animazioni con diagramma a sequenza e guasti simulati, topologie interattive, confronto in tabella e grafici, test a punti e gioco «Costruisci la rete». Tutto simulato, nessun hardware.
+
+## Test
+```
+node tests/validate.mjs                           # contenuti JSON, traduzioni, contrasti
+NODE_PATH=$(npm root -g) node tests/smoke.mjs     # Playwright: pagine, lingue, livelli, desktop e 390 px
+```
 
 ## Build
 ```

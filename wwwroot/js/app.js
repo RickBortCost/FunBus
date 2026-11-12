@@ -5,6 +5,7 @@ import * as games from './games.js';
 import * as extra from './extra.js';
 import { normative } from './normative.js';
 import { topologie } from './topo.js';
+import { build } from './build.js';
 import { loadDict, translateData, startDomLocalizer } from './i18n.js';
 
 const app = document.getElementById('app');
@@ -25,7 +26,7 @@ function render(scroll = false) {
     if (root === 'home') pages.home(app, ctx);
     else if (root === 'protocolli') (sub ? pages.protocol : pages.protocols)(app, ctx);
     else if (root === 'confronto') compare(app, ctx);
-    else if (root === 'test') (({ quiz: games.quiz, match: games.match, scenari: games.scenari, frame: games.frame, ripasso: (ap, cx) => games.quiz(ap, cx, true) })[sub] || games.hub)(app, ctx);
+    else if (root === 'test') (({ quiz: games.quiz, match: games.match, scenari: games.scenari, frame: games.frame, rete: build, ripasso: (ap, cx) => games.quiz(ap, cx, true) })[sub] || games.hub)(app, ctx);
     else if (root === 'profilo') games.profilo(app, ctx);
     else if (root === 'glossario') extra.glossario(app, ctx);
     else if (root === 'normative') normative(app, ctx);
