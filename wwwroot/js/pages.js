@@ -9,120 +9,358 @@ import { illustration } from './illus.js';
 const FIELDS = () => S.data.protocols.fields;
 
 export function home(app, { rerender }) {
-  const choose = lv => { S.level = lv; S.levelChosen = true; save(); rerender(true); };
+  const choose = lv => {
+    S.level = lv;
+    S.levelChosen = true;
+    save();
+    rerender(true);
+  };
   const box = [];
   if (!S.levelChosen) {
-    box.push(h('div', { class: 'card' },
-      h('h2', {}, 'Scegli il tuo livello'),
-      h('p', {}, 'Puoi cambiarlo in qualsiasi momento dal selettore in alto.'),
-      h('div', { class: 'two' },
-        h('button', { class: 'primary', onclick: () => choose('beginner') }, 'Beginner — concetti base, analogie, terminologia semplice'),
-        h('button', { class: 'primary', onclick: () => choose('professional') }, 'Professional — livello fisico/data link, frame, cicli, topologie, diagnostica'))));
+    box.push(
+      h(
+        'div',
+        { class: 'card' },
+        h('h2', {}, 'Scegli il tuo livello'),
+        h('p', {}, 'Puoi cambiarlo in qualsiasi momento dal selettore in alto.'),
+        h(
+          'div',
+          { class: 'two' },
+          h('button', { class: 'primary', onclick: () => choose('beginner') }, 'Beginner — concetti base, analogie, terminologia semplice'),
+          h(
+            'button',
+            { class: 'primary', onclick: () => choose('professional') },
+            'Professional — livello fisico/data link, frame, cicli, topologie, diagnostica',
+          ),
+        ),
+      ),
+    );
   }
   app.append(
     h('h1', {}, 'FunBus'),
-    h('p', {}, 'Impara i protocolli industriali con schede, animazioni, confronti e test a punti. Tutto è simulato, nessun hardware richiesto.'),
+    h(
+      'p',
+      {},
+      'Impara i protocolli industriali con schede, animazioni, confronti e test a punti. Tutto è simulato, nessun hardware richiesto.',
+    ),
     ...box,
-    h('a', { class: 'card pathcard', href: '#/percorso' }, h('h3', { style: 'margin-top:0' }, '🧭 Percorso guidato'), h('p', { class: 'muted', style: 'margin-bottom:0' }, 'Nove lezioni in ordine, con schede, animazioni e quiz: il modo più semplice per cominciare.')),
+    h(
+      'a',
+      { class: 'card pathcard', href: '#/percorso' },
+      h('h3', { style: 'margin-top:0' }, '🧭 Percorso guidato'),
+      h(
+        'p',
+        { class: 'muted', style: 'margin-bottom:0' },
+        'Nove lezioni in ordine, con schede, animazioni e quiz: il modo più semplice per cominciare.',
+      ),
+    ),
     commSection(),
     h('h2', {}, 'Tutti i protocolli'),
     protocolGrid(),
-    h('div', { class: 'two' },
-      h('a', { class: 'card', href: '#/confronto' }, h('h3', {}, '⚖ Confronto'), h('p', { class: 'muted' }, 'Tabella filtrabile e protocolli affiancati.')),
-      h('a', { class: 'card', href: '#/test' }, h('h3', {}, '🎮 Test e giochi'), h('p', { class: 'muted' }, 'Quiz, abbinamenti e scenari di fattibilità con punti e badge.'))));
+    h(
+      'div',
+      { class: 'two' },
+      h(
+        'a',
+        { class: 'card', href: '#/confronto' },
+        h('h3', {}, '⚖ Confronto'),
+        h('p', { class: 'muted' }, 'Tabella filtrabile e protocolli affiancati.'),
+      ),
+      h(
+        'a',
+        { class: 'card', href: '#/test' },
+        h('h3', {}, '🎮 Test e giochi'),
+        h('p', { class: 'muted' }, 'Quiz, abbinamenti e scenari di fattibilità con punti e badge.'),
+      ),
+    ),
+  );
 }
 
 function protocolGrid() {
-  return h('div', { class: 'grid' }, S.data.protocols.protocols.map(p =>
-    h('a', { class: 'card', href: `#/protocolli/${p.id}`, style: `--pc:${p.color}` },
-      h('div', { class: 'row' }, logo(p, 36), h('h3', { style: 'margin:0' }, p.name)),
-      h('p', { class: 'muted' }, T(p.tagline)),
-      h('span', { class: 'tag' }, p.family))));
+  return h(
+    'div',
+    { class: 'grid' },
+    S.data.protocols.protocols.map(p =>
+      h(
+        'a',
+        { class: 'card', href: `#/protocolli/${p.id}`, style: `--pc:${p.color}` },
+        h('div', { class: 'row' }, logo(p, 36), h('h3', { style: 'margin:0' }, p.name)),
+        h('p', { class: 'muted' }, T(p.tagline)),
+        h('span', { class: 'tag' }, p.family),
+      ),
+    ),
+  );
 }
 
 export function protocols(app) {
   const i = S.data.protocols.intro;
-  app.append(h('h1', {}, 'Protocolli'),
-    h('div', { class: 'card' }, h('h2', { style: 'margin-top:0' }, i.title), T(i).map(t => h('p', {}, t))),
-    h('h2', {}, 'Scegli un protocollo'), protocolGrid());
+  app.append(
+    h('h1', {}, 'Protocolli'),
+    h(
+      'div',
+      { class: 'card' },
+      h('h2', { style: 'margin-top:0' }, i.title),
+      T(i).map(t => h('p', {}, t)),
+    ),
+    h('h2', {}, 'Scegli un protocollo'),
+    protocolGrid(),
+  );
 }
 
 export function protocol(app, { id, cleanups }) {
   const p = protoById(id);
-  if (!p) { app.append(h('p', {}, 'Protocollo non trovato.'), h('a', { href: '#/protocolli' }, '← Elenco')); return; }
+  if (!p) {
+    app.append(h('p', {}, 'Protocollo non trovato.'), h('a', { href: '#/protocolli' }, '← Elenco'));
+    return;
+  }
   mark('visited', p.id);
   document.title = `${p.name} – FunBus`;
   let tab = sessionStorage.getItem('tab') || 'scheda';
   const body = h('div');
   const tabs = h('div', { class: 'tabs', role: 'tablist' });
   const show = t => {
-    tab = t; try { sessionStorage.setItem('tab', t); } catch { /* ignora */ }
-    tabs.replaceChildren(...[['scheda', 'Scheda'], ['animazione', 'Animazione']].map(([k, l]) =>
-      h('button', { role: 'tab', class: k === t ? 'on' : '', onclick: () => { cleanups.splice(0).forEach(f => f()); show(k); } }, l)));
+    tab = t;
+    try {
+      sessionStorage.setItem('tab', t);
+    } catch {
+      /* ignora */
+    }
+    tabs.replaceChildren(
+      ...[
+        ['scheda', 'Scheda'],
+        ['animazione', 'Animazione'],
+      ].map(([k, l]) =>
+        h(
+          'button',
+          {
+            role: 'tab',
+            class: k === t ? 'on' : '',
+            onclick: () => {
+              cleanups.splice(0).forEach(f => f());
+              show(k);
+            },
+          },
+          l,
+        ),
+      ),
+    );
     body.replaceChildren();
-    if (t === 'scheda') body.append(h('div', { class: 'row no-print', style: 'justify-content:flex-end;margin-bottom:.5rem' }, h('button', { onclick: () => window.print() }, '🖨 Stampa / PDF')), card(p));
+    if (t === 'scheda')
+      body.append(
+        h(
+          'div',
+          { class: 'row no-print', style: 'justify-content:flex-end;margin-bottom:.5rem' },
+          h('button', { onclick: () => window.print() }, '🖨 Stampa / PDF'),
+        ),
+        card(p),
+      );
     else {
       const sim = createSim(p, S.data.animations[p.id]);
       cleanups.push(sim.stop);
-      body.append(sim.el); if (!isPro()) body.append(h('p', { class: 'muted' }, 'Passa a Professional per esplorare i frame campo per campo.'));
+      body.append(sim.el);
+      if (!isPro()) body.append(h('p', { class: 'muted' }, 'Passa a Professional per esplorare i frame campo per campo.'));
     }
   };
   app.append(
     h('a', { href: '#/protocolli' }, '← Tutti i protocolli'),
-    h('div', { class: 'phead' },
-      h('div', { class: 'pheadmain' }, h('div', { class: 'row' }, logo(p, 56), h('h1', { style: 'margin:0' }, p.name)), h('p', {}, T(p.tagline)), h('span', { class: 'tag' }, p.family)),
-      illustration(p)),
-    tabs, body);
+    h(
+      'div',
+      { class: 'phead' },
+      h(
+        'div',
+        { class: 'pheadmain' },
+        h('div', { class: 'row' }, logo(p, 56), h('h1', { style: 'margin:0' }, p.name)),
+        h('p', {}, T(p.tagline)),
+        h('span', { class: 'tag' }, p.family),
+      ),
+      illustration(p),
+    ),
+    tabs,
+    body,
+  );
   show(tab === 'animazione' ? 'animazione' : 'scheda');
 }
 
 function card(p) {
-  const list = (title, arr) => h('div', { class: 'card' }, h('h3', {}, title), h('ul', { class: 'clean' }, arr.map(x => h('li', {}, x))));
-  return h('div', {},
-    h('div', { class: 'card' }, h('h3', { style: 'margin-top:0' }, 'In parole semplici'), T(p.story).map(t => h('p', {}, t)),
-      h('div', { class: 'note analogy' }, h('strong', {}, 'Esempio pratico: '), T(p.example))),
+  const list = (title, arr) =>
+    h(
+      'div',
+      { class: 'card' },
+      h('h3', {}, title),
+      h(
+        'ul',
+        { class: 'clean' },
+        arr.map(x => h('li', {}, x)),
+      ),
+    );
+  return h(
+    'div',
+    {},
+    h(
+      'div',
+      { class: 'card' },
+      h('h3', { style: 'margin-top:0' }, 'In parole semplici'),
+      T(p.story).map(t => h('p', {}, t)),
+      h('div', { class: 'note analogy' }, h('strong', {}, 'Esempio pratico: '), T(p.example)),
+    ),
     !isPro() && p.analogy ? h('div', { class: 'note analogy' }, h('strong', {}, 'Analogia: '), p.analogy) : null,
-    h('div', { class: 'card', style: 'margin-top:1rem' }, h('dl', { class: 'spec' }, FIELDS().flatMap(f => [h('dt', {}, f.label), h('dd', {}, T(p.card[f.key]))]))),
-    h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Piramide dei livelli OSI'), pyramid(p, { width: 300 }), pyramidLegend(p)),
-    h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Topologie supportate'), topoChips(p), h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(p.card.topology))),
+    h(
+      'div',
+      { class: 'card', style: 'margin-top:1rem' },
+      h(
+        'dl',
+        { class: 'spec' },
+        FIELDS().flatMap(f => [h('dt', {}, f.label), h('dd', {}, T(p.card[f.key]))]),
+      ),
+    ),
+    h(
+      'div',
+      { class: 'card', style: 'margin-top:1rem' },
+      h('h3', { style: 'margin-top:0' }, 'Piramide dei livelli OSI'),
+      pyramid(p, { width: 300 }),
+      pyramidLegend(p),
+    ),
+    h(
+      'div',
+      { class: 'card', style: 'margin-top:1rem' },
+      h('h3', { style: 'margin-top:0' }, 'Topologie supportate'),
+      topoChips(p),
+      h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(p.card.topology)),
+    ),
     variantBox(p),
     securityBox(p),
     h('div', { class: 'two', style: 'margin-top:1rem' }, list('Vantaggi', p.pros), list('Limiti', p.cons)),
-    h('div', { style: 'margin-top:1rem' }, list('Casi d\'uso tipici', p.usecases)),
-    isPro() ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Dati tecnici'), h('dl', { class: 'spec' }, p.tech.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]))) : null,
+    h('div', { style: 'margin-top:1rem' }, list("Casi d'uso tipici", p.usecases)),
+    isPro()
+      ? h(
+          'div',
+          { class: 'card', style: 'margin-top:1rem' },
+          h('h3', {}, 'Dati tecnici'),
+          h(
+            'dl',
+            { class: 'spec' },
+            p.tech.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]),
+          ),
+        )
+      : null,
     p.notes.map(n => h('div', { class: 'note' }, h('strong', {}, 'Accuratezza: '), n)),
-    p.sources?.length ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Fonti e riferimenti'),
-      h('ul', { class: 'clean sources' }, p.sources.map(s => h('li', {}, h('strong', {}, s.n), s.d ? h('span', { class: 'muted' }, ' — ', h('span', {}, s.d)) : null))),
-      h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(S.data.protocols.sourcesNote))) : null);
+    p.sources?.length
+      ? h(
+          'div',
+          { class: 'card', style: 'margin-top:1rem' },
+          h('h3', { style: 'margin-top:0' }, 'Fonti e riferimenti'),
+          h(
+            'ul',
+            { class: 'clean sources' },
+            p.sources.map(s => h('li', {}, h('strong', {}, s.n), s.d ? h('span', { class: 'muted' }, ' — ', h('span', {}, s.d)) : null)),
+          ),
+          h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(S.data.protocols.sourcesNote)),
+        )
+      : null,
+  );
 }
 
 // Varianti dello stesso standard (OPC UA client/server, PubSub, FX; PROFINET RT/IRT; Modbus TCP/RTU…): tabelle delle differenze.
 // Una colonna può corrispondere a un protocollo dell'app (proto): quella della scheda aperta è in evidenza.
 function variantBox(p) {
-  return (S.data.protocols.variants || []).filter(v => v.show.includes(p.id)).map(v => {
-    const head = c => { const x = c.proto && protoById(c.proto); return h('span', { class: 'row', style: 'gap:.4rem;flex-wrap:nowrap' }, x ? logo(x, 22) : null, !x || x.id === p.id ? h('strong', {}, c.head) : h('a', { href: `#/protocolli/${x.id}` }, c.head)); };
-    const cur = c => (c.proto === p.id && v.cols.some(o => o.proto !== p.id) ? 'cur' : '');
-    return h('div', { class: 'card', style: 'margin-top:1rem' },
-      h('h3', { style: 'margin-top:0' }, v.title), h('p', {}, T(v.intro)),
-      h('div', { class: 'vswrap' }, h('table', { class: 'vstable' },
-        h('thead', {}, h('tr', {}, h('th', {}, ''), v.cols.map(c => h('th', { class: cur(c) }, head(c), cur(c) ? h('span', { class: 'tag' }, 'questa scheda') : null)))),
-        h('tbody', {}, v.rows.map(r => h('tr', {}, h('th', { scope: 'row' }, r.label), v.cols.map(c => h('td', { class: cur(c) }, h('span', { class: 'vh' }, c.head), h('span', {}, r.values[c.key])))))))),
-      v.compare?.length ? h('p', { style: 'margin-bottom:0' }, h('a', { href: `#/confronto/${v.compare.join(',')}` }, 'Apri nel Confronto →')) : null);
-  });
+  return (S.data.protocols.variants || [])
+    .filter(v => v.show.includes(p.id))
+    .map(v => {
+      const head = c => {
+        const x = c.proto && protoById(c.proto);
+        return h(
+          'span',
+          { class: 'row', style: 'gap:.4rem;flex-wrap:nowrap' },
+          x ? logo(x, 22) : null,
+          !x || x.id === p.id ? h('strong', {}, c.head) : h('a', { href: `#/protocolli/${x.id}` }, c.head),
+        );
+      };
+      const cur = c => (c.proto === p.id && v.cols.some(o => o.proto !== p.id) ? 'cur' : '');
+      return h(
+        'div',
+        { class: 'card', style: 'margin-top:1rem' },
+        h('h3', { style: 'margin-top:0' }, v.title),
+        h('p', {}, T(v.intro)),
+        h(
+          'div',
+          { class: 'vswrap' },
+          h(
+            'table',
+            { class: 'vstable' },
+            h(
+              'thead',
+              {},
+              h(
+                'tr',
+                {},
+                h('th', {}, ''),
+                v.cols.map(c => h('th', { class: cur(c) }, head(c), cur(c) ? h('span', { class: 'tag' }, 'questa scheda') : null)),
+              ),
+            ),
+            h(
+              'tbody',
+              {},
+              v.rows.map(r =>
+                h(
+                  'tr',
+                  {},
+                  h('th', { scope: 'row' }, r.label),
+                  v.cols.map(c => h('td', { class: cur(c) }, h('span', { class: 'vh' }, c.head), h('span', {}, r.values[c.key]))),
+                ),
+              ),
+            ),
+          ),
+        ),
+        v.compare?.length
+          ? h('p', { style: 'margin-bottom:0' }, h('a', { href: `#/confronto/${v.compare.join(',')}` }, 'Apri nel Confronto →'))
+          : null,
+      );
+    });
 }
 
 function commSection() {
-  const P = S.data.protocols, mode = { polling: '🔄', notify: '🔔', both: '⚖' };
-  const col = k => h('div', { class: 'card', style: `border-top:4px solid var(--${k === 'polling' ? 'accent' : k === 'notify' ? 'ok' : 'warn'})` },
-    h('h3', { style: 'margin-top:0' }, `${mode[k]} ${P.commText[k].title}`),
-    h('p', { class: 'muted' }, T(P.commText[k])),
-    h('ul', { class: 'clean', style: 'list-style:none;padding:0' }, P.protocols.filter(x => x.comm.mode === k).map(x =>
-      h('li', { style: 'margin:.5rem 0' }, h('div', { class: 'row' }, logo(x, 24), h('a', { href: `#/protocolli/${x.id}` }, h('strong', {}, x.name))), h('div', { class: 'muted', style: 'font-size:.88rem' }, T({ b: x.comm.b, p: x.comm.p })))))
-  );
-  return h('div', {}, h('h2', {}, 'Come arrivano i dati? Polling o notifica'),
+  const P = S.data.protocols,
+    mode = { polling: '🔄', notify: '🔔', both: '⚖' };
+  const col = k =>
+    h(
+      'div',
+      { class: 'card', style: `border-top:4px solid var(--${k === 'polling' ? 'accent' : k === 'notify' ? 'ok' : 'warn'})` },
+      h('h3', { style: 'margin-top:0' }, `${mode[k]} ${P.commText[k].title}`),
+      h('p', { class: 'muted' }, T(P.commText[k])),
+      h(
+        'ul',
+        { class: 'clean', style: 'list-style:none;padding:0' },
+        P.protocols
+          .filter(x => x.comm.mode === k)
+          .map(x =>
+            h(
+              'li',
+              { style: 'margin:.5rem 0' },
+              h('div', { class: 'row' }, logo(x, 24), h('a', { href: `#/protocolli/${x.id}` }, h('strong', {}, x.name))),
+              h('div', { class: 'muted', style: 'font-size:.88rem' }, T({ b: x.comm.b, p: x.comm.p })),
+            ),
+          ),
+      ),
+    );
+  return h(
+    'div',
+    {},
+    h('h2', {}, 'Come arrivano i dati? Polling o notifica'),
     h('div', { class: 'note analogy' }, T(P.commIntro)),
-    h('div', { class: 'grid', style: 'grid-template-columns:repeat(auto-fit,minmax(280px,1fr))' }, col('polling'), col('both'), col('notify')),
-    h('div', { class: 'note' }, h('strong', {}, 'Performance vs determinismo: '), isPro()
-      ? 'nei protocolli ibridi la modalità scelta per ogni variabile decide il compromesso. Ciclico = carico costante e, su un mezzo deterministico, latenza limitata; on-change = banda e latenza migliori in media, ma il caso peggiore (tutte le variabili cambiano insieme) non è limitato.'
-      : 'nei protocolli che fanno entrambe le cose, scegli «ciclico» quando servono tempi certi e «a notifica» quando vuoi risparmiare traffico e reagire subito.'));
+    h(
+      'div',
+      { class: 'grid', style: 'grid-template-columns:repeat(auto-fit,minmax(280px,1fr))' },
+      col('polling'),
+      col('both'),
+      col('notify'),
+    ),
+    h(
+      'div',
+      { class: 'note' },
+      h('strong', {}, 'Performance vs determinismo: '),
+      isPro()
+        ? 'nei protocolli ibridi la modalità scelta per ogni variabile decide il compromesso. Ciclico = carico costante e, su un mezzo deterministico, latenza limitata; on-change = banda e latenza migliori in media, ma il caso peggiore (tutte le variabili cambiano insieme) non è limitato.'
+        : 'nei protocolli che fanno entrambe le cose, scegli «ciclico» quando servono tempi certi e «a notifica» quando vuoi risparmiare traffico e reagire subito.',
+    ),
+  );
 }

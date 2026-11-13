@@ -2,8 +2,50 @@
 // applicato ai dati caricati (traduzione ricorsiva) e, per l'interfaccia, ai nodi di testo del DOM.
 import { S } from './core.js';
 
-const SKIP = new Set(['id', 'type', 'area', 'show', 'compare', 'key', 'proto', 'topoAllowed', 'left', 'right', 'conn', 'cable', 'wire', 'protos', 'test', 'kind', 'us', 'cycleUs', 'link', 'color', 'from', 'to', 'path', 'frame', 'loopFrom', 'x', 'y', 'a', 'level', 'attrs', 'req', 'mode', 'caps', 'hex', 'cycleMinUs', 'maxNodes', 'links', 'own', 'via']);
-let dict = null, patterns = [], observer = null;
+const SKIP = new Set([
+  'id',
+  'type',
+  'area',
+  'show',
+  'compare',
+  'key',
+  'proto',
+  'topoAllowed',
+  'left',
+  'right',
+  'conn',
+  'cable',
+  'wire',
+  'protos',
+  'test',
+  'kind',
+  'us',
+  'cycleUs',
+  'link',
+  'color',
+  'from',
+  'to',
+  'path',
+  'frame',
+  'loopFrom',
+  'x',
+  'y',
+  'a',
+  'level',
+  'attrs',
+  'req',
+  'mode',
+  'caps',
+  'hex',
+  'cycleMinUs',
+  'maxNodes',
+  'links',
+  'own',
+  'via',
+]);
+let dict = null,
+  patterns = [],
+  observer = null;
 
 export async function loadDict() {
   if (dict) return;
@@ -19,7 +61,14 @@ export function tx(s) {
   const t = s.trim();
   if (!t) return s;
   let out = dict[t];
-  if (out === undefined) for (const [re, rep] of patterns) { const m = re.exec(t); if (m) { out = rep.replace(/\$(\d)/g, (_, n) => tx(m[+n] ?? '')); break; } }
+  if (out === undefined)
+    for (const [re, rep] of patterns) {
+      const m = re.exec(t);
+      if (m) {
+        out = rep.replace(/\$(\d)/g, (_, n) => tx(m[+n] ?? ''));
+        break;
+      }
+    }
   if (out === undefined) return s;
   return s.replace(t, () => out);
 }
@@ -36,29 +85,56 @@ const ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
 
 function localizeNode(n) {
   if (n.nodeType === 3) {
-    const v = n.nodeValue, o = ORIG.get(n) ?? v, t = tx(o);
-    if (t !== v) { if (!ORIG.has(n)) ORIG.set(n, v); n.nodeValue = t; }
+    const v = n.nodeValue,
+      o = ORIG.get(n) ?? v,
+      t = tx(o);
+    if (t !== v) {
+      if (!ORIG.has(n)) ORIG.set(n, v);
+      n.nodeValue = t;
+    }
   } else if (n.nodeType === 1) {
     if (n.tagName === 'SCRIPT' || n.tagName === 'STYLE') return;
-    for (const a of ATTRS) if (n.hasAttribute(a)) {
-      const key = '__o_' + a, o = n[key] ?? n.getAttribute(a), t = tx(o);
-      if (t !== o) { n[key] = o; n.setAttribute(a, t); }
-    }
+    for (const a of ATTRS)
+      if (n.hasAttribute(a)) {
+        const key = '__o_' + a,
+          o = n[key] ?? n.getAttribute(a),
+          t = tx(o);
+        if (t !== o) {
+          n[key] = o;
+          n.setAttribute(a, t);
+        }
+      }
     n.childNodes.forEach(localizeNode);
   }
 }
 
 function revertNode(n) {
-  if (n.nodeType === 3) { if (ORIG.has(n)) { n.nodeValue = ORIG.get(n); ORIG.delete(n); } }
-  else if (n.nodeType === 1) {
-    for (const a of ATTRS) if (n['__o_' + a] !== undefined) { n.setAttribute(a, n['__o_' + a]); delete n['__o_' + a]; }
+  if (n.nodeType === 3) {
+    if (ORIG.has(n)) {
+      n.nodeValue = ORIG.get(n);
+      ORIG.delete(n);
+    }
+  } else if (n.nodeType === 1) {
+    for (const a of ATTRS)
+      if (n['__o_' + a] !== undefined) {
+        n.setAttribute(a, n['__o_' + a]);
+        delete n['__o_' + a];
+      }
     n.childNodes.forEach(revertNode);
   }
 }
 
 export function startDomLocalizer() {
-  if (observer) { observer.disconnect(); observer = null; }
-  if (S.lang !== 'en') { revertNode(document.body); document.documentElement.lang = 'it'; document.title = 'FunBus'; return; }
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
+  if (S.lang !== 'en') {
+    revertNode(document.body);
+    document.documentElement.lang = 'it';
+    document.title = 'FunBus';
+    return;
+  }
   document.documentElement.lang = 'en';
   localizeNode(document.body);
   observer = new MutationObserver(muts => {

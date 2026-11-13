@@ -1,0 +1,10 @@
+# Si formattano solo JavaScript e test: i dati JSON e il CSS hanno un formato proprio, letto anche dai test.
+wwwroot/data/
+wwwroot/css/
+wwwroot/*.html
+*.md
+*.json
+*.yml
+bin/
+obj/
+publish/
