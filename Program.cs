@@ -20,9 +20,10 @@ public static class Program
     {
         var exeDir = Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory;
         var contentDir = Path.Combine(exeDir, "content");
-        var stateDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "FunBus");
+        // Cartella dati dell'utente (creata se manca); se non è disponibile si usa la cartella dell'exe, mai quella corrente.
+        var dataRoot = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create);
+        if (string.IsNullOrEmpty(dataRoot)) dataRoot = exeDir;
+        var stateDir = Path.Combine(dataRoot, "FunBus");
         Directory.CreateDirectory(stateDir);
         MigrateOldState(stateDir);
         var stateFile = Path.Combine(stateDir, "state.json");
@@ -161,7 +162,8 @@ public static class Program
     private static void CopyDir(IFileProvider provider, string sub, string target)
     {
         Directory.CreateDirectory(target);
-        foreach (var item in provider.GetDirectoryContents(sub))
+        // La radice va chiesta come "/": con la stringa vuota il provider dei file incorporati non restituisce nulla.
+        foreach (var item in provider.GetDirectoryContents(string.IsNullOrEmpty(sub) ? "/" : sub))
         {
             var path = string.IsNullOrEmpty(sub) ? item.Name : sub + "/" + item.Name;
             if (item.IsDirectory)

@@ -6,6 +6,7 @@ App didattica sui bus di campo e protocolli industriali (19 protocolli: PROFINET
 ```
 node tests/validate.mjs                           # contenuti JSON, traduzioni, contrasti
 NODE_PATH=$(npm root -g) node tests/smoke.mjs     # Playwright: pagine, lingue, livelli, desktop e 390 px
+node tests/server.mjs                             # server C#: file incorporati, API, --export-content, cartella content (serve l'SDK .NET 8)
 ```
 
 ## Build
