@@ -37,18 +37,18 @@ for (const v of P.variants || []) {
 }
 // Gioco «Costruisci la rete»: ogni missione deve avere almeno una soluzione pienamente adatta (stessa logica di evaluate() nell'app)
 const RANK = { none: 0, soft: 1, det: 2, hard: 3 };
+// Scelte possibili negli scenari e nel gioco: un protocollo oppure ciascuna delle sue varianti (valori fusi come in matrixOf())
+const CHOICES = P.protocols.flatMap(p => { const m = SC.matrix[p.id] || {}; return (m.variants?.length ? m.variants : [null]).map(v => ({ p, name: v?.name || p.name, x: v ? { ...m, ...v, caps: { ...m.caps, ...v.caps }, wiring: { ...m.wiring, ...v.wiring } } : m })); });
+const fullOk = (c, r) => (r.maxCycleUs == null || (c.x.cycleMinUs <= r.maxCycleUs && !(c.x.rt === 'none' && c.x.cycleMinUs * 5 > r.maxCycleUs))) && (!r.rtMin || RANK[c.x.rt] >= RANK[r.rtMin]) && (!r.topo || c.p.attrs.topo.includes(r.topo)) && (!r.nodes || c.x.maxNodes >= r.nodes) && (r.caps || []).every(k => c.x.caps[k] === 'yes');
 for (const m of GM.build.missions) {
   for (const c of m.req.caps || []) if (!SC.capLabels[c]) err.push(`missione ${m.id}: capability ${c} sconosciuta`);
   for (const k of ['title', 'text', ...(m.topoHint ? ['topoHint'] : [])]) if (!EN.strings[m[k]]) err.push(`missione ${m.id}: ${k} senza traduzione EN`);
   for (const k of ['b', 'p']) if (!m.why?.[k] || !EN.strings[m.why[k]]) err.push(`missione ${m.id}: spiegazione why/${k} mancante o senza traduzione EN`);
   const sol = [];
-  for (const p of P.protocols) for (const t of TP.topologies.map(x => x.id)) {
-    const x = SC.matrix[p.id], r = m.req;
-    const w = x.wiring, reps = [...Array((w.repMax || 0) + 1).keys()];
+  for (const c of CHOICES) for (const t of TP.topologies.map(x => x.id)) {
+    const r = m.req, w = c.x.wiring, reps = [...Array((w.repMax || 0) + 1).keys()];
     const wired = reps.some(R => (w.regen ? !r.spanM || r.spanM <= w.segLenM * (R + 1) : !r.totalM || r.totalM <= w.segLenM * (R + 1)) && (w.regen || !w.segNodes || !r.nodes || r.nodes <= w.segNodes * (R + 1)));
-    const ok = wired && (!m.topoAllowed || m.topoAllowed.includes(t)) && p.attrs.topo.includes(t) && (r.maxCycleUs == null || (x.cycleMinUs <= r.maxCycleUs && !(x.rt === 'none' && x.cycleMinUs * 5 > r.maxCycleUs)))
-      && (!r.rtMin || RANK[x.rt] >= RANK[r.rtMin]) && (!r.nodes || x.maxNodes >= r.nodes) && (r.caps || []).every(c => x.caps[c] === 'yes');
-    if (ok) sol.push(`${p.id}/${t}`);
+    if (wired && (!m.topoAllowed || m.topoAllowed.includes(t)) && c.p.attrs.topo.includes(t) && fullOk(c, { ...r, topo: null })) sol.push(`${c.name}/${t}`);
   }
   if (!sol.length) err.push(`missione ${m.id}: nessuna combinazione bus/topologia la risolve`);
 }
@@ -115,12 +115,13 @@ for (const e of M.exercises) {
   if (new Set(l).size !== l.length || new Set(r).size !== r.length) err.push(`abbinamento ${e.id}: elementi duplicati`);
 }
 for (const s of SC.scenarios) for (const c of s.req.caps || []) if (!SC.capLabels[c]) err.push(`scenario ${s.id}: capability ${c} sconosciuta`);
-// Ogni scenario deve avere almeno un protocollo pienamente adatto (stessa logica di evaluate() nell'app)
-{
-  const R = { none: 0, soft: 1, det: 2, hard: 3 };
-  const full = (p, r) => { const x = SC.matrix[p.id]; return (r.maxCycleUs == null || (x.cycleMinUs <= r.maxCycleUs && !(x.rt === 'none' && x.cycleMinUs * 5 > r.maxCycleUs))) && (!r.rtMin || R[x.rt] >= R[r.rtMin]) && (!r.topo || p.attrs.topo.includes(r.topo)) && (!r.nodes || x.maxNodes >= r.nodes) && (r.caps || []).every(c => x.caps[c] === 'yes'); };
-  for (const s of SC.scenarios) if (!P.protocols.some(p => full(p, s.req))) err.push(`scenario ${s.id} «${s.title}»: nessun protocollo pienamente adatto`);
+// Varianti nella matrice: id, nome e capability note
+for (const [pid, m] of Object.entries(SC.matrix)) for (const vv of m.variants || []) {
+  if (!vv.id || !vv.name) err.push(`matrice ${pid}: variante senza id o nome`);
+  for (const k of Object.keys(vv.caps || {})) if (!SC.capLabels[k]) err.push(`matrice ${pid}/${vv.id}: capability ${k} sconosciuta`);
 }
+// Ogni scenario deve avere almeno una scelta pienamente adatta (stessa logica di evaluate() nell'app)
+for (const s of SC.scenarios) if (!CHOICES.some(c => fullOk(c, s.req))) err.push(`scenario ${s.id} «${s.title}»: nessuna scelta pienamente adatta`);
 for (const [pid, m] of Object.entries(SC.matrix)) for (const c of Object.keys(m.caps)) if (!SC.capLabels[c]) err.push(`matrice ${pid}: capability ${c} sconosciuta`);
 for (const it of D.items) for (const q of it.q) if (q.a >= q.o.length) err.push(`decode ${it.id}: risposta fuori range`);
 
