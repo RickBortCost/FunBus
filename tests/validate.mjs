@@ -100,6 +100,16 @@ for (const q of Q.questions) {
   if (new Set(q.o).size !== q.o.length) err.push(`quiz ${q.id}: opzioni duplicate`);
 }
 for (const lv of ['beginner', 'professional']) if (Q.questions.filter(q => q.level === lv).length < 10) err.push(`quiz ${lv}: meno di 10 domande`);
+// Copertura dei quiz: ogni domanda è etichettata (protocolli e/o argomento) e ogni protocollo ha almeno 2 domande per livello
+const AREAS = ['base', 'topologie', 'sicurezza'];
+for (const q of Q.questions) {
+  if (!q.protos?.length && !q.area?.length) err.push(`quiz ${q.id}: senza etichetta di protocollo (protos) o di argomento (area)`);
+  for (const x of q.protos || []) if (!ids.includes(x)) err.push(`quiz ${q.id}: protocollo ${x} inesistente`);
+  for (const x of q.area || []) if (!AREAS.includes(x)) err.push(`quiz ${q.id}: argomento ${x} sconosciuto`);
+}
+for (const id of ids) for (const lv of ['beginner', 'professional']) { const n = Q.questions.filter(q => q.level === lv && q.protos?.includes(id)).length; if (n < 2) err.push(`quiz: ${id} ha ${n} domande di livello ${lv} (minimo 2)`); }
+if (D.items.length < 8) err.push(`decodifica frame: solo ${D.items.length} esercizi (minimo 8)`);
+for (const it of D.items) if (it.hex.includes('…') && !/^[0-9A-F… ]+$/.test(it.hex)) err.push(`decode ${it.id}: hex con caratteri non validi`);
 for (const e of M.exercises) {
   const l = e.pairs.map(p => p[0]), r = e.pairs.map(p => p[1]);
   if (new Set(l).size !== l.length || new Set(r).size !== r.length) err.push(`abbinamento ${e.id}: elementi duplicati`);
