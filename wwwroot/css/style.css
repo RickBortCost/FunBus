@@ -362,3 +362,7 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
 .stepper{margin:.5rem 0;gap:.4rem}.stepper .icon{width:2rem;height:2rem;padding:0;line-height:1;font-weight:700}
 .repn{min-width:1.6rem;text-align:center;font-size:1.1rem}
 .termico{display:inline-grid;place-items:center;width:16px;height:20px;border:2px solid var(--muted);border-radius:4px;font-size:.7rem;font-weight:700}
+
+/* Varianti di un protocollo negli scenari e nel gioco */
+.variants{margin:.2rem 0 .8rem}
+.varchip{font-size:.85rem;padding:.3rem .8rem;margin:0}

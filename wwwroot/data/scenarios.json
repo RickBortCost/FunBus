@@ -32,7 +32,9 @@
   "building": "automazione di edifici (luci, clima, accessi)",
   "analog420": "riuso di anelli analogici 4–20 mA esistenti",
   "powerOnBus": "alimentazione e dati sullo stesso cavo",
-  "nativeSec": "autenticazione e cifratura native nel protocollo"
+  "nativeSec": "autenticazione e cifratura native nel protocollo",
+  "exArea": "installazione in area a rischio di esplosione (sicurezza intrinseca)",
+  "stdSwitch": "funzionamento con switch Ethernet standard"
  },
  "matrix": {
   "profinet": {
@@ -49,11 +51,13 @@
     "safety": "yes",
     "redundancy": "yes",
     "siemensIO": "yes",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "partial"
    },
    "notes": {
     "security": "Le Security Class dipendono dalla versione della specifica e dai dispositivi.",
-    "redundancy": "MRP (recupero ~200 ms) o MRPD in IRT (senza perdita)."
+    "redundancy": "MRP (recupero ~200 ms) o MRPD in IRT (senza perdita).",
+    "stdSwitch": "Sì in RT; IRT richiede switch e dispositivi con hardware dedicato."
    },
    "wiring": {
     "segLenM": 100,
@@ -61,7 +65,41 @@
     "term": false,
     "repMax": 6,
     "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
-   }
+   },
+   "variants": [
+    {
+     "id": "rt",
+     "name": "PROFINET RT",
+     "cycleMinUs": 1000,
+     "cycleNote": "RT: ciclo da 1 a 512 ms, comunemente 1–4 ms.",
+     "rt": "soft",
+     "rtNote": "Priorità dei frame senza riserva di banda: tempi tipici, non garantiti.",
+     "caps": {
+      "motion": "partial",
+      "stdSwitch": "yes"
+     },
+     "notes": {
+      "motion": "Adatto ad assi poco esigenti; il motion sincronizzato richiede IRT.",
+      "redundancy": "MRP: ripristino tipico entro 200 ms."
+     }
+    },
+    {
+     "id": "irt",
+     "name": "PROFINET IRT",
+     "cycleMinUs": 250,
+     "cycleNote": "IRT: send clock da 31,25 µs, cicli pratici ≥ 250 µs secondo i dispositivi.",
+     "rt": "hard",
+     "rtNote": "Intervallo riservato e orologi sincronizzati: jitter inferiore a 1 µs.",
+     "caps": {
+      "motion": "yes",
+      "stdSwitch": "no"
+     },
+     "notes": {
+      "stdSwitch": "Servono switch e dispositivi con hardware IRT su tutto il percorso.",
+      "redundancy": "MRPD: frame duplicati sui due lati dell'anello, senza interruzione."
+     }
+    }
+   ]
   },
   "profibus": {
    "cycleMinUs": 1000,
@@ -77,12 +115,14 @@
     "redundancy": "partial",
     "siemensIO": "yes",
     "simpleOpen": "partial",
-    "powerOnBus": "partial"
+    "powerOnBus": "partial",
+    "exArea": "partial"
    },
    "notes": {
     "motion": "DP-V2 isocrono / PROFIdrive, ma con cicli dell'ordine dei ms.",
     "redundancy": "Ridondanza di master/fibra specifica del costruttore.",
-    "powerOnBus": "Solo PROFIBUS PA (31,25 kbit/s) alimenta gli strumenti dal bus."
+    "powerOnBus": "Solo PROFIBUS PA (31,25 kbit/s) alimenta gli strumenti dal bus.",
+    "exArea": "Solo PROFIBUS PA (modello FISCO)."
    },
    "wiring": {
     "segLenM": 200,
@@ -91,7 +131,42 @@
     "term": true,
     "repMax": 4,
     "lenNote": "200 m per segmento a 1,5 Mbit/s (100 m a 12 Mbit/s, 1200 m fino a 93,75 kbit/s); 32 stazioni per segmento; il numero di ripetitori in serie dipende dal tipo e dalla velocità."
-   }
+   },
+   "variants": [
+    {
+     "id": "dp",
+     "name": "PROFIBUS DP",
+     "caps": {
+      "powerOnBus": "no",
+      "exArea": "no"
+     },
+     "notes": {}
+    },
+    {
+     "id": "pa",
+     "name": "PROFIBUS PA",
+     "cycleMinUs": 100000,
+     "cycleNote": "PA: ≈ 10 ms per dispositivo a 31,25 kbit/s, quindi decine o centinaia di ms per segmento.",
+     "caps": {
+      "powerOnBus": "yes",
+      "exArea": "yes",
+      "motion": "no",
+      "safety": "partial"
+     },
+     "notes": {
+      "powerOnBus": "Alimentazione e dati sullo stesso doppino (MBP).",
+      "exArea": "Sicurezza intrinseca secondo il modello FISCO.",
+      "safety": "PROFIsafe su dispositivi PA che lo supportano."
+     },
+     "wiring": {
+      "segLenM": 1900,
+      "segNodes": 32,
+      "term": true,
+      "repMax": 4,
+      "lenNote": "Fino a 1900 m per segmento PA (meno in area Ex); 32 dispositivi per segmento, molti meno in area Ex secondo la corrente disponibile."
+     }
+    }
+   ]
   },
   "s7": {
    "cycleMinUs": 10000,
@@ -105,7 +180,8 @@
     "safety": "no",
     "redundancy": "partial",
     "siemensData": "yes",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "security": "S7CommPlus (S7-1200/1500) aggiunge integrità; S7comm classico no.",
@@ -132,11 +208,13 @@
     "vendorNeutral": "yes",
     "safety": "yes",
     "redundancy": "yes",
-    "plcBeckhoff": "yes"
+    "plcBeckhoff": "yes",
+    "stdSwitch": "no"
    },
    "notes": {
     "redundancy": "Cable redundancy con secondo porto del master (l'anello fisico).",
-    "plcBeckhoff": "Master EtherCAT nativo in TwinCAT."
+    "plcBeckhoff": "Master EtherCAT nativo in TwinCAT.",
+    "stdSwitch": "I frame sono elaborati al volo dagli slave: tra master e slave non si usano switch standard."
    },
    "wiring": {
     "segLenM": 100,
@@ -160,7 +238,8 @@
     "redundancy": "partial",
     "plcBeckhoff": "yes",
     "simpleOpen": "partial",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "security": "ADS Secure (TLS) nelle versioni recenti; altrimenti solo route ADS.",
@@ -193,7 +272,8 @@
     "plcBeckhoff": "partial",
     "plcRockwell": "partial",
     "simpleOpen": "partial",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "security": "TLS e autenticazione sono a carico di broker e client.",
@@ -230,7 +310,8 @@
     "plcBeckhoff": "partial",
     "plcRockwell": "partial",
     "simpleOpen": "partial",
-    "nativeSec": "yes"
+    "nativeSec": "yes",
+    "stdSwitch": "yes"
    },
    "notes": {
     "wan": "Possibile via HTTPS/PubSub su MQTT, ma più pesante di MQTT.",
@@ -263,7 +344,8 @@
     "safety": "yes",
     "redundancy": "yes",
     "plcRockwell": "yes",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "pubsub": "Producer/consumer implicito, non un broker.",
@@ -290,7 +372,8 @@
     "vendorNeutral": "yes",
     "simpleOpen": "yes",
     "security": "partial",
-    "redundancy": "partial"
+    "redundancy": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "security": "Modbus/TCP Security (TLS) esiste ma è poco diffuso.",
@@ -416,7 +499,8 @@
     "building": "yes",
     "pubsub": "partial",
     "simpleOpen": "partial",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "security": "BACnet/SC (TLS) disponibile nelle versioni recenti.",
@@ -470,10 +554,12 @@
     "vendorNeutral": "yes",
     "analog420": "yes",
     "powerOnBus": "yes",
-    "sensorParam": "partial"
+    "sensorParam": "partial",
+    "exArea": "yes"
    },
    "notes": {
-    "sensorParam": "Parametrizzazione e diagnostica di strumenti di campo, non sensori on/off."
+    "sensorParam": "Parametrizzazione e diagnostica di strumenti di campo, non sensori on/off.",
+    "exArea": "Con trasmettitori e barriere a sicurezza intrinseca."
    },
    "wiring": {
     "segLenM": 1500,
@@ -499,7 +585,8 @@
     "safety": "yes",
     "redundancy": "yes",
     "plcRockwell": "yes",
-    "nativeSec": "partial"
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
    },
    "notes": {
     "notify": "Produced tag ciclici o COS, non un push on-change generico.",
@@ -534,7 +621,8 @@
     "siemensData": "partial",
     "plcBeckhoff": "partial",
     "simpleOpen": "partial",
-    "nativeSec": "yes"
+    "nativeSec": "yes",
+    "stdSwitch": "yes"
    },
    "notes": {
     "wan": "Solo con il trasporto via broker (MQTT/AMQP); UDP ed Ethernet restano nella rete locale.",
@@ -569,14 +657,16 @@
     "safety": "partial",
     "redundancy": "partial",
     "motion": "partial",
-    "nativeSec": "yes"
+    "nativeSec": "yes",
+    "stdSwitch": "partial"
    },
    "notes": {
     "safety": "OPC UA Safety fa parte di FX; la disponibilità dipende dai prodotti.",
     "motion": "Profili motion in fase di definizione; oggi il campo tipico è il controllore-controllore.",
     "redundancy": "Affidata alla rete (anelli, meccanismi TSN).",
     "notify": "Lo scambio è ciclico; eventi e allarmi passano dai servizi client/server.",
-    "vendorNeutral": "Obiettivo principale dello standard; il numero di prodotti è ancora limitato."
+    "vendorNeutral": "Obiettivo principale dello standard; il numero di prodotti è ancora limitato.",
+    "stdSwitch": "Funziona, ma per i tempi garantiti servono switch TSN."
    },
    "wiring": {
     "segLenM": 100,
@@ -865,6 +955,36 @@
      "nativeSec",
      "security",
      "itint"
+    ]
+   }
+  },
+  {
+   "id": "sb11",
+   "level": "beginner",
+   "title": "Macchina con ingressi e uscite sparsi",
+   "text": "Una macchina con 40 moduli di ingressi e uscite collegati a un PLC Siemens, aggiornati ogni 4 ms; nessun asse da sincronizzare. Vuoi usare normali switch Ethernet.",
+   "req": {
+    "maxCycleUs": 4000,
+    "rtMin": "soft",
+    "nodes": 40,
+    "caps": [
+     "siemensIO",
+     "stdSwitch"
+    ]
+   }
+  },
+  {
+   "id": "sp12",
+   "level": "professional",
+   "title": "Trasmettitori in area Ex",
+   "text": "20 trasmettitori di pressione e portata in una zona a rischio di esplosione, alimentati dal bus e integrati come periferia di un controllore Siemens; aggiornamento entro 500 ms.",
+   "req": {
+    "maxCycleUs": 500000,
+    "nodes": 20,
+    "caps": [
+     "exArea",
+     "powerOnBus",
+     "siemensIO"
     ]
    }
   }

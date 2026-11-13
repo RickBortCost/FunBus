@@ -70,6 +70,19 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
     }
     await pg.evaluate(h => (location.hash = h), '/confronto');
   }
+  // scenari con varianti: per PROFINET va scelta la variante (RT o IRT) e l'esito cambia
+  {
+    await pg.selectOption('#langSel', 'it'); await pg.evaluate(h => (location.hash = h), '/test/scenari'); await pg.click('#lvB'); await pg.waitForTimeout(150);
+    await pg.locator('button.card', { hasText: data('scenarios').scenarios.find(x => x.id === 'sb2').title }).click(); await pg.waitForTimeout(100);
+    await pg.locator('.pick button', { hasText: 'PROFINET' }).click(); await pg.waitForTimeout(60);
+    if ((await pg.locator('.varchip').count()) !== 2) errs.push(`${label} scenari: le varianti di PROFINET non vengono proposte`);
+    else {
+      await pg.locator('.varchip', { hasText: 'PROFINET RT' }).click(); await pg.waitForTimeout(60);
+      if (!(await pg.locator('.chk.fail').count())) errs.push(`${label} scenari: PROFINET RT accettato per il motion sincronizzato`);
+      await pg.locator('.varchip', { hasText: 'PROFINET IRT' }).click(); await pg.waitForTimeout(60);
+      if (await pg.locator('.chk.fail').count()) errs.push(`${label} scenari: PROFINET IRT rifiutato per il motion sincronizzato`);
+    }
+  }
   // gioco «Costruisci la rete»: trascinamento (mouse), posa a clic, verifica e badge disegnati
   {
     await pg.selectOption('#langSel', 'it'); await pg.evaluate(h => (location.hash = h), '/test/rete'); await pg.click('#lvB'); await pg.waitForTimeout(150);

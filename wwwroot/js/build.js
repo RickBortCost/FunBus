@@ -1,6 +1,6 @@
 // Gioco «Costruisci la rete»: trascina bus, topologia e dispositivi; la verifica usa i dati di scenarios.json.
 import { S, h, svgEl, T, isPro, addXP, checkBadges, save } from './core.js';
-import { evaluate, reqTags } from './games.js';
+import { evaluate, reqTags, matrixOf, variantsOf, nameOf } from './games.js';
 import { logo } from './logos.js';
 import { model, nodeShape, SIZE, topoIcon } from './topo.js';
 
@@ -8,17 +8,17 @@ const lvKey = () => (isPro() ? 'professional' : 'beginner');
 
 /* ---- controlli di cablaggio: lunghezze, nodi per segmento, ripetitori, terminazione (dati: scenarios.matrix[..].wiring) ---- */
 const TERM_NOTE = 'Senza terminazione il segnale viene riflesso alle estremità del cavo e i frame arrivano corrotti.';
-const wiringOf = p => S.data.scenarios.matrix[p.id].wiring;
 // R = ripetitori (o switch aggiuntivi): ogni ripetitore aggiunge un segmento, o una tratta nei collegamenti punto-punto.
 function lengthOk(w, req, R) { return w.regen ? !req.spanM || req.spanM <= w.segLenM * (R + 1) : !req.totalM || req.totalM <= w.segLenM * (R + 1); }
 function nodesOk(w, req, R) { return w.regen || !w.segNodes || !req.nodes || req.nodes <= w.segNodes * (R + 1); }
-export function minRepeaters(p, req) {
-  const w = wiringOf(p); if (!w) return 0;
+export function minRepeaters(w, req) {
+  if (!w) return 0;
   for (let R = 0; R <= (w.repMax || 0); R++) if (lengthOk(w, req, R) && nodesOk(w, req, R)) return R;
   return null;
 }
-export function wiringChecks(p, req, topo, R, terms) {
-  const w = wiringOf(p), out = [], pro = isPro();
+// p = { name } del protocollo o della variante scelta, w = i suoi dati di cablaggio
+export function wiringChecks(p, w, req, topo, R, terms) {
+  const out = [], pro = isPro();
   if (!w) return out;
   const add = (status, text, note) => out.push({ status, text: text + (pro && note ? ` — ${note}` : '') });
   const segs = R + 1;
@@ -50,7 +50,7 @@ export function build(app, { cleanups }) {
 
   const play = m => {
     stop();
-    const st = { bus: null, topo: null, placed: new Set(), terms: new Set(), rep: 0 };
+    const st = { bus: null, variant: null, topo: null, placed: new Set(), terms: new Set(), rep: 0 };
     let picked = null, narrow = false, drag = null, suppress = false;
     const bench = h('div', { class: 'bench' }), result = h('div', { 'aria-live': 'polite' });
     const proto = id => S.data.protocols.protocols.find(p => p.id === id);
@@ -60,7 +60,7 @@ export function build(app, { cleanups }) {
     const accepts = (el, type) => el?.dataset.drop === type;
     const targetAt = (x, y, type) => { const el = document.elementFromPoint(x, y)?.closest('[data-drop]'); return accepts(el, type) ? el : null; };
     const place = (item, target) => {
-      if (item.type === 'bus') st.bus = item.id;
+      if (item.type === 'bus') { if (st.bus !== item.id) st.variant = null; st.bus = item.id; }
       else if (item.type === 'topo') { if (st.topo !== item.id) { st.placed.clear(); st.terms.clear(); } st.topo = item.id; }
       else if (item.type === 'dev' && target.dataset.slot) st.placed.add(target.dataset.slot);
       else if (item.type === 'term' && target.dataset.slot) st.terms.add(target.dataset.slot);
@@ -158,7 +158,8 @@ export function build(app, { cleanups }) {
       const chip = (item, cls, ...kids) => { const b = h('button', { class: `tag chip pick ${cls}` + (picked && picked.type === item.type && picked.id === item.id ? ' picked' : ''), 'aria-pressed': 'false' }, kids); makeDraggable(b, item); return b; };
       bench.replaceChildren(
         h('div', { class: 'benchtop' },
-          dropZone('bus', 'Bus', p ? h('span', { class: 'row', style: 'gap:.4rem' }, logo(p, 24), h('strong', {}, p.name)) : null),
+          dropZone('bus', 'Bus', p ? h('span', { class: 'row', style: 'gap:.4rem' }, logo(p, 24), h('strong', {}, p.name),
+            variantsOf(p.id).map(v => h('button', { class: 'tag chip varchip' + (st.variant === v.id ? ' on' : ''), 'aria-pressed': String(st.variant === v.id), onclick: e => { e.stopPropagation(); st.variant = v.id; result.replaceChildren(); render(); } }, v.name))) : null),
           dropZone('topo', 'Topologia', tp ? h('span', { class: 'row', style: 'gap:.4rem' }, topoIcon(tp.id, 16), h('strong', {}, tp.name)) : null)),
         canvas(),
         st.topo ? h('p', { class: 'muted small', style: 'margin:.3rem 0' }, `Dispositivi collegati: ${st.placed.size} su ${slots.length}`, ' · ', h('span', {}, `Ogni dispositivo sul disegno rappresenta una parte dei ${m.req.nodes || slots.length} nodi della missione.`)) : null,
@@ -169,7 +170,7 @@ export function build(app, { cleanups }) {
           h('div', { class: 'traygrp' }, h('strong', {}, 'Dispositivi'), h('div', { class: 'row' }, left > 0 ? Array.from({ length: left }, (_, i) => chip({ type: 'dev', id: 'dev' + i }, 'devchip', h('span', { class: 'devico', 'aria-hidden': 'true' }), h('span', {}, 'Dispositivo'))) : h('span', { class: 'muted small' }, st.topo ? 'Tutti collegati.' : 'Scegli prima una topologia.'))),
           h('div', { class: 'traygrp' }, h('strong', {}, 'Topologie'), h('div', { class: 'row' }, topos.map(t => chip({ type: 'topo', id: t.id }, '', topoIcon(t.id, 16), h('span', {}, t.name))))),
           h('div', { class: 'traygrp' }, h('strong', {}, 'Bus'), h('div', { class: 'row' }, S.data.protocols.protocols.map(x => chip({ type: 'bus', id: x.id }, '', logo(x, 18), h('span', {}, x.name)))))),
-        h('div', { class: 'row', style: 'margin-top:.8rem' }, h('button', { class: 'primary', onclick: verify }, '✔ Verifica la rete'), h('button', { onclick: () => { st.bus = st.topo = null; st.placed.clear(); st.terms.clear(); st.rep = 0; picked = null; result.replaceChildren(); render(); } }, '↺ Svuota il banco')));
+        h('div', { class: 'row', style: 'margin-top:.8rem' }, h('button', { class: 'primary', onclick: verify }, '✔ Verifica la rete'), h('button', { onclick: () => { st.bus = st.topo = st.variant = null; st.placed.clear(); st.terms.clear(); st.rep = 0; picked = null; result.replaceChildren(); render(); } }, '↺ Svuota il banco')));
       mark();
     }
 
@@ -179,8 +180,12 @@ export function build(app, { cleanups }) {
         result.replaceChildren(h('div', { class: 'fb ko' }, 'La rete non è completa: scegli un bus, una topologia e collega tutti i dispositivi.'));
         return;
       }
-      const p = proto(st.bus), r = evaluate(st.bus, { ...m.req, topo: st.topo });
-      const checks = [...r.checks, ...wiringChecks(p, m.req, st.topo, st.rep, st.terms.size)];
+      if (variantsOf(st.bus).length && !st.variant) {
+        result.replaceChildren(h('div', { class: 'fb ko' }, 'La rete non è completa: scegli anche la variante del bus.'));
+        return;
+      }
+      const p = { ...proto(st.bus), name: nameOf(st.bus, st.variant) }, wires = matrixOf(st.bus, st.variant).wiring, r = evaluate(st.bus, { ...m.req, topo: st.topo }, st.variant);
+      const checks = [...r.checks, ...wiringChecks(p, wires, m.req, st.topo, st.rep, st.terms.size)];
       if (m.topoAllowed?.length) {
         const ok = m.topoAllowed.includes(st.topo);
         checks.unshift({ status: ok ? 'ok' : 'fail', text: ok ? 'Topologia adatta alla missione.' : 'Topologia non adatta alla missione.', hint: ok ? null : m.topoHint });
@@ -188,7 +193,7 @@ export function build(app, { cleanups }) {
       const verdict = checks.some(c => c.status === 'fail') ? 'fail' : checks.some(c => c.status === 'warn') ? 'warn' : 'ok';
       const first = !S.progress.built.includes(m.id);
       // soluzione essenziale: nessun ripetitore oltre il minimo necessario
-      const need = minRepeaters(p, m.req), extra = need == null ? 0 : st.rep - need, lean = verdict === 'ok' && extra === 0;
+      const need = minRepeaters(wires, m.req), extra = need == null ? 0 : st.rep - need, lean = verdict === 'ok' && extra === 0;
       let xp = 0;
       if (verdict === 'ok' && first) { S.progress.built.push(m.id); xp = G.pointsCorrect + (lean ? G.pointsLean || 0 : 0); }
       else if (verdict === 'warn' && first) xp = G.pointsPartial;

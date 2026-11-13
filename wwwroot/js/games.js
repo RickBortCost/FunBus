@@ -114,8 +114,19 @@ export function match(app) {
 /* ---------- SCENARI ---------- */
 const RANK = { none: 0, soft: 1, det: 2, hard: 3 };
 
-export function evaluate(pid, req) {
-  const sc = S.data.scenarios, m = sc.matrix[pid], p = S.data.protocols.protocols.find(x => x.id === pid);
+// Varianti di un protocollo nella matrice degli scenari (es. PROFINET RT/IRT, PROFIBUS DP/PA): i valori della variante
+// sostituiscono quelli di base; caps, notes e wiring vengono fusi.
+export const variantsOf = pid => S.data.scenarios.matrix[pid].variants || [];
+export function matrixOf(pid, vid) {
+  const m = S.data.scenarios.matrix[pid], v = variantsOf(pid).find(x => x.id === vid);
+  return v ? { ...m, ...v, caps: { ...m.caps, ...v.caps }, notes: { ...m.notes, ...v.notes }, wiring: { ...m.wiring, ...v.wiring } } : m;
+}
+export const nameOf = (pid, vid) => variantsOf(pid).find(x => x.id === vid)?.name || S.data.protocols.protocols.find(x => x.id === pid).name;
+// Tutte le scelte possibili: un protocollo, oppure ciascuna delle sue varianti.
+export const choices = () => S.data.protocols.protocols.flatMap(p => (variantsOf(p.id).length ? variantsOf(p.id).map(v => ({ pid: p.id, vid: v.id, name: v.name })) : [{ pid: p.id, name: p.name }]));
+
+export function evaluate(pid, req, vid) {
+  const sc = S.data.scenarios, m = matrixOf(pid, vid), base = S.data.protocols.protocols.find(x => x.id === pid), p = { ...base, name: nameOf(pid, vid) };
   const pro = isPro(), checks = [];
   const add = (status, text, note) => checks.push({ status, text: text + (pro && note ? ` — ${note}` : '') });
   if (req.maxCycleUs != null) {
@@ -155,24 +166,33 @@ export function scenari(app) {
     h('button', { class: 'card', onclick: () => play(s) }, h('h3', {}, s.title), S.progress.scenariosSolved.includes(s.id) ? h('span', { class: 'tag' }, '✔ risolto') : null))));
   const play = s => {
     const res = h('div');
+    const varBox = h('div');
+    const show = (p, vid) => {
+      const r = evaluate(p.id, s.req, vid), pts = S.data.game.scenario, name = nameOf(p.id, vid);
+      const first = !S.progress.scenariosSolved.includes(s.id);
+      let msg = '';
+      if (r.verdict === 'ok' && first) { S.progress.scenariosSolved.push(s.id); addXP(pts.pointsCorrect); msg = ` +${pts.pointsCorrect} XP`; }
+      else if (r.verdict === 'warn' && first) { addXP(pts.pointsPartial); msg = ` +${pts.pointsPartial} XP (scelta con riserve)`; }
+      const title = { ok: '✅ Fattibile', warn: '⚠ Fattibile con riserve', fail: '❌ Non fattibile' }[r.verdict];
+      const all = choices().map(c => ({ ...c, v: evaluate(c.pid, s.req, c.vid).verdict }));
+      const best = all.filter(c => c.v === 'ok').map(c => c.name), maybe = all.filter(c => c.v === 'warn').map(c => c.name);
+      res.replaceChildren(h('h3', {}, `${title}: ${name}${msg}`),
+        ...r.checks.map(c => h('div', { class: 'chk ' + c.status }, (c.status === 'ok' ? '✔ ' : c.status === 'warn' ? '⚠ ' : '✖ ') + c.text)),
+        h('div', { class: 'note analogy' }, h('strong', {}, 'Scelte pienamente adatte: '), best.length ? best.join(', ') : 'nessuna', maybe.length ? h('span', {}, ' · Con riserve: ' + maybe.join(', ')) : null));
+    };
     const pick = h('div', { class: 'pick' }, S.data.protocols.protocols.map(p => h('button', {
       onclick: e => {
         pick.querySelectorAll('button').forEach(b => b.classList.remove('on'));
         e.currentTarget.classList.add('on');
-        const r = evaluate(p.id, s.req), pts = S.data.game.scenario;
-        const first = !S.progress.scenariosSolved.includes(s.id);
-        let msg = '';
-        if (r.verdict === 'ok' && first) { S.progress.scenariosSolved.push(s.id); addXP(pts.pointsCorrect); msg = ` +${pts.pointsCorrect} XP`; }
-        else if (r.verdict === 'warn' && first) { addXP(pts.pointsPartial); msg = ` +${pts.pointsPartial} XP (scelta con riserve)`; }
-        const title = { ok: '✅ Fattibile', warn: '⚠ Fattibile con riserve', fail: '❌ Non fattibile' }[r.verdict];
-        const best = S.data.protocols.protocols.filter(x => evaluate(x.id, s.req).verdict === 'ok').map(x => x.name);
-        const maybe = S.data.protocols.protocols.filter(x => evaluate(x.id, s.req).verdict === 'warn').map(x => x.name);
-        res.replaceChildren(h('h3', {}, `${title}: ${p.name}${msg}`),
-          ...r.checks.map(c => h('div', { class: 'chk ' + c.status }, (c.status === 'ok' ? '✔ ' : c.status === 'warn' ? '⚠ ' : '✖ ') + c.text)),
-          h('div', { class: 'note analogy' }, h('strong', {}, 'Scelte pienamente adatte: '), best.length ? best.join(', ') : 'nessuna', maybe.length ? h('span', {}, ' · Con riserve: ' + maybe.join(', ')) : null));
+        const vs = variantsOf(p.id);
+        if (!vs.length) { varBox.replaceChildren(); show(p); return; }
+        // protocollo con varianti: prima si sceglie quale
+        const chips = vs.map(v => h('button', { class: 'tag chip varchip', 'aria-pressed': 'false', onclick: ev => { chips.forEach(c => { c.classList.remove('on'); c.setAttribute('aria-pressed', 'false'); }); ev.currentTarget.classList.add('on'); ev.currentTarget.setAttribute('aria-pressed', 'true'); show(p, v.id); } }, v.name));
+        varBox.replaceChildren(h('div', { class: 'row variants' }, h('strong', {}, 'Quale variante?'), chips));
+        res.replaceChildren(h('p', { class: 'muted' }, 'Scegli la variante per vedere l\'esito.'));
       }
     }, p.name)));
-    box.replaceChildren(h('button', { onclick: menu }, '← Scenari'), h('h2', {}, s.title), h('div', { class: 'card' }, h('p', {}, s.text), reqTags(s.req)), h('p', {}, 'Quale protocollo sceglieresti?'), pick, res);
+    box.replaceChildren(h('button', { onclick: menu }, '← Scenari'), h('h2', {}, s.title), h('div', { class: 'card' }, h('p', {}, s.text), reqTags(s.req)), h('p', {}, 'Quale protocollo sceglieresti?'), pick, varBox, res);
   };
   list.length ? menu() : box.append(h('p', {}, 'Nessuno scenario per questo livello.'));
 }
