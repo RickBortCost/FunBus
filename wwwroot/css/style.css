@@ -335,3 +335,21 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
 .badge.locked{filter:none;opacity:.7}
 [data-theme=hc] .dropzone{border-color:var(--border)}
 @media(max-width:560px){.benchtop{grid-template-columns:1fr}}
+
+/* Tabella delle differenze tra varianti (es. OPC UA client/server, PubSub, FX) */
+.vswrap{overflow-x:auto}
+.vstable{border-collapse:separate;border-spacing:0;width:100%;font-size:.92rem}
+.vstable th,.vstable td{padding:.5rem .7rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}
+.vstable thead th{background:var(--surface2);vertical-align:bottom}
+.vstable thead th:first-child{border-top-left-radius:var(--r-sm)}.vstable thead th:last-child{border-top-right-radius:var(--r-sm)}
+.vstable tbody th{width:9.5rem;color:var(--muted);font-weight:600}
+.vstable .cur{background:color-mix(in srgb,var(--accent) 9%,transparent);box-shadow:inset 3px 0 var(--accent)}
+.vstable .vh{display:none}
+@media(max-width:760px){
+  .vstable,.vstable tbody,.vstable tr,.vstable th,.vstable td{display:block;width:auto}
+  .vstable thead{display:none}
+  .vstable tbody th{width:auto;border:0;padding:.8rem 0 .2rem;color:var(--text);font-size:1rem}
+  .vstable td{border:0;border-left:3px solid var(--border);padding:.3rem .7rem;margin:.25rem 0}
+  .vstable td.cur{border-left-color:var(--accent);box-shadow:none}
+  .vstable .vh{display:block;font-size:.78rem;font-weight:700;color:var(--muted)}
+}

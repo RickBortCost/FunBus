@@ -37,6 +37,20 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
   }
+  // varianti (OPC UA client/server, PubSub, FX): tabella delle differenze nelle schede e collegamento al confronto
+  {
+    await pg.selectOption('#langSel', 'it');
+    for (const v of data('protocols').variants || []) {
+      for (const id of v.ids) {
+        await pg.evaluate(h => (location.hash = h), '/protocolli/' + id); await pg.waitForTimeout(100);
+        if ((await pg.locator('.vstable tbody tr').count()) !== v.rows.length) errs.push(`${label} ${id}: tabella delle differenze incompleta`);
+        if ((await pg.locator('.vstable tbody tr').first().locator('td.cur').count()) !== 1) errs.push(`${label} ${id}: colonna della scheda non evidenziata`);
+      }
+      await pg.evaluate(h => (location.hash = h), '/confronto/' + v.ids.join(',')); await pg.waitForTimeout(150);
+      if (label === 'desktop' && (await pg.locator('table.cmp thead th').count()) !== v.ids.length + 1) errs.push(`confronto/${v.ids.join(',')}: protocolli non affiancati`);
+    }
+    await pg.evaluate(h => (location.hash = h), '/confronto');
+  }
   // gioco «Costruisci la rete»: trascinamento (mouse), posa a clic, verifica e badge disegnati
   {
     await pg.selectOption('#langSel', 'it'); await pg.evaluate(h => (location.hash = h), '/test/rete'); await pg.click('#lvB'); await pg.waitForTimeout(150);

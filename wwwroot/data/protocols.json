@@ -971,6 +971,287 @@
    }
   },
   {
+   "id": "opcuapubsub",
+   "name": "OPC UA PubSub",
+   "color": "#1f6f8b",
+   "family": "Protocollo IT/IIoT",
+   "tagline": {
+    "b": "OPC UA senza sessioni: chi ha i dati li pubblica, chi è interessato li riceve.",
+    "p": "IEC 62541-14: publisher e subscriber disaccoppiati, messaggi UADP o JSON su UDP, Ethernet, MQTT o AMQP, con sicurezza a chiavi di gruppo."
+   },
+   "analogy": "Come una radio: chi trasmette non sa chi ascolta, e chi ascolta si sintonizza sul canale che gli interessa.",
+   "card": {
+    "purpose": {
+     "b": "Distribuire gli stessi dati a molti destinatari, in locale o verso il cloud, senza aprire un collegamento con ciascuno.",
+     "p": "Distribuzione 1:N di DataSet OPC UA senza sessioni: scambio ciclico tra controllori (UADP su UDP o Ethernet) e telemetria verso IT e cloud (JSON o UADP su broker MQTT/AMQP)."
+    },
+    "osi": {
+     "b": "Livello applicativo, sopra la rete IP o direttamente su Ethernet.",
+     "p": "L7: NetworkMessage UADP (binario) o JSON. Trasporti senza broker: UDP unicast/multicast (opc.udp) ed Ethernet L2 (EtherType 0xB62C); con broker: MQTT e AMQP su TCP/TLS."
+    },
+    "medium": {
+     "b": "Rete Ethernet o qualsiasi rete IP.",
+     "p": "Ethernet (anche con TSN per i flussi deterministici), Wi-Fi e reti cellulari per il trasporto via broker."
+    },
+    "speed": "Dipende dalla rete sottostante (tipicamente Ethernet 100 Mbit/s o 1 Gbit/s)",
+    "topology": {
+     "b": "Quella della rete: molti ascoltano lo stesso publisher.",
+     "p": "Qualsiasi topologia Ethernet/IP: multicast in rete locale, oppure stella logica verso un broker."
+    },
+    "model": {
+     "b": "Publish/Subscribe: nessuna richiesta e nessuna risposta.",
+     "p": "Publisher (WriterGroup, DataSetWriter) e Subscriber (ReaderGroup, DataSetReader) configurati in modo indipendente; nessuna sessione né conferma."
+    },
+    "determinism": {
+     "b": "Dipende dalla rete: garantito solo con Ethernet speciale (TSN).",
+     "p": "Best effort su UDP e broker. Latenza limitata solo con UADP su Ethernet/UDP insieme a TSN, layout a dimensione fissa e hardware adatto."
+    },
+    "cycle": {
+     "b": "Da pochi millisecondi a secondi, come si configura.",
+     "p": "PublishingInterval per WriterGroup: tipicamente 1–1000 ms; sotto il millisecondo solo con TSN e stack dedicati (dipende dal prodotto)."
+    }
+   },
+   "pros": [
+    "Un messaggio per molti destinatari, senza sessioni",
+    "Stesso modello dati di OPC UA",
+    "Dal campo al cloud cambiando solo il trasporto",
+    "Sicurezza dei messaggi con chiavi di gruppo"
+   ],
+   "cons": [
+    "Nessuna conferma di consegna: sorveglia il subscriber",
+    "Publisher e subscriber vanno configurati in modo coerente",
+    "Determinismo solo con TSN",
+    "Gestione delle chiavi (SKS) da progettare"
+   ],
+   "usecases": [
+    "Scambio ciclico tra controllori di costruttori diversi",
+    "Telemetria verso cloud e piattaforme IT (JSON su MQTT)",
+    "Base di trasporto di OPC UA FX"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 62541-14 (OPC 10000-14), dalla versione 1.04 della specifica"
+    ],
+    [
+     "Codifica dei messaggi",
+     "UADP (binario, anche a layout fisso) oppure JSON"
+    ],
+    [
+     "Trasporti",
+     "UDP (opc.udp, porta 4840 predefinita), Ethernet (opc.eth, EtherType 0xB62C), MQTT, AMQP"
+    ],
+    [
+     "Struttura",
+     "PubSubConnection → WriterGroup → DataSetWriter; ReaderGroup → DataSetReader"
+    ],
+    [
+     "Sicurezza",
+     "SecurityGroup con chiavi simmetriche distribuite dal Security Key Service (SKS); policy PubSub-Aes128-CTR e PubSub-Aes256-CTR"
+    ],
+    [
+     "Sorveglianza",
+     "KeepAliveTime sul publisher, MessageReceiveTimeout sul DataSetReader"
+    ]
+   ],
+   "notes": [
+    "Trasporti, codifiche e sicurezza supportati dipendono dallo stack, dalla versione della specifica e dal profilo del dispositivo: publisher e subscriber devono avere almeno un profilo in comune.",
+    "Le prestazioni in tempo reale richiedono TSN e hardware adatto; su reti Ethernet ordinarie il PubSub resta best effort."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "soft",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "Nell'OPC UA tradizionale ogni client apre un collegamento con il server e chiede i dati. Con PubSub è il contrario: chi ha i dati li trasmette a intervalli regolari, come una radio, e chiunque sia sintonizzato li riceve. Chi trasmette non sa nemmeno quanti stanno ascoltando.",
+     "I messaggi possono viaggiare in due modi: direttamente sulla rete dell'impianto, veloci, per far parlare due macchine; oppure attraverso un broker (lo stesso di MQTT) per portare i dati al cloud. Il contenuto resta quello di OPC UA: dati con nome, tipo e significato."
+    ],
+    "p": [
+     "Il publisher raggruppa le variabili in PublishedDataSet; ogni DataSetWriter produce un DataSetMessage e il WriterGroup li impacchetta in un NetworkMessage inviato a ogni PublishingInterval. Il subscriber configura DataSetReader che filtrano per PublisherId, WriterGroupId e DataSetWriterId e mappano i campi sulle proprie variabili. I DataSetMetaData descrivono campi e ConfigurationVersion.",
+     "Non esistono sessione, richiesta o conferma: la sorveglianza è del subscriber (MessageReceiveTimeout) e l'integrità è affidata a numeri di sequenza, key frame periodici e, con la sicurezza attiva, a firma e cifratura con le chiavi del SecurityGroup ottenute dall'SKS. Su Ethernet con TSN e layout fisso il PubSub è la base della comunicazione deterministica di OPC UA FX."
+    ]
+   },
+   "example": {
+    "b": "Esempio: il PLC di una linea pubblica ogni 100 ms velocità e contapezzi. Li ricevono, senza chiedere nulla, il PLC della linea a valle, il pannello operatore e un gateway che li inoltra al cloud.",
+    "p": "Esempio: WriterGroup con PublishingInterval 10 ms e KeepAliveTime 100 ms su opc.udp multicast; due DataSetReader con MessageReceiveTimeout 30 ms. Un terzo subscriber si aggiunge senza toccare il publisher: basta configurarne il reader e autorizzarlo sull'SKS."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dati partono da soli: a ritmo fisso oppure solo quando cambiano. Nessuno li chiede.",
+    "p": "Pubblicazione non sollecitata a ogni PublishingInterval (key frame ciclici) oppure delta frame ed eventi solo al cambiamento; nessun request/response."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "cloud",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Sulla rete Ethernet/IP dell'impianto: UDP multicast tra controllori, direttamente su Ethernet con TSN, oppure verso un broker MQTT/AMQP per IT e cloud."
+   }
+  },
+  {
+   "id": "opcuafx",
+   "name": "OPC UA FX",
+   "color": "#5b4fcf",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "OPC UA che scende al livello di campo: controllori di marche diverse che si scambiano dati direttamente.",
+    "p": "OPC UA Field eXchange (OPC 10000-80…84): connessioni sorvegliate tra FunctionalEntity, stabilite in client/server e servite da PubSub, su Ethernet con TSN opzionale."
+   },
+   "analogy": "Come due reparti che firmano un accordo («tu mi mandi questo, io ti mando quello, ogni tot millisecondi») e poi si scambiano la merce da soli, controllando che arrivi puntuale.",
+   "card": {
+    "purpose": {
+     "b": "Far dialogare in tempo reale macchine e controllori di costruttori diversi con un unico standard, dal campo al cloud.",
+     "p": "Comunicazione a livello di campo indipendente dal costruttore: oggi controllore-controllore (C2C), con controllore-dispositivo (C2D) e dispositivo-dispositivo (D2D) nelle estensioni successive; include safety e ingegneria offline."
+    },
+    "osi": {
+     "b": "Livello applicativo OPC UA, su Ethernet.",
+     "p": "L7: information model FX (AutomationComponent, FunctionalEntity, Asset) e Connection Manager. Dati in PubSub UADP su UDP/IP o direttamente su Ethernet L2; connessione e diagnostica in client/server su TCP. L2 opzionale con TSN (IEC/IEEE 60802)."
+    },
+    "medium": {
+     "b": "Cavo Ethernet standard.",
+     "p": "Ethernet standard, con switch TSN per i flussi deterministici; Ethernet-APL (due fili) per l'area di processo."
+    },
+    "speed": "100 Mbit/s o 1 Gbit/s (10 Mbit/s con Ethernet-APL)",
+    "topology": {
+     "b": "Quella della rete Ethernet: linea, stella, albero o anello.",
+     "p": "Topologie Ethernet con switch (esterni o integrati); ridondanza e riserva di banda affidate ai meccanismi di rete e a TSN."
+    },
+    "model": {
+     "b": "Prima ci si accorda, poi ci si scambia dati a ritmo fisso.",
+     "p": "Connessioni logiche tra FunctionalEntity, create da un Connection Manager con il metodo EstablishConnections (client/server); scambio dati in PubSub, unidirezionale (con o senza heartbeat) o bidirezionale."
+    },
+    "determinism": {
+     "b": "Sì, se la rete usa TSN; altrimenti solo «di solito puntuale».",
+     "p": "Deterministico su rete TSN con flussi riservati (IEC/IEEE 60802); senza TSN lavora in best effort con priorità (QoS) e la latenza non è garantita."
+    },
+    "cycle": {
+     "b": "Pochi millisecondi tra controllori.",
+     "p": "Tra controllori tipicamente da 1 ms a decine di ms; cicli più brevi con TSN e hardware dedicato. I valori effettivi dipendono dai prodotti: la tecnologia è recente."
+    }
+   },
+   "pros": [
+    "Un solo standard dal campo al cloud",
+    "Controllori di costruttori diversi collegati senza gateway",
+    "Sicurezza informatica e safety previste dallo standard",
+    "Convive con altro traffico sulla stessa rete (TSN)"
+   ],
+   "cons": [
+    "Tecnologia recente: pochi prodotti e specifiche in evoluzione",
+    "Per ora centrata sul controllore-controllore",
+    "Il determinismo richiede switch e dispositivi TSN",
+    "Più complessa di un fieldbus tradizionale"
+   ],
+   "usecases": [
+    "Linee con macchine e PLC di costruttori diversi",
+    "Sincronizzazione tra celle e moduli di macchina",
+    "Reti convergenti IT/OT con TSN"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "OPC 10000-80…84 (OPC UA FX), iniziativa Field Level Communications della OPC Foundation"
+    ],
+    [
+     "Modello",
+     "AutomationComponent con Asset (parte fisica) e FunctionalEntity (funzione, con variabili di ingresso e uscita)"
+    ],
+    [
+     "Connessione",
+     "Connection Manager → EstablishConnections: verifica asset, riserva la comunicazione, crea e abilita i ConnectionEndpoint"
+    ],
+    [
+     "Scambio dati",
+     "OPC UA PubSub (UADP) su UDP/IP o Ethernet (EtherType 0xB62C)"
+    ],
+    [
+     "Rete",
+     "Ethernet con QoS; TSN secondo il profilo IEC/IEEE 60802; Ethernet-APL"
+    ],
+    [
+     "Safety",
+     "OPC UA Safety (IEC 62541-15), principio «black channel»"
+    ]
+   ],
+   "notes": [
+    "OPC UA FX è una tecnologia recente: le prime specifiche riguardano la comunicazione controllore-controllore; controllore-dispositivo, motion e altre parti sono estensioni successive. Verificare versione delle specifiche e funzioni realmente supportate dai prodotti.",
+    "Tempi di ciclo e determinismo indicati sono orientativi: dipendono dall'uso di TSN, dall'hardware e dall'implementazione."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "det",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub",
+     "client-server"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "Finora OPC UA serviva soprattutto «in alto»: tra le macchine e i computer che le sorvegliano. Per comandare motori e leggere sensori in tempo reale ogni costruttore usava il proprio bus di campo. OPC UA FX porta lo stesso linguaggio fino al livello delle macchine, così controllori di marche diverse possono scambiarsi dati direttamente.",
+     "Funziona in due tempi. Prima un «gestore delle connessioni» mette d'accordo le due parti: quali dati, ogni quanto, con quali controlli. Poi le due parti si scambiano i dati da sole, a ritmo fisso, e ciascuna controlla che l'altra sia puntuale. Se la rete è di tipo TSN, la puntualità è garantita."
+    ],
+    "p": [
+     "Ogni dispositivo espone un AutomationComponent con Asset (identità fisica) e FunctionalEntity (funzioni logiche con InputData e OutputData). Un Connection Manager, client OPC UA che può risiedere in un controllore o in uno strumento, chiama EstablishConnections sui due lati: verifica degli asset, riserva della comunicazione (configurazione PubSub), creazione e abilitazione dei ConnectionEndpoint.",
+     "Da quel momento i dati viaggiano in PubSub UADP, su UDP/IP o direttamente su Ethernet, con layout fisso; ogni endpoint sorveglia i messaggi in arrivo e applica valori sostitutivi in caso di timeout. Le connessioni possono essere persistenti e ripartire senza Connection Manager. Per il determinismo si usa TSN (IEC/IEEE 60802); per la safety OPC UA Safety; l'ingegneria offline scambia descrittori dei prodotti prima della messa in servizio."
+    ]
+   },
+   "example": {
+    "b": "Esempio: la riempitrice (PLC di una marca) e la tappatrice (PLC di un'altra) si scambiano ogni 4 ms velocità e stato. Senza OPC UA FX servirebbe un gateway tra i due bus di campo; con FX i due PLC si collegano direttamente sulla stessa rete Ethernet.",
+    "p": "Esempio: connessione bidirezionale tra due FunctionalEntity con PublishingInterval 2 ms e timeout di ricezione 6 ms; il Connection Manager nel controllore A chiama EstablishConnections con verifica degli asset e rende la connessione persistente. Su switch TSN i due flussi hanno banda riservata e latenza limitata."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dati di processo arrivano da soli a ritmo fisso; connessione e diagnostica si fanno a richiesta.",
+    "p": "Scambio ciclico non sollecitato in PubSub (PublishingInterval, heartbeat); servizi client/server a richiesta per EstablishConnections, parametri e diagnostica."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "plc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Ethernet standard tra controllori di costruttori diversi; switch TSN per i flussi deterministici ed Ethernet-APL per l'area di processo."
+   }
+  },
+  {
    "id": "enip",
    "name": "EtherNet/IP",
    "color": "#d35400",
@@ -2340,5 +2621,107 @@
  "commIntro": {
   "b": "Un dato può raggiungere chi lo vuole in due modi: qualcuno lo chiede (polling) oppure arriva da solo quando cambia (notifica). Il polling dà tempi prevedibili solo se anche la rete li garantisce; la notifica risparmia traffico, ma il carico dipende dagli eventi.",
   "p": "Il polling non è deterministico di per sé: lo diventa solo se il ciclo è limitato dal mezzo e dal protocollo (PROFIBUS, AS-i, IO-Link, EtherCAT: ciclo calcolabile). Su TCP/IP (Modbus TCP, S7) il polling non è deterministico: ritrasmissioni e carico variano i tempi. La notifica on-change ha carico proporzionale agli eventi e, con burst, latenza non limitata."
- }
+ },
+ "variants": [
+  {
+   "id": "opcua",
+   "ids": [
+    "opcua",
+    "opcuapubsub",
+    "opcuafx"
+   ],
+   "title": "OPC UA tradizionale, PubSub e FX: le differenze",
+   "heads": {
+    "opcua": "OPC UA tradizionale (client/server)",
+    "opcuapubsub": "OPC UA PubSub",
+    "opcuafx": "OPC UA FX"
+   },
+   "intro": {
+    "b": "Sono tre modi di usare lo stesso «linguaggio». Quello tradizionale è una conversazione a due; PubSub è una trasmissione verso molti; FX usa entrambi per far lavorare insieme i controllori in tempo reale.",
+    "p": "Stesso information model e stessa codifica dei dati; cambiano modello di comunicazione, trasporto, sicurezza e garanzie temporali. FX non è un quarto protocollo: è un profilo che combina client/server (connessione) e PubSub (dati) con un proprio modello a FunctionalEntity."
+   },
+   "rows": [
+    {
+     "label": "A cosa serve",
+     "values": {
+      "opcua": "Accedere ai dati e ai servizi di un server: leggere, scrivere, chiamare metodi, ricevere eventi",
+      "opcuapubsub": "Distribuire gli stessi dati a molti destinatari, senza sessioni",
+      "opcuafx": "Scambio in tempo reale tra controllori (e dispositivi), con connessioni sorvegliate"
+     }
+    },
+    {
+     "label": "Chi parla con chi",
+     "values": {
+      "opcua": "Un client apre una sessione con un server (1:1)",
+      "opcuapubsub": "Un publisher verso molti subscriber che non si conoscono (1:N)",
+      "opcuafx": "Coppie di FunctionalEntity collegate da un Connection Manager"
+     }
+    },
+    {
+     "label": "Come parte lo scambio",
+     "values": {
+      "opcua": "Il client crea canale sicuro, sessione e subscription",
+      "opcuapubsub": "Nessun handshake: publisher e subscriber sono configurati separatamente",
+      "opcuafx": "Il Connection Manager chiama EstablishConnections (client/server), poi i dati viaggiano in PubSub"
+     }
+    },
+    {
+     "label": "Trasporto",
+     "values": {
+      "opcua": "TCP (opc.tcp, porta 4840), HTTPS, WebSocket",
+      "opcuapubsub": "UDP unicast/multicast, Ethernet (EtherType 0xB62C), broker MQTT o AMQP",
+      "opcuafx": "PubSub UADP su UDP/IP o Ethernet, TSN opzionale; client/server su TCP per connessione e diagnostica"
+     }
+    },
+    {
+     "label": "Tempi e determinismo",
+     "values": {
+      "opcua": "Decine o centinaia di ms; non deterministico",
+      "opcuapubsub": "Dal millisecondo ai secondi; deterministico solo su Ethernet con TSN",
+      "opcuafx": "Millisecondi tra controllori, meno con TSN e hardware adatto; dipende dai prodotti"
+     }
+    },
+    {
+     "label": "Sicurezza",
+     "values": {
+      "opcua": "Canale sicuro per ogni sessione: certificati X.509, utenti e ruoli",
+      "opcuapubsub": "Firma e cifratura dei messaggi con chiavi di gruppo distribuite dall'SKS",
+      "opcuafx": "Entrambe: canale sicuro per le connessioni, sicurezza PubSub per i dati; OPC UA Safety per la sicurezza funzionale"
+     }
+    },
+    {
+     "label": "Se un messaggio si perde",
+     "values": {
+      "opcua": "TCP ritrasmette; il client recupera le notifiche con Republish",
+      "opcuapubsub": "Nessuna ritrasmissione su UDP/Ethernet: numeri di sequenza e key frame periodici",
+      "opcuafx": "Nessuna ritrasmissione: timeout sulla connessione e valori sostitutivi"
+     }
+    },
+    {
+     "label": "Chi sorveglia",
+     "values": {
+      "opcua": "Entrambi: timeout di sessione e keep-alive della subscription",
+      "opcuapubsub": "Solo il subscriber (MessageReceiveTimeout); il publisher non ha riscontri",
+      "opcuafx": "Entrambi i lati della connessione, anche con heartbeat"
+     }
+    },
+    {
+     "label": "Riferimento",
+     "values": {
+      "opcua": "IEC 62541, in particolare Part 4 e 6",
+      "opcuapubsub": "IEC 62541-14, dalla versione 1.04",
+      "opcuafx": "OPC 10000-80…84; specifiche recenti e in evoluzione"
+     }
+    },
+    {
+     "label": "Uso tipico",
+     "values": {
+      "opcua": "SCADA, MES, HMI, diagnostica e configurazione",
+      "opcuapubsub": "Dati verso cloud e IT, scambio ciclico tra controllori",
+      "opcuafx": "Controllore-controllore multi-costruttore; controllore-dispositivo nelle estensioni successive"
+     }
+    }
+   ]
+  }
+ ]
 }

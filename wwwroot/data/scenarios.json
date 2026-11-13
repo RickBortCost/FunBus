@@ -391,6 +391,64 @@
     "pubsub": "Produced/consumed tag in multicast.",
     "redundancy": "DLR."
    }
+  },
+  "opcuapubsub": {
+   "cycleMinUs": 1000,
+   "cycleNote": "PublishingInterval tipico 1–1000 ms; sotto il millisecondo solo con TSN e stack dedicati.",
+   "rt": "soft",
+   "rtNote": "Best effort su UDP e broker; latenza limitata solo su Ethernet con TSN.",
+   "maxNodes": 1000,
+   "nodesNote": "Stima: il publisher non conosce i subscriber; il limite dipende dalla rete o dal broker.",
+   "caps": {
+    "pubsub": "yes",
+    "notify": "yes",
+    "wan": "partial",
+    "security": "yes",
+    "itint": "yes",
+    "vendorNeutral": "yes",
+    "safety": "partial",
+    "redundancy": "partial",
+    "motion": "partial",
+    "siemensData": "partial",
+    "plcBeckhoff": "partial",
+    "simpleOpen": "partial",
+    "nativeSec": "yes"
+   },
+   "notes": {
+    "wan": "Solo con il trasporto via broker (MQTT/AMQP); UDP ed Ethernet restano nella rete locale.",
+    "safety": "OPC UA Safety su PubSub nelle versioni recenti della specifica; adozione limitata.",
+    "motion": "Solo con TSN e hardware dedicato; dipende dal prodotto.",
+    "redundancy": "Delegata alla rete o a publisher ridondati a livello applicativo.",
+    "siemensData": "Disponibile su alcune CPU e firmware; verificare il prodotto.",
+    "plcBeckhoff": "Funzione opzionale TwinCAT.",
+    "security": "Sicurezza dei messaggi con chiavi di gruppo (SKS); TLS sul trasporto via broker."
+   }
+  },
+  "opcuafx": {
+   "cycleMinUs": 1000,
+   "cycleNote": "Tra controllori tipicamente 1 ms–decine di ms; cicli più brevi con TSN e hardware dedicato (dipende dai prodotti).",
+   "rt": "det",
+   "rtNote": "Deterministico solo su rete TSN (IEC/IEEE 60802); senza TSN è best effort con priorità.",
+   "maxNodes": 250,
+   "nodesNote": "Stima indicativa: dipende dalle risorse dei controllori e dalla banda riservabile.",
+   "caps": {
+    "pubsub": "yes",
+    "notify": "partial",
+    "security": "yes",
+    "itint": "yes",
+    "vendorNeutral": "yes",
+    "safety": "partial",
+    "redundancy": "partial",
+    "motion": "partial",
+    "nativeSec": "yes"
+   },
+   "notes": {
+    "safety": "OPC UA Safety fa parte di FX; la disponibilità dipende dai prodotti.",
+    "motion": "Profili motion in fase di definizione; oggi il campo tipico è il controllore-controllore.",
+    "redundancy": "Affidata alla rete (anelli, meccanismi TSN).",
+    "notify": "Lo scambio è ciclico; eventi e allarmi passano dai servizi client/server.",
+    "vendorNeutral": "Obiettivo principale dello standard; il numero di prodotti è ancora limitato."
+   }
   }
  },
  "scenarios": [

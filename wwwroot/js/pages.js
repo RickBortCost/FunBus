@@ -83,11 +83,26 @@ function card(p) {
     h('div', { class: 'card', style: 'margin-top:1rem' }, h('dl', { class: 'spec' }, FIELDS().flatMap(f => [h('dt', {}, f.label), h('dd', {}, T(p.card[f.key]))]))),
     h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Piramide dei livelli OSI'), pyramid(p, { width: 300 }), pyramidLegend(p)),
     h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Topologie supportate'), topoChips(p), h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(p.card.topology))),
+    variantBox(p),
     securityBox(p),
     h('div', { class: 'two', style: 'margin-top:1rem' }, list('Vantaggi', p.pros), list('Limiti', p.cons)),
     h('div', { style: 'margin-top:1rem' }, list('Casi d\'uso tipici', p.usecases)),
     isPro() ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Dati tecnici'), h('dl', { class: 'spec' }, p.tech.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]))) : null,
     p.notes.map(n => h('div', { class: 'note' }, h('strong', {}, 'Accuratezza: '), n)));
+}
+
+// Varianti dello stesso standard (es. OPC UA client/server, PubSub, FX): tabella delle differenze, con la colonna della scheda aperta in evidenza.
+function variantBox(p) {
+  const v = (S.data.protocols.variants || []).find(x => x.ids.includes(p.id));
+  if (!v) return null;
+  const ps = v.ids.map(protoById).filter(Boolean);
+  const head = x => h('span', { class: 'row', style: 'gap:.4rem;flex-wrap:nowrap' }, logo(x, 22), x.id === p.id ? h('strong', {}, v.heads[x.id]) : h('a', { href: `#/protocolli/${x.id}` }, v.heads[x.id]));
+  return h('div', { class: 'card', style: 'margin-top:1rem' },
+    h('h3', { style: 'margin-top:0' }, v.title), h('p', {}, T(v.intro)),
+    h('div', { class: 'vswrap' }, h('table', { class: 'vstable' },
+      h('thead', {}, h('tr', {}, h('th', {}, ''), ps.map(x => h('th', { class: x.id === p.id ? 'cur' : '' }, head(x), x.id === p.id ? h('span', { class: 'tag' }, 'questa scheda') : null)))),
+      h('tbody', {}, v.rows.map(r => h('tr', {}, h('th', { scope: 'row' }, r.label), ps.map(x => h('td', { class: x.id === p.id ? 'cur' : '' }, h('span', { class: 'vh' }, v.heads[x.id]), h('span', {}, r.values[x.id])))))))),
+    h('p', { style: 'margin-bottom:0' }, h('a', { href: `#/confronto/${v.ids.join(',')}` }, 'Apri i tre nel Confronto →')));
 }
 
 function commSection() {

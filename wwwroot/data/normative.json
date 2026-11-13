@@ -453,6 +453,38 @@
     "b": "Proteggi i modem HART e le cassette di campo; limita le scritture di parametri.",
     "p": "Protezione fisica, asset management con controllo delle modifiche, write protect sugli strumenti, segmentazione di gateway e multiplexer HART, WirelessHART con chiavi gestite."
    }
+  },
+  "opcuapubsub": {
+   "auth": "native",
+   "access": "partial",
+   "integ": "native",
+   "enc": "native",
+   "audit": "partial",
+   "exposure": "ip",
+   "note": {
+    "b": "I messaggi possono essere firmati e cifrati con chiavi condivise dal gruppo: chi non le ha non può leggere né falsificare i dati.",
+    "p": "Sicurezza a livello di messaggio (SecurityMode Sign o SignAndEncrypt) con chiavi simmetriche del SecurityGroup distribuite dal Security Key Service: l'autenticazione è di gruppo, non del singolo publisher, e il controllo degli accessi si applica al rilascio delle chiavi. Con il trasporto via broker si aggiunge TLS. Gli eventi di audit riguardano l'SKS e la configurazione, non i singoli messaggi."
+   },
+   "comp": {
+    "b": "Attiva firma e cifratura, proteggi il servizio che distribuisce le chiavi, tieni il multicast dentro la sua rete.",
+    "p": "SignAndEncrypt con rotazione delle chiavi, SKS protetto e ridondato, permessi minimi sui SecurityGroup, VLAN e filtri multicast (IGMP snooping), TLS e autenticazione sul broker, firewall al confine di zona."
+   }
+  },
+  "opcuafx": {
+   "auth": "native",
+   "access": "native",
+   "integ": "native",
+   "enc": "native",
+   "audit": "partial",
+   "exposure": "net",
+   "note": {
+    "b": "Eredita la sicurezza di OPC UA: certificati per stabilire le connessioni e messaggi firmati o cifrati per i dati.",
+    "p": "Connessioni stabilite in client/server su canale sicuro (certificati X.509, utenti e ruoli); dati in PubSub con sicurezza dei messaggi e chiavi di gruppo; verifica degli asset contro la sostituzione con dispositivi non previsti. Le funzioni realmente disponibili dipendono dai profili implementati dai prodotti, ancora poco diffusi."
+   },
+   "comp": {
+    "b": "Usa la sicurezza prevista dallo standard, gestisci i certificati e separa la rete in zone.",
+    "p": "Gestione centralizzata di certificati e trust list (GDS), SecurityMode SignAndEncrypt dove le prestazioni lo consentono, SKS protetto, segmentazione in zone e conduit, controllo degli accessi al Connection Manager."
+   }
   }
  },
  "howto": {

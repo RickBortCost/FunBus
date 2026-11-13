@@ -979,6 +979,76 @@
    ],
    "a": 0,
    "e": "Si applica dal 20/01/2027 e sostituisce la direttiva 2006/42/CE (verificare)."
+  },
+  {
+   "id": "b30",
+   "level": "beginner",
+   "d": 2,
+   "q": "In OPC UA PubSub, chi trasmette i dati sa quanti dispositivi li stanno ricevendo?",
+   "o": [
+    "No: pubblica senza sessioni e senza conferme",
+    "Sì: apre una sessione con ciascuno",
+    "Sì: ogni dispositivo deve rispondere a ogni messaggio",
+    "Solo se usa il Wi-Fi"
+   ],
+   "a": 0,
+   "e": "Publisher e subscriber sono disaccoppiati: è il subscriber a sorvegliare che i messaggi arrivino."
+  },
+  {
+   "id": "b31",
+   "level": "beginner",
+   "d": 2,
+   "q": "A che cosa serve soprattutto OPC UA FX?",
+   "o": [
+    "Far scambiare dati in tempo reale a controllori di costruttori diversi",
+    "Collegare sensori on/off con un cavo giallo",
+    "Accendere le luci di un edificio",
+    "Sostituire Internet"
+   ],
+   "a": 0,
+   "e": "FX porta OPC UA al livello di campo: prima di tutto la comunicazione controllore-controllore."
+  },
+  {
+   "id": "p45",
+   "level": "professional",
+   "d": 2,
+   "q": "Come ottengono publisher e subscriber le chiavi per firmare e cifrare i NetworkMessage PubSub?",
+   "o": [
+    "Dal Security Key Service, per SecurityGroup",
+    "Con un handshake TLS tra publisher e ogni subscriber",
+    "Sono scritte in chiaro nei DataSetMetaData",
+    "Dal server DHCP"
+   ],
+   "a": 0,
+   "e": "L'SKS distribuisce chiavi simmetriche di gruppo (GetSecurityKeys): non c'è alcun handshake tra publisher e subscriber."
+  },
+  {
+   "id": "p46",
+   "level": "professional",
+   "d": 3,
+   "q": "In OPC UA FX, quale servizio usa il Connection Manager per creare una connessione tra due FunctionalEntity?",
+   "o": [
+    "Il metodo EstablishConnections, in client/server",
+    "Un Forward_Open",
+    "Un CONNECT verso il broker",
+    "Un DCP Identify"
+   ],
+   "a": 0,
+   "e": "EstablishConnections verifica gli asset, riserva la comunicazione e abilita i ConnectionEndpoint; poi i dati viaggiano in PubSub."
+  },
+  {
+   "id": "p47",
+   "level": "professional",
+   "d": 2,
+   "q": "Quale EtherType identifica OPC UA UADP trasportato direttamente su Ethernet?",
+   "o": [
+    "0xB62C",
+    "0x8892",
+    "0x88A4",
+    "0x0800"
+   ],
+   "a": 0,
+   "e": "0xB62C = OPC UA (UADP). 0x8892 = PROFINET, 0x88A4 = EtherCAT, 0x0800 = IPv4."
   }
  ]
 }

@@ -189,6 +189,26 @@
    "t": "Security Level (SL)",
    "b": "Il livello di protezione di un sistema o componente, da 1 a 4.",
    "p": "Livello IEC 62443 (SL 1–4) riferito al tipo di avversario atteso; si distinguono SL-T (target), SL-C (capability) e SL-A (achieved)."
+  },
+  {
+   "t": "UADP",
+   "b": "Il formato compatto dei messaggi di OPC UA PubSub, pensato per essere letto in fretta dalle macchine.",
+   "p": "UA Datagram Protocol: codifica binaria dei NetworkMessage PubSub (intestazioni opzionali, DataSetMessage, sicurezza), su UDP o direttamente su Ethernet (EtherType 0xB62C); con layout fisso è adatta al tempo reale."
+  },
+  {
+   "t": "SKS (Security Key Service)",
+   "b": "Il servizio che consegna le chiavi segrete a chi è autorizzato a trasmettere o ascoltare i messaggi PubSub.",
+   "p": "Servizio OPC UA che genera e distribuisce le chiavi simmetriche di un SecurityGroup (metodo GetSecurityKeys, o invio push): publisher e subscriber autorizzati firmano e cifrano i NetworkMessage con le stesse chiavi, rinnovate periodicamente."
+  },
+  {
+   "t": "Connection Manager (OPC UA FX)",
+   "b": "Il «regista» che mette d'accordo due controllori su quali dati scambiarsi; poi si fa da parte.",
+   "p": "Client OPC UA che crea le connessioni tra FunctionalEntity chiamando EstablishConnections sugli AutomationComponent; può risiedere in un controllore o in uno strumento esterno e non partecipa allo scambio ciclico dei dati."
+  },
+  {
+   "t": "FunctionalEntity (OPC UA FX)",
+   "b": "Una funzione di un dispositivo (per esempio «nastro» o «dosatore») con i suoi dati in ingresso e in uscita.",
+   "p": "Elemento logico dell'information model FX, contenuto in un AutomationComponent: espone InputData, OutputData e parametri, ed è l'estremità delle connessioni; è distinto dagli Asset, che descrivono la parte fisica."
   }
  ]
 }
