@@ -4,6 +4,7 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { IT_RE, NOT_ITALIAN } from './italian.mjs';
 
 const root = path.resolve('wwwroot');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
@@ -18,6 +19,19 @@ const data = id => JSON.parse(fs.readFileSync(`wwwroot/data/${id}.json`, 'utf8')
 const ids = data('protocols').protocols.map(p => p.id);
 const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/test/rete', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
 const errs = [];
+// In inglese non deve restare testo italiano (testi composti in pagina compresi): euristica condivisa con tests/i18n.mjs
+const italianLeft = pg => pg.evaluate(([src, not]) => {
+  const re = new RegExp(src, 'i'), skip = not.map(x => new RegExp(x)), out = new Set();
+  const test = t => t && re.test(t) && !skip.some(r => r.test(t));
+  const walk = n => {
+    if (n.nodeType === 3) { const t = n.nodeValue.trim(); if (test(t)) out.add(t); }
+    else if (n.nodeType === 1 && n.tagName !== 'SCRIPT' && n.tagName !== 'STYLE') { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = n.getAttribute(a); if (test(v)) out.add(`[${a}] ${v}`); } n.childNodes.forEach(walk); }
+  };
+  walk(document.body);
+  return [...out];
+}, [IT_RE.source, NOT_ITALIAN.map(r => r.source)]);
+const italianSeen = new Set();
+const checkEnglish = async (pg, where) => { for (const t of await italianLeft(pg)) if (!italianSeen.has(t)) { italianSeen.add(t); errs.push(`testo italiano in inglese (${where}): «${t.slice(0, 120)}»`); } };
 const b = await chromium.launch();
 for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile', { width: 390, height: 800 }]]) {
   const pg = await b.newPage({ viewport: vp });
@@ -29,7 +43,8 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       await pg.evaluate(h => (location.hash = h), r); await pg.waitForTimeout(80);
       const t = await pg.textContent('#app');
       if (t.length < 20 || t.startsWith('Errore')) errs.push(`${label}/${lang}/${lv} ${r}: pagina vuota o in errore`);
-      if (ids.includes(r.split('/')[2]) && lv === 'lvP') { await pg.click('button[role=tab] >> nth=1'); await pg.waitForTimeout(60); if (!(await pg.locator('.seq svg').count())) errs.push(`${label}/${lang} ${r}: animazione senza diagramma`); }
+      if (lang === 'en') await checkEnglish(pg, `${lv} ${r}`);
+      if (ids.includes(r.split('/')[2]) && lv === 'lvP') { await pg.click('button[role=tab] >> nth=1'); await pg.waitForTimeout(60); if (!(await pg.locator('.seq svg').count())) errs.push(`${label}/${lang} ${r}: animazione senza diagramma`); if (lang === 'en') await checkEnglish(pg, `${lv} ${r} animazione`); }
       if (label === 'mobile' && !r.startsWith('/confronto')) {
         const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (ov > 2) errs.push(`mobile/${lv} ${r}: overflow orizzontale ${ov}px`);

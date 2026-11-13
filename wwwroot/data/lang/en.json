@@ -3025,9 +3025,16 @@
 "Le richieste confermate vanno in timeout (APDU_Timeout, proprietà del dispositivo: tipicamente da 3 a 10 s) e sono ripetute Number_Of_APDU_Retries volte (3 per impostazione predefinita). Le notifiche COV non confermate si perdono senza avviso: per questo le sottoscrizioni hanno un lifetime e vanno rinnovate, spesso affiancate da un polling lento di controllo.": "Confirmed requests time out (APDU_Timeout, a device property: typically 3 to 10 s) and are repeated Number_Of_APDU_Retries times (3 by default). Unconfirmed COV notifications are lost without warning: that is why subscriptions have a lifetime and must be renewed, often backed by a slow check poll.",
 "Fonti e riferimenti": "Sources and references",
 "Siemens (documentazione di prodotto); Wireshark (dissector S7comm)": "Siemens (product documentation); Wireshark (S7comm dissector)",
-"ODVA – The CIP Networks Library, Vol. 1 e Vol. 2": "ODVA – The CIP Networks Library, Vol. 1 and Vol. 2"
+"ODVA – The CIP Networks Library, Vol. 1 e Vol. 2": "ODVA – The CIP Networks Library, Vol. 1 and Vol. 2",
+"Read Holding Registers. 0x83 = eccezione sulla stessa funzione.": "Read Holding Registers. 0x83 = exception on the same function.",
+"Fine frame e spazio tra frame.": "End of frame and interframe space.",
+"0x16 è l'ED.": "0x16 is the ED."
 },
 "patterns": [
+[
+"^⬆ Livello (\\d+): (.*)$",
+"⬆ Level $1: $2"
+],
 [
 "^(.+?[.)]) — (.+)$",
 "$1 — $2"
