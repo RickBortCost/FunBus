@@ -11,7 +11,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <!-- Versione mostrata nelle proprietà dell'exe e nell'app. Sovrascrivibile: -p:Version=x.y.z -->
-    <Version>1.18.0</Version>
+    <Version>1.19.0</Version>
     <FileVersion>$(Version).0</FileVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Product>FunBus by Riccardo Bortolussi</Product>

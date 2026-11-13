@@ -4,7 +4,7 @@ export const S = { lang: 'it', raw: null, level: 'beginner', levelChosen: false,
 export const defProgress = () => ({
   xp: 0, xpPro: 0, badges: {},
   stats: { quizDone: 0, bestStreak: 0, quizBest: {}, matchPerfect: 0 },
-  matchDone: {}, scenariosSolved: [], visited: [], animated: [], wrong: [], built: []
+  matchDone: {}, scenariosSolved: [], visited: [], animated: [], wrong: [], built: [], topoSeen: [], lessons: {}, lessonsAwarded: []
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');
@@ -38,7 +38,7 @@ export function onColor(hex, min = 4.5) {
 }
 export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-export const DATA_FILES = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode', 'normative', 'topologies'];
+export const DATA_FILES = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode', 'normative', 'topologies', 'path'];
 export async function loadData(onStep = () => {}) {
   const names = DATA_FILES;
   const res = await Promise.all(names.map(n => fetch(`data/${n}.json`, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(n); return r.json(); }).then(j => { onStep(n); return j; })));
@@ -82,6 +82,19 @@ export function levelInfo(xp = S.progress.xp) {
   return { index: i, name: names[i], base: th[i], next, pct: next ? Math.round(((xp - th[i]) / (next - th[i])) * 100) : 100 };
 }
 
+// Percorso guidato: un passo è fatto quando lo dicono i progressi già registrati (schede aperte, animazioni avviate, …)
+export function stepDone(s, lesson) {
+  const p = S.progress;
+  if (s.type === 'card') return p.visited.includes(s.id);
+  if (s.type === 'anim') return p.animated.includes(s.id);
+  if (s.type === 'topo') return (p.topoSeen || []).includes(s.id);
+  if (s.type === 'scenario') return p.scenariosSolved.length >= s.n;
+  if (s.type === 'build') return (p.built || []).length >= s.n;
+  if (s.type === 'quiz') return (p.lessons?.[lesson.id] ?? -1) >= (S.data.path.passPct || 0);
+  return false;
+}
+export const lessonDone = l => l.steps.every(s => stepDone(s, l));
+
 const BADGE_COND = {
   first_quiz: p => p.stats.quizDone >= 1,
   quiz_90: p => Object.values(p.stats.quizBest).some(v => v >= 90),
@@ -92,7 +105,8 @@ const BADGE_COND = {
   animator: p => p.animated.length >= 4,
   pro: p => p.xpPro >= 100,
   builder: p => (p.built || []).length >= 3,
-  architect: p => (p.built || []).length >= 5
+  architect: p => (p.built || []).length >= 5,
+  graduate: () => !!S.data.path?.lessons.length && S.data.path.lessons.every(lessonDone)
 };
 
 export function checkBadges() {

@@ -6,6 +6,7 @@ import * as extra from './extra.js';
 import { normative } from './normative.js';
 import { topologie } from './topo.js';
 import { build } from './build.js';
+import { percorso, backToLesson } from './path.js';
 import { loadDict, translateData, startDomLocalizer } from './i18n.js';
 
 const app = document.getElementById('app');
@@ -13,15 +14,15 @@ let cleanups = [];
 
 function parse() {
   const p = (location.hash.replace(/^#\/?/, '') || '').split('/');
-  return { root: p[0] || 'home', sub: p[1] };
+  return { root: p[0] || 'home', sub: p[1], arg: p[2] };
 }
 
 let lastHash = null;
 function render(scroll = false) {
   cleanups.splice(0).forEach(f => f());
   app.replaceChildren();
-  const { root, sub } = parse();
-  const ctx = { rerender: render, cleanups, id: sub };
+  const { root, sub, arg } = parse();
+  const ctx = { rerender: render, cleanups, id: sub, arg };
   try {
     if (root === 'home') pages.home(app, ctx);
     else if (root === 'protocolli') (sub ? pages.protocol : pages.protocols)(app, ctx);
@@ -31,11 +32,13 @@ function render(scroll = false) {
     else if (root === 'glossario') extra.glossario(app, ctx);
     else if (root === 'normative') normative(app, ctx);
     else if (root === 'topologie') topologie(app, ctx);
+    else if (root === 'percorso') percorso(app, ctx);
     else if (root === 'approfondimenti') extra.approfondimenti(app, ctx);
     else if (root === 'strumenti') extra.strumenti(app, ctx);
     else if (root === 'certificato') extra.certificato(app, ctx);
     else pages.home(app, ctx);
   } catch (e) { app.append(h('pre', {}, 'Errore: ' + e.message)); console.error(e); }
+  const back = backToLesson(root); if (back) app.append(back);
   app.classList.toggle('wide', root === 'confronto');
   document.querySelectorAll('#nav a').forEach(a => { const on = a.dataset.r === root; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   // transizione leggera solo al cambio di pagina (disattivata da prefers-reduced-motion nel CSS)

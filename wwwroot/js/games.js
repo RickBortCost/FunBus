@@ -1,4 +1,4 @@
-import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress } from './core.js';
+import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress, protoById } from './core.js';
 import { exportProgress, importProgress } from './extra.js';
 import { badgeArt, hasArt } from './badges.js';
 
@@ -19,14 +19,20 @@ export function hub(app) {
 }
 
 /* ---------- QUIZ ---------- */
-export function quiz(app, ctx, review = false) {
+// Dove ripassare l'argomento di una domanda: le schede dei protocolli o la pagina dell'argomento.
+const AREA = { base: ['#/glossario', 'Glossario'], topologie: ['#/topologie', 'Topologie'], sicurezza: ['#/normative', 'Normative'] };
+const reviewLinks = q => [...(q.protos || []).map(id => protoById(id)).filter(Boolean).map(p => [`#/protocolli/${p.id}`, p.name]), ...(q.area || []).filter(a => AREA[a]).map(a => AREA[a])];
+
+// opts (quiz di lezione): filter(q), count, title, empty, back { href, label, text }, onEnd(pct) → nodo da mostrare nel risultato
+export function quiz(app, ctx, review = false, opts = {}) {
   const cfg = S.data.game.quiz;
   S.progress.wrong ||= [];
-  const pool = S.data.quiz.questions.filter(q => q.level === lvKey() && (!review || S.progress.wrong.includes(q.id)));
-  const qs = shuffle(pool).slice(0, cfg.questions).sort((a, b) => a.d - b.d);
+  const pool = S.data.quiz.questions.filter(q => q.level === lvKey() && (!review || S.progress.wrong.includes(q.id)) && (!opts.filter || opts.filter(q)));
+  const qs = shuffle(pool).slice(0, opts.count || cfg.questions).sort((a, b) => a.d - b.d);
   let i = 0, score = 0, ok = 0, streak = 0, best = 0;
+  const missed = new Map(); // argomenti delle risposte sbagliate, da ripassare
   const box = h('div');
-  app.append(h('a', { href: '#/test' }, '← Test'), h('h1', {}, review ? 'Ripasso errori' : 'Quiz'), box);
+  app.append(opts.back ? h('a', { href: opts.back.href }, opts.back.label, h('span', {}, opts.back.text)) : h('a', { href: '#/test' }, '← Test'), h('h1', {}, opts.title || (review ? 'Ripasso errori' : 'Quiz')), box);
 
   const next = () => { i++; i < qs.length ? ask() : end(); };
   const ask = () => {
@@ -43,7 +49,7 @@ export function quiz(app, ctx, review = false) {
         let pts = 0;
         const w = S.progress.wrong; const wi = w.indexOf(q.id);
         if (right && wi >= 0) w.splice(wi, 1); if (!right && wi < 0) w.push(q.id);
-        if (right) { ok++; streak++; best = Math.max(best, streak); pts = q.d * cfg.pointsPerDifficulty + (streak >= 3 ? cfg.streakBonus : 0); score += pts; } else streak = 0;
+        if (right) { ok++; streak++; best = Math.max(best, streak); pts = q.d * cfg.pointsPerDifficulty + (streak >= 3 ? cfg.streakBonus : 0); score += pts; } else { streak = 0; for (const [href, name] of reviewLinks(q)) missed.set(href, name); }
         fb.replaceChildren(h('div', { class: 'fb ' + (right ? 'ok' : 'ko') }, h('strong', {}, right ? `Corretto! +${pts} punti${streak >= 3 ? ' (bonus serie)' : ''}` : 'Non esatto. '), ' ', q.e));
         nextBtn.style.display = '';
         nextBtn.focus();
@@ -60,11 +66,13 @@ export function quiz(app, ctx, review = false) {
     st.quizDone++; st.bestStreak = Math.max(st.bestStreak, best);
     st.quizBest[lvKey()] = Math.max(st.quizBest[lvKey()] || 0, pct);
     addXP(score);
+    const extra = opts.onEnd?.(pct);
     box.replaceChildren(h('div', { class: 'card' }, h('h2', {}, `Risultato: ${ok}/${qs.length} (${pct}%)`),
-      h('p', {}, `Punti guadagnati: ${score} XP · Miglior serie: ${best}`),
-      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => location.reload() }, 'Rigioca'), h('a', { class: 'btn', href: '#/test' }, 'Torna ai test'))));
+      h('p', {}, `Punti guadagnati: ${score} XP · Miglior serie: ${best}`), extra || null,
+      missed.size ? h('p', { class: 'review' }, h('strong', {}, 'Da ripassare:'), ' ', [...missed].flatMap(([href, name], k) => [k ? ' · ' : '', h('a', { href }, name)])) : null,
+      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => location.reload() }, 'Rigioca'), opts.back ? h('a', { class: 'btn', href: opts.back.href }, opts.back.text) : h('a', { class: 'btn', href: '#/test' }, 'Torna ai test'))));
   };
-  qs.length ? ask() : box.append(h('p', {}, review ? 'Nessun errore da ripassare: ottimo!' : 'Nessuna domanda disponibile per questo livello.'));
+  qs.length ? ask() : box.append(h('p', {}, opts.empty || (review ? 'Nessun errore da ripassare: ottimo!' : 'Nessuna domanda disponibile per questo livello.')));
 }
 
 /* ---------- COLLEGA LE SCHEDE ---------- */
