@@ -13,6 +13,11 @@ jobs:
           node-version: 22
       - run: node tests/validate.mjs
       - run: node tests/i18n.mjs
+      - name: Formato e lint del JavaScript
+        run: |
+          npm i --no-save prettier@3.8.1 eslint@10
+          npx prettier --check "wwwroot/js/**/*.js" "tests/**/*.mjs" eslint.config.mjs
+          npx eslint wwwroot/js tests eslint.config.mjs
       - run: npm i --no-save playwright && npx playwright install --with-deps chromium
       - run: node tests/smoke.mjs
   server:

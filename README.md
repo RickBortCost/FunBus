@@ -8,6 +8,7 @@ node tests/validate.mjs                           # contenuti JSON, traduzioni, 
 node tests/i18n.mjs                               # ogni testo italiano (dati e interfaccia) ha la sua voce nel dizionario EN
 NODE_PATH=$(npm root -g) node tests/smoke.mjs     # Playwright: pagine, lingue, livelli, desktop e 390 px
 node tests/server.mjs                             # server C#: file incorporati, API, --export-content, cartella content (serve l'SDK .NET 8)
+npx prettier --check "wwwroot/js/**/*.js" "tests/**/*.mjs" eslint.config.mjs && npx eslint wwwroot/js tests eslint.config.mjs   # formato e lint (prettier 3, eslint 10)
 ```
 
 ## Build

@@ -2,13 +2,24 @@
 export const S = { lang: 'it', raw: null, level: 'beginner', levelChosen: false, theme: null, progress: null, data: {} };
 
 export const defProgress = () => ({
-  xp: 0, xpPro: 0, badges: {},
+  xp: 0,
+  xpPro: 0,
+  badges: {},
   stats: { quizDone: 0, bestStreak: 0, quizBest: {}, matchPerfect: 0 },
-  matchDone: {}, scenariosSolved: [], visited: [], animated: [], wrong: [], built: [], topoSeen: [], lessons: {}, lessonsAwarded: []
+  matchDone: {},
+  scenariosSolved: [],
+  visited: [],
+  animated: [],
+  wrong: [],
+  built: [],
+  topoSeen: [],
+  lessons: {},
+  lessonsAwarded: [],
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');
-export const T = v => (v == null ? '' : (typeof v === 'string' || Array.isArray(v) || typeof v === 'number' ? v : v[L()] ?? v.p ?? v.b ?? ''));
+export const T = v =>
+  v == null ? '' : typeof v === 'string' || Array.isArray(v) || typeof v === 'number' ? v : (v[L()] ?? v.p ?? v.b ?? '');
 export const isPro = () => S.level === 'professional';
 
 export function h(tag, attrs, ...kids) {
@@ -36,12 +47,44 @@ export function onColor(hex, min = 4.5) {
   const l = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   return 1.05 / (l + 0.05) >= min ? '#fff' : '#0b1520';
 }
-export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+export const shuffle = a => {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
 
-export const DATA_FILES = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode', 'normative', 'topologies', 'course'];
+export const DATA_FILES = [
+  'protocols',
+  'animations',
+  'quiz',
+  'matching',
+  'scenarios',
+  'game',
+  'glossary',
+  'topics',
+  'decode',
+  'normative',
+  'topologies',
+  'course',
+];
 export async function loadData(onStep = () => {}) {
   const names = DATA_FILES;
-  const res = await Promise.all(names.map(n => fetch(`data/${n}.json`, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(n); return r.json(); }).then(j => { onStep(n); return j; })));
+  const res = await Promise.all(
+    names.map(n =>
+      fetch(`data/${n}.json`, { cache: 'no-cache' })
+        .then(r => {
+          if (!r.ok) throw new Error(n);
+          return r.json();
+        })
+        .then(j => {
+          onStep(n);
+          return j;
+        }),
+    ),
+  );
   names.forEach((n, i) => (S.data[n] = res[i]));
   S.raw = S.data;
 }
@@ -51,15 +94,34 @@ export function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
     const body = JSON.stringify({ lang: S.lang, level: S.level, levelChosen: S.levelChosen, theme: S.theme, progress: S.progress });
-    try { localStorage.setItem('ipl', body); } catch { /* ignora */ }
-    try { await fetch('/api/state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body }); } catch { /* ignora */ }
+    try {
+      localStorage.setItem('ipl', body);
+    } catch {
+      /* ignora */
+    }
+    try {
+      await fetch('/api/state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
+    } catch {
+      /* ignora */
+    }
   }, 250);
 }
 
 export async function loadState() {
   let st = {};
-  try { const r = await fetch('/api/state'); if (r.ok) st = await r.json(); } catch { /* ignora */ }
-  if (!st.progress) { try { st = JSON.parse(localStorage.getItem('ipl') || '{}'); } catch { st = {}; } }
+  try {
+    const r = await fetch('/api/state');
+    if (r.ok) st = await r.json();
+  } catch {
+    /* ignora */
+  }
+  if (!st.progress) {
+    try {
+      st = JSON.parse(localStorage.getItem('ipl') || '{}');
+    } catch {
+      st = {};
+    }
+  }
   S.level = st.level === 'professional' ? 'professional' : 'beginner';
   S.levelChosen = !!st.levelChosen;
   S.lang = st.lang === 'en' ? 'en' : 'it';
@@ -75,7 +137,8 @@ export function toast(msg) {
 }
 
 export function levelInfo(xp = S.progress.xp) {
-  const th = S.data.game.xpPerLevel, names = S.data.game.levelNames;
+  const th = S.data.game.xpPerLevel,
+    names = S.data.game.levelNames;
   let i = 0;
   while (i + 1 < th.length && xp >= th[i + 1]) i++;
   const next = th[i + 1];
@@ -106,7 +169,7 @@ const BADGE_COND = {
   pro: p => p.xpPro >= 100,
   builder: p => (p.built || []).length >= 3,
   architect: p => (p.built || []).length >= 5,
-  graduate: () => !!S.data.course?.lessons.length && S.data.course.lessons.every(lessonDone)
+  graduate: () => !!S.data.course?.lessons.length && S.data.course.lessons.every(lessonDone),
 };
 
 export function checkBadges() {
@@ -120,7 +183,10 @@ export function checkBadges() {
 }
 
 export function addXP(n) {
-  if (n <= 0) { save(); return; }
+  if (n <= 0) {
+    save();
+    return;
+  }
   const before = levelInfo().index;
   S.progress.xp += n;
   if (isPro()) S.progress.xpPro += n;
@@ -132,7 +198,11 @@ export function addXP(n) {
 
 export function mark(listName, id) {
   const l = S.progress[listName];
-  if (!l.includes(id)) { l.push(id); checkBadges(); save(); }
+  if (!l.includes(id)) {
+    l.push(id);
+    checkBadges();
+    save();
+  }
 }
 
 export const protoById = id => S.data.protocols.protocols.find(p => p.id === id);
