@@ -17,4 +17,12 @@ publish\FunBus.exe --export-content   # crea content\ modificabile senza ricompi
 ```
 La versione (es. `-p:Version=1.2.0`) compare nelle proprietà dell'exe e nel piè di pagina dell'app. Le release si creano con un tag `v*` (workflow `release`).
 
+## Firma digitale dell'exe (facoltativa)
+Senza firma Windows SmartScreen mostra un avviso al primo avvio. Il workflow `release` firma `FunBus.exe` (Authenticode, SHA-256, con marca temporale) se nel repository esistono due segreti in *Settings → Secrets and variables → Actions*:
+
+- `SIGN_PFX_BASE64`: il certificato di firma del codice in formato `.pfx`, codificato in base64 (`base64 -w0 certificato.pfx`);
+- `SIGN_PFX_PASSWORD`: la password del `.pfx`.
+
+La variabile facoltativa `SIGN_TIMESTAMP_URL` cambia il server di marca temporale (predefinito `http://timestamp.digicert.com`). Se i segreti mancano, l'exe viene pubblicato non firmato come prima. Serve un certificato di firma del codice rilasciato da una CA riconosciuta da Windows: uno autofirmato non elimina l'avviso, e anche con un certificato valido la reputazione SmartScreen si costruisce con i download (subito solo con i certificati EV). I certificati conservati su token o HSM non si possono esportare in `.pfx`: in quel caso va usato il servizio di firma del fornitore.
+
 I pittogrammi dei protocolli sono originali, non i loghi ufficiali (marchi dei rispettivi titolari).
