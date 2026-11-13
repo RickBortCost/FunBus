@@ -3005,7 +3005,7 @@
    },
    "crc": {
     "b": "Il messaggio rovinato viene scartato e il master ripete lo scambio; se succede spesso, la porta va in errore.",
-    "p": "Ogni M-sequence è protetta da un checksum a 6 bit (in CKT e CKS) oltre alla parità di ogni byte UART. In caso di errore il master ripete il messaggio (fino a 2 tentativi), poi considera persa la comunicazione sulla porta."
+    "p": "Ogni M-sequence è protetta da un checksum a 6 bit (in CKT e CKS) oltre alla parità di ogni byte UART. In caso di errore il master ripete il messaggio (tipicamente 2 tentativi): al terzo fallimento considera persa la comunicazione sulla porta."
    }
   }
  },
@@ -3381,7 +3381,7 @@
      "s3"
     ],
     "b": "Il cavo giallo si interrompe prima dello Slave 3: lo slave resta senza dati e anche senza alimentazione, perché viaggiano sullo stesso cavo. Il master lo segnala come mancante.",
-    "p": "Lo slave non risponde alle chiamate: dopo più errori consecutivi (tipicamente 3 cicli) il master lo toglie dalla lista degli slave attivi (LAS) e segnala un errore di configurazione; i suoi ingressi vengono azzerati nell'immagine di processo. Il resto della rete continua: AS-i non richiede terminazioni."
+    "p": "Lo slave non risponde alle chiamate: dopo tre scambi dati consecutivi senza risposta il master lo toglie dalla lista degli slave attivi (LAS) e segnala un errore di configurazione; i suoi ingressi vengono azzerati nell'immagine di processo. Il resto della rete continua: AS-i non richiede terminazioni."
    },
    "node": {
     "id": "s2",
@@ -3609,7 +3609,7 @@
      "c2"
     ],
     "b": "Il sensore di sala non è più raggiungibile: il supervisore non riceve aggiornamenti e, dopo un po', mostra il punto come fuori linea.",
-    "p": "Le richieste confermate vanno in timeout (APDU_Timeout, tipicamente 3–10 s) e sono ripetute per Number_Of_APDU_Retries. Le notifiche COV non confermate si perdono senza avviso: per questo le sottoscrizioni hanno un lifetime e vanno rinnovate, spesso affiancate da un polling lento di controllo."
+    "p": "Le richieste confermate vanno in timeout (APDU_Timeout, proprietà del dispositivo: tipicamente da 3 a 10 s) e sono ripetute Number_Of_APDU_Retries volte (3 per impostazione predefinita). Le notifiche COV non confermate si perdono senza avviso: per questo le sottoscrizioni hanno un lifetime e vanno rinnovate, spesso affiancate da un polling lento di controllo."
    },
    "node": {
     "id": "c1",

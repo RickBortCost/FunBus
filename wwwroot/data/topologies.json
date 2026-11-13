@@ -191,7 +191,7 @@
       },
       {
        "b": "Guasto! I beacon non completano più il giro: il supervisor se ne accorge in un paio di millisecondi.",
-       "p": "I nodi adiacenti al guasto inviano Link_Status al supervisor; in ogni caso il supervisor rileva la perdita dei beacon entro il beacon timeout (1,96 ms predefinito)."
+       "p": "I nodi adiacenti al guasto inviano Link_Status al supervisor; in ogni caso il supervisor rileva la perdita dei beacon entro il beacon timeout (circa 2 ms con i valori predefiniti; almeno il doppio dell'intervallo dei beacon)."
       },
       {
        "b": "Il supervisor apre la porta bloccata e avvisa tutti che la strada è cambiata.",

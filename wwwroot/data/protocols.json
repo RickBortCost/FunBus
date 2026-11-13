@@ -115,7 +115,8 @@
     ]
    ],
    "notes": [
-    "Classi di conformità, TSN e Security Class dipendono dalla versione della specifica (V2.3/V2.4) e dai dispositivi: verificare la documentazione del costruttore."
+    "Classi di conformità, TSN e Security Class dipendono dalla versione della specifica (V2.3/V2.4) e dai dispositivi: verificare la documentazione del costruttore.",
+    "Nei confronti e nei grafici PROFINET è classificato «hard real-time»: vale per IRT (e per i profili con TSN); PROFINET RT è soft real-time, con tempi tipici ma non garantiti."
    ],
    "attrs": {
     "ethernet": true,
@@ -167,7 +168,21 @@
     "conn": "rj45",
     "cable": "#2e9e4f",
     "text": "Cavo Ethernet industriale verde a 2 coppie (4 fili), con connettori RJ45 o M12 D-coded; fino a 100 m per tratta in rame."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 / IEC 61784-2 (CPF 3)",
+     "d": "Servizi, protocolli e profili di PROFINET IO (RT e IRT)."
+    },
+    {
+     "n": "PROFIBUS & PROFINET International (PI)",
+     "d": "Linee guida di progetto, installazione e messa in servizio; classi di conformità."
+    },
+    {
+     "n": "IEC 62439-2",
+     "d": "Media Redundancy Protocol (MRP) per le topologie ad anello."
+    }
+   ]
   },
   {
    "id": "profibus",
@@ -298,7 +313,17 @@
     "conn": "dsub9",
     "cable": "#7d3c98",
     "text": "Cavo viola schermato a due fili (tipo A) e connettore D-sub a 9 poli con terminazione inseribile; PROFIBUS PA usa invece cavo e morsetti per l'area di processo."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 (Type 3) / IEC 61784-1 (CPF 3)",
+     "d": "PROFIBUS DP e PA: livello fisico, FDL e livello applicativo."
+    },
+    {
+     "n": "PROFIBUS & PROFINET International (PI)",
+     "d": "Linee guida di installazione: cavi, terminazioni, lunghezze e velocità."
+    }
+   ]
   },
   {
    "id": "s7",
@@ -433,7 +458,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Viaggia sulla rete Ethernet dell'impianto (RJ45), tra PC, HMI e PLC; storicamente anche su MPI e PROFIBUS."
-   }
+   },
+   "sources": [
+    {
+     "n": "RFC 1006, ISO/IEC 8073 (COTP)",
+     "d": "Trasporto ISO-on-TCP usato da S7comm sulla porta 102."
+    },
+    {
+     "n": "Siemens (documentazione di prodotto); Wireshark (dissector S7comm)",
+     "d": "Il protocollo S7 è proprietario e non pubblicato ufficialmente: i dettagli dei PDU vengono dalla documentazione dei prodotti e da analisi di terzi."
+    }
+   ]
   },
   {
    "id": "ethercat",
@@ -566,7 +601,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Cavo Ethernet standard (100BASE-TX) con RJ45 o M8/M12: ogni slave ha una porta di ingresso e una di uscita. EtherCAT P porta sullo stesso cavo anche l'alimentazione."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 (Type 12) / IEC 61784-2 (CPF 12)",
+     "d": "Protocollo EtherCAT."
+    },
+    {
+     "n": "ETG.1000 – EtherCAT Specification",
+     "d": "Specifica dell'EtherCAT Technology Group: livello fisico, data link e applicazione (registri ESC, Distributed Clocks, mailbox)."
+    }
+   ]
   },
   {
    "id": "ads",
@@ -695,7 +740,13 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Normale rete Ethernet/TCP-IP tra PC e controllori TwinCAT; sulla stessa macchina i messaggi passano dal router AMS, senza cavo."
-   }
+   },
+   "sources": [
+    {
+     "n": "Beckhoff Information System – ADS/AMS Specification",
+     "d": "Intestazioni AMS/TCP e AMS, comandi ADS e codici di ritorno."
+    }
+   ]
   },
   {
    "id": "mqtt",
@@ -831,7 +882,17 @@
     "cable": "#7f8c8d",
     "wire": "any",
     "text": "Qualsiasi rete IP: Ethernet, Wi-Fi o rete cellulare, verso un broker in locale o nel cloud."
-   }
+   },
+   "sources": [
+    {
+     "n": "OASIS MQTT 3.1.1 (ISO/IEC 20922:2016)",
+     "d": "La versione più diffusa del protocollo."
+    },
+    {
+     "n": "OASIS MQTT 5.0",
+     "d": "Reason code, proprietà, scadenza della sessione."
+    }
+   ]
   },
   {
    "id": "opcua",
@@ -968,7 +1029,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Rete Ethernet/TCP-IP (porta 4840 per il protocollo binario): dal PLC ai sistemi di supervisione e IT."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 62541 (OPC 10000), Part 3–6",
+     "d": "Address space, servizi, information model e mapping (UA TCP, sicurezza)."
+    },
+    {
+     "n": "OPC Foundation – OPC UA Online Reference",
+     "d": "Testo delle specifiche consultabile in linea."
+    }
+   ]
   },
   {
    "id": "opcuapubsub",
@@ -1108,7 +1179,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Sulla rete Ethernet/IP dell'impianto: UDP multicast tra controllori, direttamente su Ethernet con TSN, oppure verso un broker MQTT/AMQP per IT e cloud."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 62541-14 (OPC 10000-14)",
+     "d": "PubSub: modello, messaggi UADP e JSON, trasporti e sicurezza."
+    },
+    {
+     "n": "IEEE 802.1Q",
+     "d": "VLAN, priorità e funzioni TSN usate dal trasporto su Ethernet."
+    }
+   ]
   },
   {
    "id": "opcuafx",
@@ -1249,7 +1330,21 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Ethernet standard tra controllori di costruttori diversi; switch TSN per i flussi deterministici ed Ethernet-APL per l'area di processo."
-   }
+   },
+   "sources": [
+    {
+     "n": "OPC 10000-80, -81, -82, -83, -84 (OPC UA FX)",
+     "d": "Concetti, information model e connessioni, rete, ingegneria offline, profili."
+    },
+    {
+     "n": "IEC/IEEE 60802",
+     "d": "Profilo TSN per l'automazione industriale."
+    },
+    {
+     "n": "IEC 62541-15 (OPC 10000-15)",
+     "d": "OPC UA Safety."
+    }
+   ]
   },
   {
    "id": "enip",
@@ -1385,7 +1480,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Ethernet standard con connettori RJ45 o M12 D-coded; i dispositivi a due porte permettono linea e anello DLR."
-   }
+   },
+   "sources": [
+    {
+     "n": "ODVA – The CIP Networks Library, Vol. 1 e Vol. 2",
+     "d": "Common Industrial Protocol e suo adattamento a Ethernet (EtherNet/IP), compresi DLR e CIP Security."
+    },
+    {
+     "n": "IEC 61158 (Type 2) / IEC 61784-1, -2 (CPF 2)",
+     "d": "Versione normativa IEC della famiglia CIP."
+    }
+   ]
   },
   {
    "id": "modbus",
@@ -1520,7 +1625,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Ethernet standard con RJ45 (porta TCP 502); un gateway collega le linee seriali Modbus RTU."
-   }
+   },
+   "sources": [
+    {
+     "n": "Modbus Organization – MODBUS Application Protocol Specification V1.1b3",
+     "d": "Function code, modello dati ed eccezioni."
+    },
+    {
+     "n": "Modbus Organization – MODBUS Messaging on TCP/IP Implementation Guide V1.0b",
+     "d": "Intestazione MBAP e uso di TCP."
+    }
+   ]
   },
   {
    "id": "canopen",
@@ -1653,7 +1768,21 @@
     "conn": "dsub9",
     "cable": "#7d3c98",
     "text": "Doppino schermato CAN_H/CAN_L con terminazioni da 120 Ω alle due estremità; connettore D-sub a 9 poli o M12 a 5 poli."
-   }
+   },
+   "sources": [
+    {
+     "n": "ISO 11898-1, ISO 11898-2",
+     "d": "CAN: data link e livello fisico ad alta velocità."
+    },
+    {
+     "n": "CiA 301 (EN 50325-4)",
+     "d": "Livello applicativo e profilo di comunicazione CANopen."
+    },
+    {
+     "n": "CiA 303-1",
+     "d": "Cablaggio e connettori."
+    }
+   ]
   },
   {
    "id": "iolink",
@@ -1783,7 +1912,17 @@
     "conn": "m12",
     "cable": "#2c3e50",
     "text": "Cavo standard non schermato a 3 fili con connettore M12 (o M8); fino a 20 m tra master e dispositivo."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 61131-9",
+     "d": "Interfaccia SDCI (IO-Link)."
+    },
+    {
+     "n": "IO-Link Community – IO-Link Interface and System Specification V1.1.x",
+     "d": "Specifica completa di master e device."
+    }
+   ]
   },
   {
    "id": "modbusrtu",
@@ -1915,7 +2054,21 @@
     "cable": "#7f8c8d",
     "wire": "pair",
     "text": "Doppino schermato RS-485 su morsetti a vite (o D-sub), con terminazione da 120 Ω alle due estremità della linea."
-   }
+   },
+   "sources": [
+    {
+     "n": "Modbus Organization – MODBUS Application Protocol Specification V1.1b3",
+     "d": "Function code, modello dati ed eccezioni."
+    },
+    {
+     "n": "Modbus Organization – MODBUS over Serial Line V1.02",
+     "d": "Framing RTU e ASCII, CRC, tempi di silenzio, cablaggio RS-485."
+    },
+    {
+     "n": "TIA/EIA-485-A",
+     "d": "Livello fisico RS-485."
+    }
+   ]
   },
   {
    "id": "asi",
@@ -2048,7 +2201,17 @@
     "cable": "#f1c40f",
     "wire": "flat",
     "text": "Cavo piatto giallo a due fili per dati e alimentazione (≈ 30 V): i moduli si collegano a perforazione d'isolante, senza tagliare il cavo."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 62026-2",
+     "d": "Actuator Sensor Interface (AS-i)."
+    },
+    {
+     "n": "EN 50295",
+     "d": "Norma europea corrispondente."
+    }
+   ]
   },
   {
    "id": "bacnet",
@@ -2183,7 +2346,13 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "Rete Ethernet/IP dell'edificio (porta UDP 47808); BACnet MS/TP usa invece un doppino RS-485."
-   }
+   },
+   "sources": [
+    {
+     "n": "ANSI/ASHRAE Standard 135 (ISO 16484-5)",
+     "d": "BACnet: oggetti e servizi; Annex J per BACnet/IP, Annex AB per BACnet/SC."
+    }
+   ]
   },
   {
    "id": "knx",
@@ -2316,7 +2485,17 @@
     "cable": "#27ae60",
     "wire": "pair",
     "text": "Cavo bus verde a doppino (TP1) con morsetto rosso/nero: porta dati e alimentazione a circa 30 V."
-   }
+   },
+   "sources": [
+    {
+     "n": "ISO/IEC 14543-3, EN 50090",
+     "d": "Norme internazionali ed europee su KNX."
+    },
+    {
+     "n": "KNX Association – KNX Standard",
+     "d": "Specifica completa: mezzi trasmissivi, telegrammi, interworking."
+    }
+   ]
   },
   {
    "id": "hart",
@@ -2447,7 +2626,25 @@
     "cable": "#7f8c8d",
     "wire": "pair",
     "text": "Lo stesso doppino del segnale 4–20 mA: il segnale digitale è sovrapposto alla corrente. Serve una resistenza di anello, tipicamente 250 Ω."
-   }
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 (Type 20) / IEC 61784-1 (CPF 9)",
+     "d": "HART su filo."
+    },
+    {
+     "n": "FieldComm Group – HART Communication Protocol Specifications",
+     "d": "Specifiche complete, comandi universali e common practice."
+    },
+    {
+     "n": "NAMUR NE 43",
+     "d": "Livelli del segnale 4–20 mA per l'informazione di guasto."
+    },
+    {
+     "n": "IEC 62591",
+     "d": "WirelessHART."
+    }
+   ]
   },
   {
    "id": "cip",
@@ -2585,7 +2782,17 @@
     "conn": "rj45",
     "cable": "#7f8c8d",
     "text": "La stessa rete EtherNet/IP dei dispositivi di campo: Ethernet con RJ45 tra i controllori."
-   }
+   },
+   "sources": [
+    {
+     "n": "ODVA – The CIP Networks Library, Vol. 1",
+     "d": "Modello a oggetti, servizi e connessioni CIP."
+    },
+    {
+     "n": "Rockwell Automation – Logix 5000 Controllers: 1756-PM011, 1756-PM020",
+     "d": "Manuali su produced/consumed tag e accesso ai dati dei controllori Logix."
+    }
+   ]
   }
  ],
  "intro": {
@@ -2723,5 +2930,9 @@
     }
    ]
   }
- ]
+ ],
+ "sourcesNote": {
+  "b": "Questi sono i documenti ufficiali di riferimento. I testi dell'app sono riassunti a scopo didattico: per progettare un impianto o certificare un prodotto vale sempre il documento ufficiale nella versione in vigore.",
+  "p": "Le descrizioni dell'app sono sintesi didattiche basate su norme, specifiche dei consorzi e documentazione pubblica dei costruttori. Valori tipici, tempi e codici possono cambiare con versione, profilo e implementazione: per progetto, conformità e certificazione fa fede il documento ufficiale nella versione in vigore."
+ }
 }
