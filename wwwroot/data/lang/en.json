@@ -3449,9 +3449,20 @@
 "↩ Torna alla lezione": "↩ Back to the lesson",
 "Torna alla lezione": "Back to the lesson",
 "Da ripassare:": "To review:",
-"Nessuna domanda disponibile per questa lezione.": "No questions available for this lesson."
+"Nessuna domanda disponibile per questa lezione.": "No questions available for this lesson.",
+"Cerca": "Search",
+"Cerca (tasto /)": "Search (/ key)",
+"Cerca in tutta l'app": "Search the whole app",
+"Cerca in tutta l'app…": "Search the whole app…",
+"Scrivi almeno due lettere: la ricerca guarda schede, glossario, topologie, lezioni, approfondimenti, normative, scenari e missioni.": "Type at least two letters: the search looks at cards, glossary, topologies, lessons, insights, regulations, scenarios and missions.",
+"Nessun risultato.": "No results.",
+"🖨 Stampa / PDF": "🖨 Print / PDF"
 },
 "patterns": [
+[
+"^Risultati: (\\d+)$",
+"Results: $1"
+],
 [
 "^(\\S+) Nuovo badge: (.*)$",
 "$1 New badge: $2"

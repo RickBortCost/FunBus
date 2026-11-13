@@ -7,6 +7,7 @@ import { normative } from './normative.js';
 import { topologie } from './topo.js';
 import { build } from './build.js';
 import { percorso, backToLesson } from './path.js';
+import { cerca } from './search.js';
 import { loadDict, translateData, startDomLocalizer } from './i18n.js';
 
 const app = document.getElementById('app');
@@ -21,6 +22,7 @@ let lastHash = null;
 function render(scroll = false) {
   cleanups.splice(0).forEach(f => f());
   app.replaceChildren();
+  document.title = 'FunBus';
   const { root, sub, arg } = parse();
   const ctx = { rerender: render, cleanups, id: sub, arg };
   try {
@@ -33,6 +35,7 @@ function render(scroll = false) {
     else if (root === 'normative') normative(app, ctx);
     else if (root === 'topologie') topologie(app, ctx);
     else if (root === 'percorso') percorso(app, ctx);
+    else if (root === 'cerca') cerca(app, ctx);
     else if (root === 'approfondimenti') extra.approfondimenti(app, ctx);
     else if (root === 'strumenti') extra.strumenti(app, ctx);
     else if (root === 'certificato') extra.certificato(app, ctx);
@@ -92,7 +95,10 @@ async function init() {
     const k = Object.keys(THEMES); S.theme = k[(k.indexOf(document.documentElement.dataset.theme) + 1) % k.length]; applyTheme(); save();
     toast(`Tema: ${THEMES[S.theme][1]}`);
   });
+  // la ricerca aggiorna l'indirizzo mentre si scrive: non deve ridisegnare la pagina a ogni lettera
   window.addEventListener('hashchange', () => render(true));
+  // «/» apre la ricerca (se non si sta già scrivendo in un campo)
+  document.addEventListener('keydown', e => { if (e.key === '/' && !e.ctrlKey && !e.metaKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')) { e.preventDefault(); location.hash = '#/cerca'; } });
   render();
   splash(100, 'Pronto');
   await wait(Math.max(300, 1500 - (Date.now() - t0)));

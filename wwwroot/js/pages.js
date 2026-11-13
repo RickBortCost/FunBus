@@ -51,6 +51,7 @@ export function protocol(app, { id, cleanups }) {
   const p = protoById(id);
   if (!p) { app.append(h('p', {}, 'Protocollo non trovato.'), h('a', { href: '#/protocolli' }, '← Elenco')); return; }
   mark('visited', p.id);
+  document.title = `${p.name} – FunBus`;
   let tab = sessionStorage.getItem('tab') || 'scheda';
   const body = h('div');
   const tabs = h('div', { class: 'tabs', role: 'tablist' });
@@ -59,7 +60,7 @@ export function protocol(app, { id, cleanups }) {
     tabs.replaceChildren(...[['scheda', 'Scheda'], ['animazione', 'Animazione']].map(([k, l]) =>
       h('button', { role: 'tab', class: k === t ? 'on' : '', onclick: () => { cleanups.splice(0).forEach(f => f()); show(k); } }, l)));
     body.replaceChildren();
-    if (t === 'scheda') body.append(card(p));
+    if (t === 'scheda') body.append(h('div', { class: 'row no-print', style: 'justify-content:flex-end;margin-bottom:.5rem' }, h('button', { onclick: () => window.print() }, '🖨 Stampa / PDF')), card(p));
     else {
       const sim = createSim(p, S.data.animations[p.id]);
       cleanups.push(sim.stop);

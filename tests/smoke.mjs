@@ -17,7 +17,7 @@ const base = `http://127.0.0.1:${server.address().port}/`;
 
 const data = id => JSON.parse(fs.readFileSync(`wwwroot/data/${id}.json`, 'utf8'));
 const ids = data('protocols').protocols.map(p => p.id);
-const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/test/rete', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/percorso', ...data('path').lessons.flatMap(l => ['/percorso/' + l.id, '/percorso/' + l.id + '/quiz']), '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
+const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/test/rete', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/cerca', '/cerca/token', '/percorso', ...data('course').lessons.flatMap(l => ['/percorso/' + l.id, '/percorso/' + l.id + '/quiz']), '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
 const errs = [];
 // In inglese non deve restare testo italiano (testi composti in pagina compresi): euristica condivisa con tests/i18n.mjs
 const italianLeft = pg => pg.evaluate(([src, not]) => {
@@ -70,10 +70,28 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
     }
     await pg.evaluate(h => (location.hash = h), '/confronto');
   }
+  // ricerca globale e stampa della scheda
+  {
+    await pg.selectOption('#langSel', 'it'); await pg.evaluate(h => (location.hash = h), '/cerca'); await pg.waitForTimeout(150);
+    await pg.fill('.searchbox', 'token'); await pg.waitForTimeout(120);
+    if (!(await pg.locator('.results a', { hasText: 'PROFIBUS' }).count()) || !(await pg.locator('.results mark').count())) errs.push(`${label} ricerca: «token» non trova PROFIBUS o non evidenzia la parola`);
+    await pg.fill('.searchbox', 'perche'); await pg.waitForTimeout(120);
+    if (!(await pg.locator('.results a').count())) errs.push(`${label} ricerca: la ricerca non ignora gli accenti`);
+    await pg.fill('.searchbox', 'zzzqqq'); await pg.waitForTimeout(120);
+    if (await pg.locator('.results a').count()) errs.push(`${label} ricerca: risultati per una parola inesistente`);
+    await pg.fill('.searchbox', 'jitter'); await pg.waitForTimeout(120);
+    await pg.locator('.results a', { hasText: 'Jitter' }).first().click(); await pg.waitForTimeout(150);
+    if ((await pg.locator('dl.spec dt').count()) > 5) errs.push(`${label} ricerca: il glossario non arriva già filtrato`);
+    await pg.evaluate(h => (location.hash = h), '/protocolli/' + ids[0]); await pg.waitForTimeout(120);
+    await pg.emulateMedia({ media: 'print' });
+    const pr = await pg.evaluate(() => ({ bar: getComputedStyle(document.querySelector('.topbar')).display, btn: [...document.querySelectorAll('button')].filter(b => getComputedStyle(b).display !== 'none').length, bg: getComputedStyle(document.querySelector('.card')).backgroundColor }));
+    if (pr.bar !== 'none' || pr.btn || pr.bg !== 'rgb(255, 255, 255)') errs.push(`${label} stampa: la scheda non è pronta per la stampa (${JSON.stringify(pr)})`);
+    await pg.emulateMedia({ media: 'screen' });
+  }
   // percorso guidato: i passi si spuntano con le attività, il quiz di lezione aggiorna la lezione
   {
     await pg.selectOption('#langSel', 'it'); await pg.click('#lvB');
-    const l = data('path').lessons[1]; // Modbus: scheda, animazione, scheda, quiz
+    const l = data('course').lessons[1]; // Modbus: scheda, animazione, scheda, quiz
     await pg.evaluate(h => (location.hash = h), '/percorso/' + l.id); await pg.waitForTimeout(150);
     if ((await pg.locator('.steps .step').count()) !== l.steps.length) errs.push(`${label} percorso: passi della lezione incompleti`);
     const before = await pg.locator('.steps .step.done').count();
@@ -86,7 +104,7 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
     for (let k = 0; k < 6 && (await pg.locator('.opts button').count()); k++) { await pg.locator('.opts button').first().click(); await pg.locator('#app button.primary').click(); await pg.waitForTimeout(60); }
     if (!(await pg.locator('.fb.ok, .fb.ko').count())) errs.push(`${label} percorso: il quiz di lezione non riporta l'esito`);
     await pg.evaluate(h => (location.hash = h), '/percorso'); await pg.waitForTimeout(100);
-    if ((await pg.locator('.lessons .lesson').count()) !== data('path').lessons.length) errs.push(`${label} percorso: elenco delle lezioni incompleto`);
+    if ((await pg.locator('.lessons .lesson').count()) !== data('course').lessons.length) errs.push(`${label} percorso: elenco delle lezioni incompleto`);
   }
   // scenari con varianti: per PROFINET va scelta la variante (RT o IRT) e l'esito cambia
   {

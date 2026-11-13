@@ -384,3 +384,27 @@ a.card.lesson.next{border-left-color:var(--accent)}a.card.lesson.done{border-lef
 .backlesson{position:fixed;left:1rem;bottom:1rem;z-index:40;background:var(--surface);color:var(--text);border:2px solid var(--accent);border-radius:999px;padding:.45rem 1rem;text-decoration:none;font-weight:600;box-shadow:var(--shadow)}
 .review a{font-weight:600}
 @media print{.backlesson{display:none!important}}
+
+/* Ricerca globale */
+.tools a.icon{display:inline-grid;place-items:center;width:2.2rem;height:2.2rem;padding:0;border-radius:50%;text-decoration:none}
+.searchbox{width:100%;padding:.7rem 1rem;border-radius:999px;border:2px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-size:1.05rem}
+.searchbox:focus{border-color:var(--accent);outline:none}
+.results{list-style:none;padding:0;margin:.3rem 0 1rem;display:grid;gap:.5rem}
+.results li{background:var(--surface);border-radius:var(--r-sm);padding:.6rem .9rem;box-shadow:var(--shadow)}
+.results a{font-weight:600}.results p{margin:.2rem 0 0}
+mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;border-radius:3px;padding:0 .1em;font-weight:600}
+
+/* Stampa / PDF: colori chiari qualunque sia il tema, niente comandi né elementi fissi, riquadri non spezzati */
+@media print{
+  html[data-theme]{--bg:#fff;--surface:#fff;--surface2:#f1f3f6;--text:#000;--muted:#3d4650;--border:#b9c0c8;--accent:#0b4f99;--accent-t:#fff;--ok:#156a2e;--warn:#7a4e07;--bad:#a61f1f;--diff:#fff4cc;--shadow:none}
+  body{background:#fff!important}
+  .tabs,.toast,.backlesson,#searchBtn,button,.btn,.filters,.tray,.stepper,footer{display:none!important}
+  #app>a:first-child{display:none}
+  main{max-width:none;padding:0}
+  .card,.note,.sim,.tablewrap{box-shadow:none!important;border:1px solid var(--border)!important;break-inside:avoid}
+  .vstable tr,.spec dt,.spec dd,h2,h3{break-inside:avoid}h2,h3{break-after:avoid}
+  a{color:inherit;text-decoration:none}
+  #app.enter{animation:none}
+  .tablewrap{max-height:none;overflow:visible}
+  @page{margin:14mm}
+}
