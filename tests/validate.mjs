@@ -102,6 +102,12 @@ for (const e of M.exercises) {
   if (new Set(l).size !== l.length || new Set(r).size !== r.length) err.push(`abbinamento ${e.id}: elementi duplicati`);
 }
 for (const s of SC.scenarios) for (const c of s.req.caps || []) if (!SC.capLabels[c]) err.push(`scenario ${s.id}: capability ${c} sconosciuta`);
+// Ogni scenario deve avere almeno un protocollo pienamente adatto (stessa logica di evaluate() nell'app)
+{
+  const R = { none: 0, soft: 1, det: 2, hard: 3 };
+  const full = (p, r) => { const x = SC.matrix[p.id]; return (r.maxCycleUs == null || (x.cycleMinUs <= r.maxCycleUs && !(x.rt === 'none' && x.cycleMinUs * 5 > r.maxCycleUs))) && (!r.rtMin || R[x.rt] >= R[r.rtMin]) && (!r.topo || p.attrs.topo.includes(r.topo)) && (!r.nodes || x.maxNodes >= r.nodes) && (r.caps || []).every(c => x.caps[c] === 'yes'); };
+  for (const s of SC.scenarios) if (!P.protocols.some(p => full(p, s.req))) err.push(`scenario ${s.id} «${s.title}»: nessun protocollo pienamente adatto`);
+}
 for (const [pid, m] of Object.entries(SC.matrix)) for (const c of Object.keys(m.caps)) if (!SC.capLabels[c]) err.push(`matrice ${pid}: capability ${c} sconosciuta`);
 for (const it of D.items) for (const q of it.q) if (q.a >= q.o.length) err.push(`decode ${it.id}: risposta fuori range`);
 

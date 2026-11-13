@@ -1342,7 +1342,6 @@
 "In un impianto ci sono già trasmettitori con cavo 4–20 mA. Vuoi leggere anche diagnostica e parametri senza cambiare i cavi.": "A plant already has transmitters with 4–20 mA cable. You also want to read diagnostics and parameters without changing the cables.",
 "Un cavo per tutto": "One cable for everything",
 "30 sensori e attuatori on/off su un solo cavo che porta anche l'alimentazione, ciclo 5 ms.": "30 on/off sensors and actuators on a single cable that also carries power, 5 ms cycle.",
-"Edificio con 3 produttori di impianti, integrazione con un sistema di supervisione su IP e modello dati standard degli oggetti.": "Building with 3 system manufacturers, integration with an IP supervision system and a standard object data model.",
 "TSN: Ethernet con tempi garantiti": "TSN: Ethernet with guaranteed timing",
 "TSN (Time-Sensitive Networking) è un insieme di regole per far passare sulla stessa rete Ethernet sia il traffico normale sia quello che ha scadenze precise, come il controllo di una macchina.": "TSN (Time-Sensitive Networking) is a set of rules to let both normal traffic and traffic with precise deadlines, such as machine control, share the same Ethernet network.",
 "Funziona con orologi sincronizzati e 'finestre di tempo' riservate: i dati urgenti hanno sempre la loro finestra, senza essere disturbati dagli altri.": "It works with synchronized clocks and reserved ‘time windows’: urgent data always have their window, without being disturbed by the others.",
@@ -3126,7 +3125,8 @@
 "In questa app": "In this app",
 "Scheda «CIP / Logix»: produced/consumed tag e lettura dei tag tra controllori Rockwell": "“CIP / Logix” card: produced/consumed tags and tag reading between Rockwell controllers",
 "Scheda «EtherNet/IP»: scanner e adapter, I/O implicito": "“EtherNet/IP” card: scanner and adapters, implicit I/O",
-"Apri nel Confronto →": "Open in Compare →"
+"Apri nel Confronto →": "Open in Compare →",
+"Edificio con impianti di 3 produttori (clima, luci, accessi) da integrare in un sistema di supervisione sulla rete Ethernet esistente, cablata a stella. I valori devono arrivare a notifica, senza interrogazioni continue.": "Building with systems from 3 manufacturers (HVAC, lighting, access control) to be integrated into a supervision system on the existing Ethernet network, wired as a star. Values must arrive by notification, without continuous polling."
 },
 "patterns": [
 [
