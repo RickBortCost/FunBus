@@ -91,6 +91,21 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
     for (let n; (n = await pg.locator('.tnode.slot').count());) { await pg.locator('.devchip').first().click(); await pg.locator('.tnode.slot').first().dispatchEvent('click'); await pg.waitForTimeout(40); }
     await pg.click('.bench button.primary'); await pg.waitForTimeout(100);
     if (await pg.locator('.chk.fail, .chk.warn').count() || !(await pg.locator('.chk.ok').count())) errs.push(`${label} rete: la soluzione corretta non viene riconosciuta`);
+    // missione con dorsale seriale: servono i terminatori; un ripetitore di troppo viene segnalato
+    await pg.click('text=Altre missioni'); await pg.waitForTimeout(100);
+    await pg.locator('button.card', { hasText: data('game').build.missions.find(x => x.id === 'nb4').title }).click(); await pg.waitForTimeout(120);
+    await put(pg.locator('.traygrp .pick', { hasText: 'Modbus RTU' }), pg.locator('.dropzone[data-drop=bus]'));
+    await put(pg.locator('.traygrp').nth(1).locator('.pick').nth(0), pg.locator('[data-drop=topo]').last()); // bus
+    for (let n; (n = await pg.locator('.tnode.slot[data-drop=dev]').count());) { await pg.locator('.devchip').first().click(); await pg.locator('.tnode.slot[data-drop=dev]').first().dispatchEvent('click'); await pg.waitForTimeout(40); }
+    await pg.click('.bench button.primary'); await pg.waitForTimeout(100);
+    if (!(await pg.locator('.chk.fail').count())) errs.push(`${label} rete: una dorsale senza terminatori viene accettata`);
+    for (let n; (n = await pg.locator('.tnode.slot[data-drop=term]').count());) { await pg.locator('.termchip').first().click(); await pg.locator('.tnode.slot[data-drop=term]').first().dispatchEvent('click'); await pg.waitForTimeout(40); }
+    await pg.locator('.stepper button').last().click();
+    await pg.click('.bench button.primary'); await pg.waitForTimeout(100);
+    if (await pg.locator('.chk.fail').count() || (await pg.locator('.chk.warn').count()) !== 1) errs.push(`${label} rete: il ripetitore superfluo non viene segnalato`);
+    await pg.locator('.stepper button').first().click();
+    await pg.click('.bench button.primary'); await pg.waitForTimeout(100);
+    if (await pg.locator('.chk.fail, .chk.warn').count()) errs.push(`${label} rete: la soluzione essenziale non viene riconosciuta`);
     const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     if (ov > 2) errs.push(`${label} rete: overflow orizzontale ${ov}px`);
     await pg.evaluate(h => (location.hash = h), '/profilo'); await pg.waitForTimeout(100);

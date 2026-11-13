@@ -17,6 +17,7 @@ for (const p of P.protocols) {
   if (!NM.bus[p.id] || !NM.reqs.every(r => ['native', 'partial', 'none'].includes(NM.bus[p.id][r.id]))) err.push(`${p.id}: valutazione normative mancante o non valida`);
   if (!A[p.id]) err.push(`${p.id}: animazione mancante`);
   if (!SC.matrix[p.id]) err.push(`${p.id}: matrice scenari mancante`);
+  else { const w = SC.matrix[p.id].wiring; if (!w || !(w.segLenM > 0) || typeof w.regen !== 'boolean' || typeof w.term !== 'boolean' || !EN.strings[w.lenNote]) err.push(`${p.id}: dati di cablaggio (wiring) mancanti o senza nota tradotta`); }
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);
   if (!p.illus?.left || !p.illus?.right || !p.illus?.conn || !/^#[0-9a-f]{6}$/i.test(p.illus.cable || '')) err.push(`${p.id}: illustrazione (illus) incompleta`);
   else if (!EN.strings[p.illus.text]) err.push(`${p.id}: didascalia dell'illustrazione senza traduzione EN`);
@@ -43,7 +44,9 @@ for (const m of GM.build.missions) {
   const sol = [];
   for (const p of P.protocols) for (const t of TP.topologies.map(x => x.id)) {
     const x = SC.matrix[p.id], r = m.req;
-    const ok = (!m.topoAllowed || m.topoAllowed.includes(t)) && p.attrs.topo.includes(t) && (r.maxCycleUs == null || (x.cycleMinUs <= r.maxCycleUs && !(x.rt === 'none' && x.cycleMinUs * 5 > r.maxCycleUs)))
+    const w = x.wiring, reps = [...Array((w.repMax || 0) + 1).keys()];
+    const wired = reps.some(R => (w.regen ? !r.spanM || r.spanM <= w.segLenM * (R + 1) : !r.totalM || r.totalM <= w.segLenM * (R + 1)) && (w.regen || !w.segNodes || !r.nodes || r.nodes <= w.segNodes * (R + 1)));
+    const ok = wired && (!m.topoAllowed || m.topoAllowed.includes(t)) && p.attrs.topo.includes(t) && (r.maxCycleUs == null || (x.cycleMinUs <= r.maxCycleUs && !(x.rt === 'none' && x.cycleMinUs * 5 > r.maxCycleUs)))
       && (!r.rtMin || RANK[x.rt] >= RANK[r.rtMin]) && (!r.nodes || x.maxNodes >= r.nodes) && (r.caps || []).every(c => x.caps[c] === 'yes');
     if (ok) sol.push(`${p.id}/${t}`);
   }

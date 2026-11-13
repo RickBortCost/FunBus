@@ -2646,7 +2646,6 @@
 "Scegli una missione: dovrai trascinare sul banco il bus giusto, la topologia e i dispositivi.": "Choose a mission: you will have to drag the right bus, the topology and the devices onto the bench.",
 "✔ rete costruita": "✔ network built",
 "← Missioni": "← Missions",
-"Trascina un bus, una topologia e i dispositivi sul banco (oppure clicca un elemento e poi la sua destinazione), quindi premi «Verifica la rete».": "Drag a bus, a topology and the devices onto the bench (or click an item and then its destination), then press “Check the network”.",
 "Trascina qui": "Drag here",
 "Dispositivi": "Devices",
 "Tutti collegati.": "All connected.",
@@ -3126,9 +3125,148 @@
 "Scheda «CIP / Logix»: produced/consumed tag e lettura dei tag tra controllori Rockwell": "“CIP / Logix” card: produced/consumed tags and tag reading between Rockwell controllers",
 "Scheda «EtherNet/IP»: scanner e adapter, I/O implicito": "“EtherNet/IP” card: scanner and adapters, implicit I/O",
 "Apri nel Confronto →": "Open in Compare →",
-"Edificio con impianti di 3 produttori (clima, luci, accessi) da integrare in un sistema di supervisione sulla rete Ethernet esistente, cablata a stella. I valori devono arrivare a notifica, senza interrogazioni continue.": "Building with systems from 3 manufacturers (HVAC, lighting, access control) to be integrated into a supervision system on the existing Ethernet network, wired as a star. Values must arrive by notification, without continuous polling."
+"Edificio con impianti di 3 produttori (clima, luci, accessi) da integrare in un sistema di supervisione sulla rete Ethernet esistente, cablata a stella. I valori devono arrivare a notifica, senza interrogazioni continue.": "Building with systems from 3 manufacturers (HVAC, lighting, access control) to be integrated into a supervision system on the existing Ethernet network, wired as a star. Values must arrive by notification, without continuous polling.",
+"200 m per segmento a 1,5 Mbit/s (100 m a 12 Mbit/s, 1200 m fino a 93,75 kbit/s); 32 stazioni per segmento; il numero di ripetitori in serie dipende dal tipo e dalla velocità.": "200 m per segment at 1.5 Mbit/s (100 m at 12 Mbit/s, 1200 m up to 93.75 kbit/s); 32 stations per segment; the number of repeaters in series depends on type and speed.",
+"≈ 40 m a 1 Mbit/s (100 m a 500 kbit/s, 250 m a 250 kbit/s, 500 m a 125 kbit/s): i ripetitori non allungano il bus, perché il limite è il tempo di propagazione richiesto dall'arbitraggio.": "≈ 40 m at 1 Mbit/s (100 m at 500 kbit/s, 250 m at 250 kbit/s, 500 m at 125 kbit/s): repeaters do not lengthen the bus, because the limit is the propagation time required by arbitration.",
+"20 m al massimo tra la porta del master e il dispositivo; collegamento punto-punto, senza ripetitori.": "20 m at most between the master port and the device; point-to-point link, no repeaters.",
+"≈ 1000 m per segmento RS-485 alle basse velocità (9,6–19,2 kbit/s), meno a velocità maggiori; 32 carichi per segmento senza ripetitori.": "≈ 1000 m per RS-485 segment at low speeds (9.6–19.2 kbit/s), less at higher speeds; 32 unit loads per segment without repeaters.",
+"100 m per segmento; fino a 300 m con due ripetitori (o 200 m con una terminazione passiva di estensione).": "100 m per segment; up to 300 m with two repeaters (or 200 m with a passive extension terminator).",
+"1000 m di cavo per segmento di linea (700 m al massimo tra due dispositivi, 350 m dall'alimentatore); fino a 3 ripetitori di linea, 64 dispositivi per segmento.": "1000 m of cable per line segment (700 m at most between two devices, 350 m from the power supply); up to 3 line repeaters, 64 devices per segment.",
+"Da circa 1500 a 3000 m secondo cavo e capacità: il limite è la costante di tempo dell'anello, non un ripetitore.": "From about 1500 to 3000 m depending on cable and capacitance: the limit is the loop time constant, not a repeater.",
+"100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale.": "100 m per copper link (optical fibre for longer distances); every switch or two-port device regenerates the signal.",
+"Una piccola macchina con 20 sensori e valvole on/off sparsi lungo un nastro di 150 m. Vuoi un solo cavo che porti insieme dati e alimentazione, e un aggiornamento entro 10 ms.": "A small machine with 20 on/off sensors and valves spread along a 150 m conveyor. You want a single cable carrying both data and power, and an update within 10 ms.",
+"30 azionamenti in fila lungo la macchina, a circa 15 m l'uno dall'altro, devono muoversi in perfetta sincronia, aggiornati ogni millisecondo. Ogni dispositivo ha due porte: non vuoi switch esterni.": "30 drives in a row along the machine, about 15 m apart, must move in perfect sync, updated every millisecond. Every device has two ports: you want no external switches.",
+"Un piano di uffici con 40 pulsanti, luci e termostati di marche diverse e circa 600 m di cavo. Non serve velocità, ma i dispositivi devono essere alimentati dallo stesso cavo del bus.": "An office floor with 40 push buttons, lights and thermostats of different brands and about 600 m of cable. Speed is not needed, but the devices must be powered by the same cable as the bus.",
+"120 stazioni di I/O remoto per un controllore Siemens, a non più di 80 m l'una dall'altra, con safety sullo stesso bus e ciclo ≤ 2 ms. L'impianto deve continuare a funzionare anche con un cavo interrotto.": "120 remote I/O stations for a Siemens controller, no more than 80 m apart, with safety on the same bus and a cycle ≤ 2 ms. The plant must keep running even with one cable broken.",
+"20 nodi (valvole, joystick, sensori) su una macchina mobile, con vibrazioni e poco spazio per i cavi: 25 m di dorsale in tutto. Ciclo ≤ 5 ms con tempi calcolabili.": "20 nodes (valves, joysticks, sensors) on a mobile machine, with vibration and little room for cables: 25 m of trunk in all. Cycle ≤ 5 ms with calculable timing.",
+"40 dispositivi (I/O, azionamenti, safety) integrati con un PLC Logix, a circa 30 m l'uno dall'altro, ciclo ≤ 2 ms. Niente switch esterni e nessuna fermata se un cavo si interrompe.": "40 devices (I/O, drives, safety) integrated with a Logix PLC, about 30 m apart, cycle ≤ 2 ms. No external switches and no stop if one cable breaks.",
+"Contatori di energia nel capannone": "Energy meters in the warehouse",
+"12 contatori di energia lungo 400 m di capannone, letti ogni pochi secondi. Il cavo seriale a due fili è già posato lungo tutta la parete; vuoi un protocollo semplice e aperto. Ricorda che cosa serve alle estremità di una dorsale.": "12 energy meters along 400 m of warehouse, read every few seconds. The two-wire serial cable is already laid along the whole wall; you want a simple, open protocol. Remember what is needed at the ends of a trunk.",
+"Il cavo esistente è una dorsale seriale a due fili: serve un bus.": "The existing cable is a two-wire serial trunk: a bus is needed.",
+"Modbus RTU: semplice, aperto e adatto alle lunghe dorsali seriali; con i terminatori alle estremità il segnale resta pulito.": "Modbus RTU: simple, open and suited to long serial trunks; with terminators at both ends the signal stays clean.",
+"Modbus RTU su RS-485: 400 m rientrano nel segmento (≈ 1000 m alle basse velocità) e 12 nodi nei 32 carichi; la dorsale va chiusa con 120 Ω alle due estremità. Il ciclo di polling cresce con il numero di slave.": "Modbus RTU over RS-485: 400 m fit within the segment (≈ 1000 m at low speeds) and 12 nodes within the 32 unit loads; the trunk must be closed with 120 Ω at both ends. The polling cycle grows with the number of slaves.",
+"Dorsale RS-485 da 500 m": "500 m RS-485 trunk",
+"60 stazioni di I/O per un controllore Siemens distribuite lungo 500 m di dorsale RS-485 esistente, ciclo ≤ 10 ms con tempi calcolabili. Quanti segmenti servono?": "60 I/O stations for a Siemens controller spread along 500 m of existing RS-485 trunk, cycle ≤ 10 ms with calculable timing. How many segments are needed?",
+"La dorsale RS-485 esistente è un bus.": "The existing RS-485 trunk is a bus.",
+"PROFIBUS con due ripetitori: ogni segmento resta entro la lunghezza e il numero di stazioni consentiti.": "PROFIBUS with two repeaters: every segment stays within the permitted length and number of stations.",
+"PROFIBUS DP a 1,5 Mbit/s: 200 m e 32 stazioni per segmento, quindi 3 segmenti (2 ripetitori) per 500 m e 60 stazioni; ogni segmento va terminato alle due estremità. A velocità più bassa basterebbero meno segmenti, a scapito del ciclo.": "PROFIBUS DP at 1.5 Mbit/s: 200 m and 32 stations per segment, hence 3 segments (2 repeaters) for 500 m and 60 stations; every segment must be terminated at both ends. At a lower speed fewer segments would do, at the expense of the cycle.",
+"In una rete a stella si rompe il cavo di un solo dispositivo. Che cosa succede?": "In a star network the cable of a single device breaks. What happens?",
+"Resta isolato solo quel dispositivo": "Only that device is isolated",
+"Si ferma tutta la rete": "The whole network stops",
+"Restano isolati tutti i dispositivi dopo di lui": "All devices after it are isolated",
+"Non succede nulla: i dati passano dall'altro lato": "Nothing: data go the other way round",
+"Nella stella ogni dispositivo ha il proprio cavo verso lo switch: il guasto resta confinato a quel ramo.": "In a star every device has its own cable to the switch: the fault stays confined to that branch.",
+"A che cosa servono i terminatori alle estremità di un bus RS-485 o CAN?": "What are the terminators at the ends of an RS-485 or CAN bus for?",
+"Evitano che il segnale rimbalzi indietro come un'eco": "They stop the signal bouncing back like an echo",
+"Alimentano i dispositivi": "They power the devices",
+"Assegnano gli indirizzi": "They assign the addresses",
+"Aumentano la velocità del bus": "They increase the bus speed",
+"Senza terminazione il segnale viene riflesso all'estremità del cavo e disturba i messaggi.": "Without termination the signal is reflected at the cable end and disturbs the messages.",
+"In una linea (daisy chain) si spegne un dispositivo a metà. Chi resta isolato?": "In a line (daisy chain) a device in the middle switches off. Who is isolated?",
+"Lui e tutti i dispositivi dopo di lui": "It and all the devices after it",
+"Solo lui": "Only it",
+"Solo il master": "Only the master",
+"In una catena ogni dispositivo inoltra i dati al successivo: se uno si ferma, quelli a valle non ricevono più nulla.": "In a chain every device forwards data to the next: if one stops, those downstream receive nothing more.",
+"Qual è il vantaggio di chiudere la rete ad anello con un protocollo di ridondanza?": "What is the advantage of closing the network into a ring with a redundancy protocol?",
+"Con un cavo interrotto tutti i dispositivi restano raggiungibili": "With one cable broken all devices remain reachable",
+"La rete diventa più veloce": "The network becomes faster",
+"Non servono più gli indirizzi": "Addresses are no longer needed",
+"Si possono collegare infiniti dispositivi": "An unlimited number of devices can be connected",
+"L'anello offre un secondo percorso: dopo il guasto la rete si riorganizza e i dati passano dall'altro lato.": "The ring offers a second path: after the fault the network reorganises itself and data go the other way round.",
+"In un anello MRP, che cosa fa il manager (MRM) in condizioni normali?": "In an MRP ring, what does the manager (MRM) do under normal conditions?",
+"Tiene bloccata una delle sue due porte d'anello e invia frame di test": "It keeps one of its two ring ports blocked and sends test frames",
+"Inoltra tutti i frame su entrambe le porte": "It forwards all frames on both ports",
+"Interroga ciclicamente ogni client": "It cyclically polls every client",
+"Duplica ogni frame nei due sensi": "It duplicates every frame in both directions",
+"La porta bloccata evita il loop Ethernet; i frame MRP_Test verificano che l'anello sia integro.": "The blocked port prevents the Ethernet loop; MRP_Test frames check that the ring is intact.",
+"Qual è il tempo di ripristino tipico di un anello DLR (EtherNet/IP) fino a 50 nodi?": "What is the typical recovery time of a DLR ring (EtherNet/IP) with up to 50 nodes?",
+"Circa 3 ms": "About 3 ms",
+"Circa 200 ms": "About 200 ms",
+"Circa 1 s": "About 1 s",
+"Circa 30 s": "About 30 s",
+"Con beacon ogni 400 µs il supervisor rileva e ripristina in pochi millisecondi; 200 ms è il valore tipico di MRP.": "With beacons every 400 µs the supervisor detects and recovers within a few milliseconds; 200 ms is the typical MRP value.",
+"Uno slave Modbus RTU riceve un frame con CRC errato. Come si comporta?": "A Modbus RTU slave receives a frame with a bad CRC. How does it behave?",
+"Lo scarta senza rispondere: il master va in timeout": "It discards it without answering: the master times out",
+"Risponde con l'eccezione 0x01": "It answers with exception 0x01",
+"Chiede la ritrasmissione con un NACK": "It asks for retransmission with a NACK",
+"Corregge l'errore e risponde normalmente": "It corrects the error and answers normally",
+"Con il CRC errato anche l'indirizzo potrebbe essere sbagliato: lo slave tace e il master ritenta dopo il timeout.": "With a bad CRC the address itself could be wrong: the slave stays silent and the master retries after the timeout.",
+"Perché su CAN i ripetitori non permettono di allungare il bus a parità di bit rate?": "Why do repeaters not allow a CAN bus to be lengthened at the same bit rate?",
+"Perché il limite è il tempo di propagazione richiesto dall'arbitraggio bit a bit": "Because the limit is the propagation time required by bit-wise arbitration",
+"Perché CAN non ammette più di 32 nodi": "Because CAN allows no more than 32 nodes",
+"Perché i ripetitori cancellano il CRC": "Because repeaters remove the CRC",
+"Perché il bus va terminato una sola volta": "Because the bus must be terminated only once",
+"Ogni nodo deve vedere il bit degli altri entro lo stesso tempo di bit: per coprire più distanza si riduce il bit rate.": "Every node must see the others' bit within the same bit time: to cover more distance the bit rate is reduced.",
+"In una linea EtherCAT si interrompe il cavo tra due slave. Che cosa fa lo slave prima del guasto?": "In an EtherCAT line the cable between two slaves breaks. What does the slave before the fault do?",
+"Chiude il loop e rimanda indietro il frame; il master vede un Working Counter più basso": "It closes the loop and sends the frame back; the master sees a lower Working Counter",
+"Si spegne": "It switches off",
+"Diventa master della parte isolata": "It becomes master of the isolated part",
+"Ritrasmette il frame finché il cavo non torna": "It retransmits the frame until the cable is back",
+"L'ESC rileva la perdita del link e fa il loopback automatico: gli slave a valle non incrementano più il WKC.": "The ESC detects the loss of link and loops back automatically: the downstream slaves no longer increment the WKC.",
+"Ripetitori o switch aggiuntivi:": "Additional repeaters or switches:",
+"Aggiungi un ripetitore": "Add a repeater",
+"Togli un ripetitore": "Remove a repeater",
+"Terminatori": "Terminators",
+"Posto per un terminatore": "Place for a terminator",
+"Entrambi collocati.": "Both in place.",
+"Terminazione: presente alle due estremità della dorsale.": "Termination: present at both ends of the trunk.",
+"Terminazione: mancano i terminatori alle estremità della dorsale.": "Termination: the terminators at the ends of the trunk are missing.",
+"Terminazione: questo bus non la richiede, i terminatori non servono.": "Termination: this bus does not require it, the terminators are not needed.",
+"Terminazione: non richiesta da questo bus.": "Termination: not required by this bus.",
+"Senza terminazione il segnale viene riflesso alle estremità del cavo e i frame arrivano corrotti.": "Without termination the signal is reflected at the cable ends and frames arrive corrupted.",
+"Soluzione essenziale: nessun componente in più del necessario.": "Lean solution: no component beyond what is needed.",
+"Nessun dispositivo": "No device",
+"Trascina un bus, una topologia e i dispositivi sul banco (oppure clicca un elemento e poi la sua destinazione); aggiungi ripetitori e terminatori se servono, quindi premi «Verifica la rete».": "Drag a bus, a topology and the devices onto the bench (or click an item and then its destination); add repeaters and terminators if needed, then press “Check the network”."
 },
 "patterns": [
+[
+"^Nodi per segmento: (\\d+) nodi nei limiti \\((\\d+) per segmento, segmenti: (\\d+)\\)\\.$",
+"Nodes per segment: $1 nodes within limits ($2 per segment, segments: $3)."
+],
+[
+"^Nodi per segmento: (\\d+) nodi sono troppi \\((\\d+) per segmento, segmenti: (\\d+)\\)\\.$",
+"Nodes per segment: $1 nodes are too many ($2 per segment, segments: $3)."
+],
+[
+"^Funziona, ma con ripetitori in più del necessario: (\\d+)\\.$",
+"It works, but with more repeaters than necessary: $1."
+],
+[
+"^Terminatori da collocare: (\\d+)$",
+"Terminators to place: $1"
+],
+[
+"^fino a (\\d+) m tra due dispositivi$",
+"up to $1 m between two devices"
+],
+[
+"^lunghezza totale (\\d+) m$",
+"total length $1 m"
+],
+[
+"^Lunghezza (\\d+) m: oltre il limite di (\\d+) m \\((\\d+) m per segmento, segmenti: (\\d+)\\)\\.$",
+"Length $1 m: over the limit of $2 m ($3 m per segment, segments: $4)."
+],
+[
+"^Lunghezza (\\d+) m: nei limiti \\((\\d+) m per segmento, segmenti: (\\d+)\\)\\.$",
+"Length $1 m: within limits ($2 m per segment, segments: $3)."
+],
+[
+"^Distanza tra dispositivi (\\d+) m: oltre il limite di (\\d+) m per tratta\\.$",
+"Distance between devices $1 m: over the limit of $2 m per link."
+],
+[
+"^Distanza tra dispositivi (\\d+) m: nei limiti \\((\\d+) m per tratta\\)\\.$",
+"Distance between devices $1 m: within limits ($2 m per link)."
+],
+[
+"^Ripetitori: (.*) non si estende con i ripetitori\\.$",
+"Repeaters: $1 cannot be extended with repeaters."
+],
+[
+"^Ripetitori: (\\d+) sono troppi per (.*) \\(al massimo (\\d+) in serie\\)\\.$",
+"Repeaters: $1 are too many for $2 (at most $3 in series)."
+],
 [
 "^⬆ Livello (\\d+): (.*)$",
 "⬆ Level $1: $2"
