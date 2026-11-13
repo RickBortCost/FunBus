@@ -12,6 +12,7 @@ jobs:
         with:
           node-version: 22
       - run: node tests/validate.mjs
+      - run: node tests/i18n.mjs
       - run: npm i --no-save playwright && npx playwright install --with-deps chromium
       - run: node tests/smoke.mjs
   server:
