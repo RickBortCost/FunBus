@@ -22,6 +22,13 @@ for (const p of P.protocols) {
   else if (!EN.strings[p.illus.text]) err.push(`${p.id}: didascalia dell'illustrazione senza traduzione EN`);
   if (!(p.attrs.mbps > 0)) err.push(`${p.id}: attrs.mbps (bit rate tipico in Mbit/s, usato dai grafici) mancante`);
 }
+// Varianti (es. OPC UA client/server, PubSub, FX): ogni riga deve avere un valore tradotto per ogni variante
+for (const v of P.variants || []) {
+  for (const x of v.ids) { if (!ids.includes(x)) err.push(`varianti ${v.id}: protocollo ${x} inesistente`); if (!v.heads?.[x]) err.push(`varianti ${v.id}: intestazione di ${x} mancante`); }
+  for (const k of ['b', 'p']) if (!v.intro?.[k] || !EN.strings[v.intro[k]]) err.push(`varianti ${v.id}: intro/${k} mancante o senza traduzione EN`);
+  if (!EN.strings[v.title]) err.push(`varianti ${v.id}: titolo senza traduzione EN`);
+  for (const r of v.rows) { if (!EN.strings[r.label]) err.push(`varianti ${v.id}: riga «${r.label}» senza traduzione EN`); for (const x of v.ids) if (!r.values?.[x] || !EN.strings[r.values[x]]) err.push(`varianti ${v.id}: «${r.label}» senza valore tradotto per ${x}`); }
+}
 // Gioco «Costruisci la rete»: ogni missione deve avere almeno una soluzione pienamente adatta (stessa logica di evaluate() nell'app)
 const RANK = { none: 0, soft: 1, det: 2, hard: 3 };
 for (const m of GM.build.missions) {

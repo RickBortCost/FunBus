@@ -5,7 +5,7 @@ import { profile, profileTag } from './normative.js';
 import { chartsView, MAX_SERIES } from './charts.js';
 
 // Classificazione categorica usata per evidenziare le differenze.
-const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', cip: 'L5–L7 su TCP/UDP/IP', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
+const STACK = { profinet: 'L2 (+IP per servizi aciclici)', profibus: 'Fieldbus L1/L2/L7', ethercat: 'L2 (+mailbox L7)', s7: 'L7 su TCP/IP', ads: 'L7 su TCP/IP', mqtt: 'L7 su TCP/IP', opcua: 'L7 su TCP/IP', opcuapubsub: 'L7 su UDP/IP, Ethernet L2 o broker', opcuafx: 'L7 (client/server + PubSub) su Ethernet/TSN', enip: 'L5–L7 su TCP/UDP/IP', modbus: 'L7 su TCP/IP', canopen: 'CAN L1/L2 + L7', iolink: 'IO-Link L1/L2/L7 punto-punto', cip: 'L5–L7 su TCP/UDP/IP', modbusrtu: 'Fieldbus L1/L2/L7', asi: 'Fieldbus L1/L2', bacnet: 'L7 su UDP/IP', knx: 'KNX L1–L7', hart: 'HART L1/L2/L7 su 4–20 mA' };
 const RT = { hard: 'hard real-time', det: 'deterministico', soft: 'soft real-time', none: 'non real-time' };
 const MODEL = { 'master-slave': 'master/slave', 'client-server': 'client/server', 'pub-sub': 'pub/sub o producer/consumer' };
 const TOPO = { line: 'linea', star: 'stella', ring: 'anello', tree: 'albero', bus: 'bus' };
@@ -39,7 +39,7 @@ const FILTERS = () => [
   { id: 'model', label: 'Modello', opts: Object.entries(MODEL), test: (p, v) => p.attrs.model.includes(v) }
 ];
 
-export function compare(app, { cleanups }) {
+export function compare(app, { cleanups, id }) {
   const flt = {}; const sel = new Set(); let only = false;
   // Vista tabella o grafici; nei grafici ogni protocollo selezionato occupa una "serie" stabile (colore, tratteggio, marcatore).
   let view = sessionStorage.getItem('cmpView') === 'charts' ? 'charts' : 'table';
@@ -76,7 +76,11 @@ export function compare(app, { cleanups }) {
     out.replaceChildren(h('div', { class: 'tablewrap' }, h('table', { class: 'cmp', style: `--n:${ps.length}` }, thead, tbody)),
       h('p', { class: 'muted' }, isPro() ? 'Righe evidenziate (giallo, tratteggio e segno ≠): differenze rilevanti per il livello Professional (stack, mezzo, topologia, modello, determinismo e ciclo).' : 'Righe evidenziate (giallo, tratteggio e segno ≠): differenze rilevanti per il livello Beginner (famiglia, mezzo, topologia, modello, determinismo).'));
   };
-  if (view === 'charts') S.data.protocols.protocols.slice(0, 3).forEach(p => toggle(p.id));
+  // #/confronto/id1,id2,…: protocolli già selezionati e affiancati (es. dalle schede delle varianti OPC UA)
+  const pre = (id || '').split(',').filter(x => S.data.protocols.protocols.some(p => p.id === x));
+  pre.forEach(toggle);
+  if (pre.length >= 2) only = true;
+  if (view === 'charts' && !sel.size) S.data.protocols.protocols.slice(0, 3).forEach(p => toggle(p.id));
   app.append(h('h1', {}, 'Confronto'), h('p', {}, 'Filtra i protocolli, spunta quelli da confrontare (almeno 2) e usa "Affianca selezionati"; passa a «Grafici» per radar, mappa e piramidi OSI.'), bar, out);
   render();
 }

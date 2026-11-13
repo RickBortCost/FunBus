@@ -7,6 +7,8 @@ const G = {
   ads: '<rect x="5" y="15" width="12" height="18" rx="2"/><rect x="31" y="15" width="12" height="18" rx="2"/><path d="M20 21H28M25 18L28 21L25 24M28 28H20M23 25L20 28L23 31"/>',
   mqtt: '<circle cx="24" cy="24" r="5" fill="#fff"/><path d="M24 24L10 10M24 24L38 10M24 24L10 38M24 24L38 38"/><circle cx="10" cy="10" r="3" fill="#fff"/><circle cx="38" cy="10" r="3" fill="#fff"/><circle cx="10" cy="38" r="3" fill="#fff"/><circle cx="38" cy="38" r="3" fill="#fff"/>',
   opcua: '<path d="M24 12V20M24 20L12 30M24 20L36 30M12 30L8 40M12 30L18 40"/><circle cx="24" cy="10" r="4" fill="#fff"/><circle cx="12" cy="30" r="3" fill="#fff"/><circle cx="36" cy="30" r="3" fill="#fff"/>',
+  opcuapubsub: '<circle cx="11" cy="24" r="4.5" fill="#fff"/><path d="M19 16a11 11 0 0 1 0 16M26 11a18 18 0 0 1 0 26M33 6a25 25 0 0 1 0 36"/>',
+  opcuafx: '<path d="M14 14H34M14 14L10 34M14 14L24 34M34 14L24 34M34 14L38 34"/><circle cx="14" cy="13" r="4" fill="#fff"/><circle cx="34" cy="13" r="4" fill="#fff"/><circle cx="10" cy="35" r="3" fill="#fff"/><circle cx="24" cy="35" r="3" fill="#fff"/><circle cx="38" cy="35" r="3" fill="#fff"/>',
   enip: '<circle cx="11" cy="24" r="5"/><circle cx="37" cy="24" r="5"/><path d="M17 24H31M27 20L31 24L27 28"/>',
   modbus: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 19H40M8 29H40M19 8V40M29 8V40"/>',
   canopen: '<path d="M6 18H42M6 30H42M14 18V30M24 18V30M34 18V30"/><circle cx="6" cy="24" r="2.5" fill="#fff"/><circle cx="42" cy="24" r="2.5" fill="#fff"/>',

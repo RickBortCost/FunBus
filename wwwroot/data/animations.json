@@ -1658,6 +1658,427 @@
    }
   }
  },
+ "opcuapubsub": {
+  "title": "OPC UA PubSub: chiavi di gruppo e pubblicazione ciclica su UDP",
+  "nodes": [
+   {
+    "id": "pub",
+    "label": "Publisher",
+    "x": 100,
+    "y": 190
+   },
+   {
+    "id": "sw",
+    "label": "Switch (multicast)",
+    "x": 380,
+    "y": 190
+   },
+   {
+    "id": "sks",
+    "label": "SKS (chiavi)",
+    "x": 380,
+    "y": 50
+   },
+   {
+    "id": "s1",
+    "label": "Subscriber 1",
+    "x": 670,
+    "y": 110
+   },
+   {
+    "id": "s2",
+    "label": "Subscriber 2",
+    "x": 670,
+    "y": 250
+   }
+  ],
+  "links": [
+   [
+    "pub",
+    "sw"
+   ],
+   [
+    "sw",
+    "sks"
+   ],
+   [
+    "sw",
+    "s1"
+   ],
+   [
+    "sw",
+    "s2"
+   ]
+  ],
+  "loopFrom": 4,
+  "cycleUs": 10000,
+  "timeNote": "Il periodo è il PublishingInterval del WriterGroup (qui 10 ms): da meno di 1 ms su Ethernet con TSN e hardware adatto fino a secondi verso il cloud. Lo scambio delle chiavi con l'SKS avviene in client/server.",
+  "steps": [
+   {
+    "from": "pub",
+    "to": "sks",
+    "label": "GetSecurityKeys",
+    "t": "setup",
+    "kind": "acy",
+    "us": 5000,
+    "note": {
+     "b": "Chi trasmette chiede le chiavi segrete del gruppo a un servizio fidato.",
+     "p": "Chiamata client/server (su canale sicuro) al Security Key Service: GetSecurityKeys(SecurityGroupId) restituisce policy, chiave corrente, chiavi future e durata. L'accesso è regolato dai permessi sul SecurityGroup."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "sks",
+    "label": "GetSecurityKeys",
+    "t": "setup",
+    "kind": "acy",
+    "us": 5000,
+    "note": {
+     "b": "Anche chi vuole ascoltare chiede le stesse chiavi: senza, non può leggere i messaggi.",
+     "p": "Ogni subscriber autorizzato ottiene le stesse chiavi simmetriche del gruppo e le rinnova prima della scadenza; chi non è autorizzato sull'SKS non può verificare né decifrare i NetworkMessage."
+    }
+   },
+   {
+    "from": "s2",
+    "to": "sks",
+    "label": "GetSecurityKeys",
+    "t": "setup",
+    "kind": "acy",
+    "us": 5000,
+    "note": {
+     "b": "Il secondo ascoltatore fa lo stesso.",
+     "p": "Le chiavi possono essere anche inviate dall'SKS ai dispositivi (modello push) invece che richieste (pull): dipende dall'architettura."
+    }
+   },
+   {
+    "from": "s1",
+    "to": "sw",
+    "label": "IGMP Join",
+    "t": "setup",
+    "kind": "tok",
+    "us": 1000,
+    "note": {
+     "b": "Gli ascoltatori si «sintonizzano» sul canale: non serve contattare chi trasmette.",
+     "p": "Con il trasporto UDP multicast il subscriber entra nel gruppo con IGMP e lo switch inoltra a lui i datagrammi; non c'è alcuna connessione verso il publisher. In unicast o su broker questo passo non esiste."
+    }
+   },
+   {
+    "from": "pub",
+    "to": [
+     "s1",
+     "s2"
+    ],
+    "label": "NetworkMessage (UADP)",
+    "t": "ciclo",
+    "kind": "cyc",
+    "us": 25,
+    "frame": "uadp",
+    "note": {
+     "b": "A intervalli regolari chi trasmette invia i dati a tutti, senza che nessuno li chieda.",
+     "p": "A ogni PublishingInterval il WriterGroup invia un NetworkMessage UADP con uno o più DataSetMessage: key frame (tutti i campi) o delta frame (solo i campi cambiati). Nessuna richiesta e nessuna conferma."
+    }
+   },
+   {
+    "from": "pub",
+    "to": [
+     "s1",
+     "s2"
+    ],
+    "label": "KeepAlive",
+    "t": "ciclo",
+    "kind": "tok",
+    "us": 25,
+    "note": {
+     "b": "Se non c'è nulla di nuovo, chi trasmette manda comunque un segnale di vita.",
+     "p": "Se non ci sono DataSetMessage da inviare entro KeepAliveTime viene spedito un KeepAlive: il DataSetReader usa MessageReceiveTimeout per capire se il publisher è ancora presente."
+    }
+   },
+   {
+    "from": "pub",
+    "to": [
+     "s1",
+     "s2"
+    ],
+    "label": "DataSetMetaData",
+    "t": "evento",
+    "kind": "acy",
+    "us": 1000,
+    "note": {
+     "b": "Se cambia la «forma» dei dati, chi trasmette avvisa gli ascoltatori.",
+     "p": "I DataSetMetaData (nomi, tipi, ConfigurationVersion) sono inviati quando la configurazione cambia o su richiesta di discovery: il subscriber confronta la versione prima di decodificare i campi."
+    }
+   }
+  ],
+  "frames": {
+   "uadp": {
+    "title": "NetworkMessage UADP (su UDP o Ethernet)",
+    "fields": [
+     {
+      "n": "Version/Flags",
+      "s": "1 B",
+      "v": "versione 1 + flag",
+      "d": "Versione UADP (4 bit) e flag che indicano quali intestazioni seguono: PublisherId, GroupHeader, PayloadHeader, ExtendedFlags."
+     },
+     {
+      "n": "ExtendedFlags",
+      "s": "1–2 B",
+      "v": "opzionale",
+      "d": "Tipo di PublisherId, presenza di DataSetClassId, sicurezza, timestamp e tipo di NetworkMessage."
+     },
+     {
+      "n": "PublisherId",
+      "s": "1–8 B",
+      "v": "es. UInt16",
+      "d": "Identifica chi pubblica: con WriterGroupId e DataSetWriterId è il filtro usato dal DataSetReader."
+     },
+     {
+      "n": "GroupHeader",
+      "s": "≤ 11 B",
+      "v": "WriterGroupId, SequenceNumber…",
+      "d": "GroupFlags, WriterGroupId (2 B), GroupVersion (4 B), NetworkMessageNumber (2 B) e SequenceNumber (2 B), ciascuno opzionale."
+     },
+     {
+      "n": "PayloadHeader",
+      "s": "1 + 2·n B",
+      "v": "DataSetWriterId",
+      "d": "Numero di DataSetMessage e DataSetWriterId di ciascuno: permette di scartare subito ciò che non interessa."
+     },
+     {
+      "n": "SecurityHeader",
+      "s": "≥ 6 B",
+      "v": "TokenId + nonce",
+      "d": "SecurityFlags (firmato/cifrato), SecurityTokenId (quale chiave del gruppo), lunghezza e valore del nonce. Presente solo con la sicurezza attiva."
+     },
+     {
+      "n": "DataSetMessage",
+      "s": "n B",
+      "v": "key o delta frame",
+      "d": "I dati: intestazione del DataSetMessage (flag, numero di sequenza, stato) e campi. Con layout fisso le posizioni sono note in anticipo (adatto al tempo reale)."
+     },
+     {
+      "n": "Signature",
+      "s": "32 B",
+      "v": "HMAC-SHA256",
+      "d": "Firma dell'intero NetworkMessage con la chiave del gruppo (policy PubSub-Aes128-CTR o Aes256-CTR). Assente con SecurityMode None."
+     }
+    ]
+   }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "s2"
+    ],
+    "b": "Subscriber 2 non riceve più i messaggi: dopo un tempo di attesa segnala i dati come non validi. Chi trasmette non se ne accorge nemmeno, perché non aspetta risposte.",
+    "p": "Il DataSetReader non riceve NetworkMessage entro MessageReceiveTimeout: passa in stato Error e l'applicazione usa valori sostitutivi. Il publisher non ha alcun riscontro: nel PubSub non esistono sessioni né conferme, la sorveglianza è compito del subscriber."
+   },
+   "node": {
+    "id": "pub",
+    "b": "Chi trasmette è spento: tutti gli ascoltatori smettono di ricevere e, passato il tempo di attesa, segnalano la mancanza di dati.",
+    "p": "Tutti i DataSetReader vanno in timeout (MessageReceiveTimeout) e passano in Error. Non c'è nulla da rinegoziare: quando il publisher riparte e torna a trasmettere, i reader tornano Operational da soli. La ridondanza del publisher va progettata a livello applicativo o di rete."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato e nessuno lo rispedisce: gli ascoltatori usano semplicemente il successivo.",
+    "p": "FCS Ethernet o checksum UDP errati: frame scartato, nessuna ritrasmissione. Il reader nota il salto del SequenceNumber; con i delta frame un messaggio perso può lasciare un campo non aggiornato fino al key frame successivo (KeyFrameCount). Con la sicurezza attiva la firma rileva anche le alterazioni intenzionali."
+   }
+  }
+ },
+ "opcuafx": {
+  "title": "OPC UA FX: connessione tra due controllori e scambio ciclico",
+  "nodes": [
+   {
+    "id": "ca",
+    "label": "Controllore A",
+    "x": 100,
+    "y": 190
+   },
+   {
+    "id": "sw",
+    "label": "Switch (TSN)",
+    "x": 390,
+    "y": 190
+   },
+   {
+    "id": "cm",
+    "label": "Connection Manager",
+    "x": 390,
+    "y": 50
+   },
+   {
+    "id": "cb",
+    "label": "Controllore B",
+    "x": 680,
+    "y": 190
+   }
+  ],
+  "links": [
+   [
+    "ca",
+    "sw"
+   ],
+   [
+    "sw",
+    "cm"
+   ],
+   [
+    "sw",
+    "cb"
+   ]
+  ],
+  "loopFrom": 4,
+  "cycleUs": 2000,
+  "timeNote": "Il ciclo è il PublishingInterval concordato (qui 2 ms): i valori raggiungibili dipendono da controllori, rete e uso di TSN. La fase di connessione richiede da decine di millisecondi a secondi. Il Connection Manager può risiedere anche in uno dei controllori.",
+  "steps": [
+   {
+    "from": "cm",
+    "to": "ca",
+    "label": "Sessione + lettura FE",
+    "t": "setup",
+    "kind": "acy",
+    "us": 20000,
+    "note": {
+     "b": "Il gestore delle connessioni si presenta al primo controllore e guarda che cosa offre.",
+     "p": "Il Connection Manager (client OPC UA) apre canale sicuro e sessione con l'AutomationComponent A e legge FunctionalEntity, InputData/OutputData e Asset."
+    }
+   },
+   {
+    "from": "cm",
+    "to": "cb",
+    "label": "Sessione + lettura FE",
+    "t": "setup",
+    "kind": "acy",
+    "us": 20000,
+    "note": {
+     "b": "Fa lo stesso con il secondo controllore.",
+     "p": "Stessa procedura verso l'AutomationComponent B: i due lati possono essere di costruttori diversi, purché espongano l'information model FX."
+    }
+   },
+   {
+    "from": "cm",
+    "to": "ca",
+    "label": "EstablishConnections",
+    "t": "setup",
+    "kind": "acy",
+    "us": 50000,
+    "note": {
+     "b": "Chiede ad A di preparare il collegamento con B: quali dati, ogni quanto, con quali controlli.",
+     "p": "Metodo EstablishConnections: in un'unica chiamata verifica gli asset attesi, riserva la comunicazione (configurazione PubSub: WriterGroup, DataSetWriter, DataSetReader), crea i ConnectionEndpoint e li abilita."
+    }
+   },
+   {
+    "from": "cm",
+    "to": "cb",
+    "label": "EstablishConnections",
+    "t": "setup",
+    "kind": "acy",
+    "us": 50000,
+    "note": {
+     "b": "Fa lo stesso con B: da ora i due controllori possono parlarsi da soli.",
+     "p": "Stessa chiamata sul lato B con i parametri speculari. Se la connessione è resa persistente, dopo un riavvio i due lati la ripristinano senza Connection Manager."
+    }
+   },
+   {
+    "from": "ca",
+    "to": "cb",
+    "label": "Dati A → B (PubSub)",
+    "t": "ciclo",
+    "kind": "cyc",
+    "us": 25,
+    "frame": "fx",
+    "note": {
+     "b": "A ritmo fisso il controllore A manda i suoi dati a B, senza passare dal gestore.",
+     "p": "NetworkMessage UADP a ogni PublishingInterval, su UDP/IP o direttamente su Ethernet, con layout a dimensione fissa. Su rete TSN il flusso ha banda e latenza riservate."
+    }
+   },
+   {
+    "from": "cb",
+    "to": "ca",
+    "label": "Dati B → A (PubSub)",
+    "t": "ciclo",
+    "kind": "cyc",
+    "us": 25,
+    "note": {
+     "b": "B risponde con i propri dati: ognuno controlla che l'altro sia puntuale.",
+     "p": "Connessione bidirezionale: ogni lato pubblica e sorveglia i messaggi in arrivo. In una connessione unidirezionale con heartbeat il lato ricevente invia solo un messaggio di vita."
+    }
+   }
+  ],
+  "frames": {
+   "fx": {
+    "title": "Frame Ethernet con NetworkMessage UADP (OPC UA FX)",
+    "fields": [
+     {
+      "n": "MAC dest",
+      "s": "6 B",
+      "v": "unicast o multicast",
+      "d": "Destinazione del flusso; con TSN identifica lo stream insieme alla VLAN."
+     },
+     {
+      "n": "MAC sorg",
+      "s": "6 B",
+      "v": "publisher",
+      "d": "Indirizzo del controllore che pubblica."
+     },
+     {
+      "n": "VLAN tag",
+      "s": "4 B",
+      "v": "0x8100, PCP",
+      "d": "VLAN e priorità (PCP): separano il traffico in tempo reale dal resto; con TSN selezionano la classe di traffico."
+     },
+     {
+      "n": "EtherType",
+      "s": "2 B",
+      "v": "0xB62C",
+      "d": "Identifica OPC UA UADP direttamente su Ethernet. Con il trasporto UDP/IP il campo vale 0x0800 e seguono le intestazioni IP e UDP."
+     },
+     {
+      "n": "Header UADP",
+      "s": "n B",
+      "v": "PublisherId, WriterGroupId…",
+      "d": "Version/Flags, PublisherId, GroupHeader con SequenceNumber e PayloadHeader: gli stessi del PubSub."
+     },
+     {
+      "n": "DataSetMessage",
+      "s": "n B",
+      "v": "campi a posizione fissa",
+      "d": "Dati di uscita della FunctionalEntity, a dimensione fissa; i dati di sicurezza viaggiano qui dentro come SPDU di OPC UA Safety."
+     },
+     {
+      "n": "Signature",
+      "s": "0–32 B",
+      "v": "opzionale",
+      "d": "Firma del messaggio con la chiave del SecurityGroup, se la sicurezza PubSub è attiva."
+     },
+     {
+      "n": "FCS",
+      "s": "4 B",
+      "v": "CRC-32",
+      "d": "Frame Check Sequence Ethernet."
+     }
+    ]
+   }
+  },
+  "faults": {
+   "cable": {
+    "link": [
+     "sw",
+     "cb"
+    ],
+    "b": "Il collegamento tra i controllori cade: ciascuno si accorge che l'altro non manda più dati e passa ai valori di sicurezza previsti.",
+    "p": "Ogni ConnectionEndpoint sorveglia i messaggi in arrivo: allo scadere del timeout di ricezione passa in Error e la FunctionalEntity applica i valori sostitutivi configurati. Al ritorno del link lo scambio riprende; una connessione persistente non richiede un nuovo intervento del Connection Manager. La ridondanza del percorso è affidata alla rete."
+   },
+   "node": {
+    "id": "cb",
+    "b": "Il Controllore B è spento: A non riceve più dati né segnali di vita, lo segnala e usa valori sostitutivi.",
+    "p": "Timeout sul ConnectionEndpoint di A, stato Error e diagnostica sulla FunctionalEntity. Al riavvio di B la connessione si ripristina da sola se è persistente; altrimenti il Connection Manager richiama EstablishConnections, e la verifica degli asset segnala un dispositivo sostituito con uno non compatibile."
+   },
+   "crc": {
+    "b": "Il messaggio rovinato viene scartato e non rispedito: si usa quello del ciclo successivo.",
+    "p": "Frame con FCS errato scartato dallo switch o dal ricevitore, senza ritrasmissione; il lato ricevente rileva il salto del SequenceNumber e tollera le perdite fino al timeout. Per i dati di sicurezza OPC UA Safety aggiunge un proprio CRC e la sorveglianza dei tempi, indipendenti dalla rete («black channel»)."
+   }
+  }
+ },
  "enip": {
   "title": "EtherNet/IP: discovery, Forward_Open e I/O implicito",
   "nodes": [
