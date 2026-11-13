@@ -38,7 +38,7 @@ export function onColor(hex, min = 4.5) {
 }
 export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-export const DATA_FILES = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode', 'normative', 'topologies', 'path'];
+export const DATA_FILES = ['protocols', 'animations', 'quiz', 'matching', 'scenarios', 'game', 'glossary', 'topics', 'decode', 'normative', 'topologies', 'course'];
 export async function loadData(onStep = () => {}) {
   const names = DATA_FILES;
   const res = await Promise.all(names.map(n => fetch(`data/${n}.json`, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(n); return r.json(); }).then(j => { onStep(n); return j; })));
@@ -90,7 +90,7 @@ export function stepDone(s, lesson) {
   if (s.type === 'topo') return (p.topoSeen || []).includes(s.id);
   if (s.type === 'scenario') return p.scenariosSolved.length >= s.n;
   if (s.type === 'build') return (p.built || []).length >= s.n;
-  if (s.type === 'quiz') return (p.lessons?.[lesson.id] ?? -1) >= (S.data.path.passPct || 0);
+  if (s.type === 'quiz') return (p.lessons?.[lesson.id] ?? -1) >= (S.data.course.passPct || 0);
   return false;
 }
 export const lessonDone = l => l.steps.every(s => stepDone(s, l));
@@ -106,7 +106,7 @@ const BADGE_COND = {
   pro: p => p.xpPro >= 100,
   builder: p => (p.built || []).length >= 3,
   architect: p => (p.built || []).length >= 5,
-  graduate: () => !!S.data.path?.lessons.length && S.data.path.lessons.every(lessonDone)
+  graduate: () => !!S.data.course?.lessons.length && S.data.course.lessons.every(lessonDone)
 };
 
 export function checkBadges() {

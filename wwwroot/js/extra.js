@@ -1,9 +1,10 @@
 import { S, h, T, isPro, levelInfo, toast } from './core.js';
 
-export function glossario(app) {
+export function glossario(app, { id } = {}) {
   const terms = S.data.glossary.terms;
   const list = h('div');
   const q = h('input', { type: 'search', placeholder: 'Cerca un termine…', 'aria-label': 'Cerca nel glossario', style: 'width:100%;padding:.5rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit', oninput: () => draw() });
+  if (id) q.value = decodeURIComponent(id); // arrivo dalla ricerca globale: #/glossario/<termine>
   const draw = () => {
     const f = q.value.trim().toLowerCase();
     const r = terms.filter(t => !f || t.t.toLowerCase().includes(f) || t.b.toLowerCase().includes(f) || t.p.toLowerCase().includes(f));

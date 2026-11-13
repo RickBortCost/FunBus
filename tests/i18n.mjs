@@ -12,6 +12,7 @@ const err = [];
 /* ---- dati JSON: stesse chiavi escluse di i18n.js ---- */
 const SKIP = new Set([...fs.readFileSync('wwwroot/js/i18n.js', 'utf8').match(/const SKIP = new Set\(\[([^\]]*)\]\)/)[1].matchAll(/'([^']+)'/g)].map(m => m[1]));
 const files = fs.readFileSync('wwwroot/js/core.js', 'utf8').match(/DATA_FILES = \[([^\]]*)\]/)[1].match(/'([^']+)'/g).map(s => s.slice(1, -1));
+for (const f of files) if (SKIP.has(f)) err.push(`dati ${f}.json: il nome del file coincide con una chiave esclusa dalla traduzione (SKIP in i18n.js), quindi non verrebbe tradotto`);
 let nData = 0;
 const walk = (o, where) => {
   if (Array.isArray(o)) o.forEach((v, i) => walk(v, `${where}[${i}]`));

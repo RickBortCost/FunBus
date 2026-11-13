@@ -54,7 +54,7 @@ for (const m of GM.build.missions) {
 }
 for (const lv of ['beginner', 'professional']) if (GM.build.missions.filter(m => m.level === lv).length < 3) err.push(`costruisci la rete ${lv}: meno di 3 missioni`);
 // Percorso guidato: passi con riferimenti validi, testi tradotti e almeno 3 domande per il quiz di ogni lezione e livello
-const PT = rd('path');
+const PT = rd('course');
 for (const k of ['b', 'p']) if (!EN.strings[PT.intro?.[k]]) err.push(`percorso: intro/${k} mancante o senza traduzione EN`);
 const lessonIds = new Set();
 for (const l of PT.lessons) {

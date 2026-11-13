@@ -4,7 +4,7 @@ import { quiz } from './games.js';
 import { logo } from './logos.js';
 import { topoIcon } from './topo.js';
 
-const lessons = () => S.data.path.lessons;
+const lessons = () => S.data.course.lessons;
 const inLesson = l => q => (q.protos || []).some(x => (l.protos || []).includes(x)) || (q.area || []).some(x => (l.area || []).includes(x));
 const remember = id => { try { sessionStorage.setItem('lesson', id); } catch { /* ignora */ } };
 
@@ -12,7 +12,7 @@ export function percorso(app, ctx) {
   if (ctx.id && ctx.arg === 'quiz') return lessonQuiz(app, ctx);
   if (ctx.id) return lesson(app, ctx);
   try { sessionStorage.removeItem('lesson'); } catch { /* ignora */ }
-  const P = S.data.path, done = lessons().filter(lessonDone).length, next = lessons().find(l => !lessonDone(l));
+  const P = S.data.course, done = lessons().filter(lessonDone).length, next = lessons().find(l => !lessonDone(l));
   app.append(h('h1', {}, 'Percorso guidato'), h('p', {}, T(P.intro)),
     h('div', { class: 'card' }, h('strong', {}, `Lezioni completate: ${done} di ${lessons().length}`), h('div', { class: 'progress', style: 'margin-top:.5rem' }, h('i', { style: `width:${(done / lessons().length) * 100}%` }))),
     h('ol', { class: 'lessons' }, lessons().map((l, i) => {
@@ -25,7 +25,7 @@ export function percorso(app, ctx) {
 }
 
 function stepRow(s, l) {
-  const done = stepDone(s, l), P = S.data.path;
+  const done = stepDone(s, l), P = S.data.course;
   const go = (href, tab) => () => { remember(l.id); if (tab) { try { sessionStorage.setItem('tab', tab); } catch { /* ignora */ } } location.hash = href; };
   let icon = null, label, action, extra = null;
   if (s.type === 'card' || s.type === 'anim') {
@@ -48,7 +48,7 @@ function lesson(app, { id }) {
   remember(l.id);
   // premio alla prima volta che la lezione risulta completa
   const p = S.progress; p.lessonsAwarded ||= [];
-  if (lessonDone(l) && !p.lessonsAwarded.includes(l.id)) { p.lessonsAwarded.push(l.id); toast(`Lezione completata: ${l.title}`); addXP(S.data.path.xpLesson || 0); save(); }
+  if (lessonDone(l) && !p.lessonsAwarded.includes(l.id)) { p.lessonsAwarded.push(l.id); toast(`Lezione completata: ${l.title}`); addXP(S.data.course.xpLesson || 0); save(); }
   app.append(h('a', { href: '#/percorso' }, '← Percorso'),
     h('p', { class: 'muted small', style: 'margin:.6rem 0 0' }, `Lezione ${i + 1} di ${all.length}`), h('h1', { style: 'margin-top:.1rem' }, l.title),
     h('p', {}, T(l.text)),
@@ -60,7 +60,7 @@ function lesson(app, { id }) {
 }
 
 function lessonQuiz(app, ctx) {
-  const l = lessons().find(x => x.id === ctx.id), P = S.data.path;
+  const l = lessons().find(x => x.id === ctx.id), P = S.data.course;
   if (!l) { app.append(h('p', {}, 'Lezione non trovata.'), h('a', { href: '#/percorso' }, '← Percorso')); return; }
   remember(l.id);
   quiz(app, ctx, false, {
@@ -77,7 +77,7 @@ function lessonQuiz(app, ctx) {
 // Collegamento per tornare alla lezione in corso, mostrato sulle altre pagine.
 export function backToLesson(root) {
   let id = null; try { id = sessionStorage.getItem('lesson'); } catch { /* ignora */ }
-  const l = id && S.data.path?.lessons.find(x => x.id === id);
+  const l = id && S.data.course?.lessons.find(x => x.id === id);
   if (!l || root === 'percorso' || root === 'home') return null;
   return h('a', { class: 'backlesson', href: `#/percorso/${l.id}` }, '↩ Torna alla lezione');
 }
