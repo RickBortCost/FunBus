@@ -353,3 +353,7 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
   .vstable td.cur{border-left-color:var(--accent);box-shadow:none}
   .vstable .vh{display:block;font-size:.78rem;font-weight:700;color:var(--muted)}
 }
+
+/* Rete delle animazioni negli spazi stretti: disposizione verticale a grandezza naturale */
+.sim svg.narrow{max-width:460px;margin:0 auto}
+.sim svg.narrow .node text{font-size:12.5px}

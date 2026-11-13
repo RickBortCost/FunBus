@@ -59,7 +59,7 @@ function routesFor(step, anim) {
 }
 
 export function createSim(proto, anim) {
-  const nodes = Object.fromEntries(anim.nodes.map(n => [n.id, n]));
+  let nodes = {}, NW = W, NH = H, narrowNet = false;
   const steps = anim.steps;
   const allRoutes = steps.map(s => routesFor(s, anim));
   let idx = 0, playing = false, speed = 1, elapsed = 0, last = 0, raf = null, cur = null, stopAfter = false, cycles = 0, tabFrame = null, started = false;
@@ -70,19 +70,47 @@ export function createSim(proto, anim) {
   const onLink = (a, b) => (a === fLink[0] && b === fLink[1]) || (a === fLink[1] && b === fLink[0]);
 
   const root = h('div', { class: 'sim' });
-  const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': anim.title });
+  const svg = svgEl('svg', { role: 'img', 'aria-label': anim.title });
   const gLinks = svgEl('g'), gNodes = svgEl('g'), gFault = svgEl('g'), gPk = svgEl('g');
   svg.append(gLinks, gNodes, gFault, gPk);
-  const linkEl = [];
-  for (const [a, b] of anim.links) { const l = svgEl('line', { class: 'link', x1: nodes[a].x, y1: nodes[a].y, x2: nodes[b].x, y2: nodes[b].y }); gLinks.append(l); linkEl.push([a, b, l]); }
-  const nodeG = {}, nodeW = {};
-  for (const n of anim.nodes) {
-    const w = Math.max(110, n.label.length * 7.4 + 22);
-    const g = svgEl('g', { class: 'node' });
-    g.append(svgEl('rect', { x: n.x - w / 2, y: n.y - 23, width: w, height: 46, rx: 16 }));
-    const t = svgEl('text', { x: n.x, y: n.y + 5 }); t.textContent = n.label; g.append(t);
-    gNodes.append(g); nodeG[n.id] = g; nodeW[n.id] = w;
+  let linkEl = [], nodeG = {}, nodeW = {}, nodeLines = {};
+  // Disposizione dei nodi: quella dei dati (800×300) oppure, negli spazi stretti, ruotata in verticale
+  // con una riga per ogni colonna originale, così i testi restano a grandezza naturale.
+  function layoutNet(narrow) {
+    narrowNet = narrow; nodes = {}; nodeW = {}; nodeLines = {};
+    if (!narrow) {
+      NW = W; NH = H;
+      for (const n of anim.nodes) { nodes[n.id] = { ...n }; nodeW[n.id] = Math.max(110, n.label.length * 7.4 + 22); nodeLines[n.id] = [n.label]; }
+      return;
+    }
+    NW = 380;
+    const cols = [...new Set(anim.nodes.map(n => n.x))].sort((a, b) => a - b);
+    NH = Math.max(230, (cols.length - 1) * 112 + 96);
+    for (const [r, x] of cols.entries()) {
+      const row = anim.nodes.filter(n => n.x === x).sort((a, b) => a.y - b.y);
+      row.forEach((n, j) => {
+        const w = Math.min(Math.max(92, n.label.length * 6.8 + 20), NW / row.length - 10);
+        nodes[n.id] = { ...n, x: (NW * (j + 0.5)) / row.length, y: cols.length > 1 ? 48 + (r * (NH - 96)) / (cols.length - 1) : NH / 2 };
+        nodeW[n.id] = w; nodeLines[n.id] = wrap(n.label, Math.max(5, Math.floor((w - 14) / 6.6)));
+      });
+    }
   }
+  function buildNet() {
+    svg.setAttribute('viewBox', `0 0 ${NW} ${NH}`); svg.classList.toggle('narrow', narrowNet);
+    gLinks.replaceChildren(); gNodes.replaceChildren(); linkEl = []; nodeG = {};
+    for (const [a, b] of anim.links) { const l = svgEl('line', { class: 'link', x1: nodes[a].x, y1: nodes[a].y, x2: nodes[b].x, y2: nodes[b].y }); gLinks.append(l); linkEl.push([a, b, l]); }
+    for (const n of Object.values(nodes)) {
+      const w = nodeW[n.id], lines = nodeLines[n.id];
+      const g = svgEl('g', { class: 'node' });
+      g.append(svgEl('rect', { x: n.x - w / 2, y: n.y - 23, width: w, height: 46, rx: 16 }));
+      lines.forEach((l, k) => { const t = svgEl('text', { x: n.x, y: n.y + 5 + (k - (lines.length - 1) / 2) * 15 }); t.textContent = l; g.append(t); });
+      if (lines.join(' ').replace(/- /g, '-') !== n.label) { const t = svgEl('title', {}); t.textContent = n.label; g.append(t); }
+      gNodes.append(g); nodeG[n.id] = g;
+    }
+  }
+  // Distanza dal centro del nodo al bordo del suo riquadro lungo la direzione da cui arriva il pacchetto.
+  const edge = (id, fromId) => { const a = nodes[id], b = nodes[fromId] || a, dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y), d = Math.hypot(dx, dy) || 1; return Math.min(dx ? (nodeW[id] / 2) / (dx / d) : Infinity, dy ? 23 / (dy / d) : Infinity) + 8; };
+  layoutNet(false); buildNet();
 
   const btnPlay = h('button', { class: 'primary', onclick: () => togglePlay() }, '▶ Play');
   const spd = h('select', { 'aria-label': 'Velocità', onchange: e => (speed = parseFloat(e.target.value)) },
@@ -136,12 +164,12 @@ export function createSim(proto, anim) {
     if (fault === 'node') {
       if (route[0] === fNode) return { type: 'nosend', stop: 0, a: fNode, b: fNode };
       const k = route.indexOf(fNode);
-      return k > 0 ? { type: 'lost', stop: Math.max(0, acc(k) - nodeW[fNode] / 2 - 8) / total, a: fNode, b: fNode, prev: route[k - 1] } : null;
+      return k > 0 ? { type: 'lost', stop: Math.max(0, acc(k) - edge(fNode, route[k - 1])) / total, a: fNode, b: fNode, prev: route[k - 1] } : null;
     }
     const k = route.findIndex((id, i) => i + 1 < route.length && onLink(id, route[i + 1]));
     if (k < 0) return null;
     const mid = (acc(k) + seg[k] / 2) / total;
-    return fault === 'cable' ? { type: 'lost', stop: mid, a: route[k], b: route[k + 1] } : { type: 'corrupt', from: mid, stop: Math.max(mid, (acc(k + 1) - nodeW[route[k + 1]] / 2 - 8) / total), a: route[k + 1], b: route[k + 1], prev: route[k] };
+    return fault === 'cable' ? { type: 'lost', stop: mid, a: route[k], b: route[k + 1] } : { type: 'corrupt', from: mid, stop: Math.max(mid, (acc(k + 1) - edge(route[k + 1], route[k])) / total), a: route[k + 1], b: route[k + 1], prev: route[k] };
   }
   const effectsOf = i => allRoutes[i].map(effect);
   const statusOf = i => { const t = effectsOf(i).map(e => e?.type); return ['nosend', 'lost', 'corrupt'].find(x => t.includes(x)) || null; };
@@ -272,9 +300,14 @@ export function createSim(proto, anim) {
       h('div', {}, h('span', { class: 'tag' }, s.t), ' ', h('strong', {}, s.label), s.us != null ? h('span', { class: 'tag' }, `≈ ${fmtUs(s.us)}`) : null,
         cycles && idx >= anim.loopFrom ? h('span', { class: 'muted' }, `  · ciclo n° ${cycles + 1}`) : null),
       h('p', {}, T(s.note)));
-    for (const [id, g] of Object.entries(nodeG)) g.classList.toggle('act', id === s.from || (Array.isArray(s.to) ? s.to : [s.to]).includes(id) || (s.path || []).includes(id));
+    markActive();
     if (isPro() && s.frame) tabFrame = s.frame;
     renderFrame(); renderFault(); drawSeq();
+  }
+
+  function markActive() {
+    const s = steps[idx];
+    for (const [id, g] of Object.entries(nodeG)) g.classList.toggle('act', id === s.from || (Array.isArray(s.to) ? s.to : [s.to]).includes(id) || (s.path || []).includes(id));
   }
 
   function showField(f, desc, auto) {
@@ -342,7 +375,7 @@ export function createSim(proto, anim) {
       g.setAttribute('transform', `translate(${q.x} ${q.y})`);
       if (dead) g.classList.add('lost');
       gPk.append(g);
-      if (k === 0) { const t = svgEl('text', { class: 'pktlbl' + (dead ? ' lost' : ''), x: q.x, y: q.y - 16 }); t.textContent = steps[idx].label; gPk.append(t); }
+      if (k === 0) { const lbl = steps[idx].label, half = lbl.length * 3.3 + 4; const t = svgEl('text', { class: 'pktlbl' + (dead ? ' lost' : ''), x: Math.max(half, Math.min(NW - half, q.x)), y: q.y - 16 }); t.textContent = lbl; gPk.append(t); }
     });
     if (seqDot && track) {
       const f = track.round ? 1 - Math.abs(1 - 2 * p) : p;
@@ -377,7 +410,13 @@ export function createSim(proto, anim) {
 
   startStep(0);
   // Il diagramma a sequenza si adatta alla larghezza disponibile (testi sempre leggibili, anche a 390 px).
-  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { const w = Math.max(300, Math.min(800, Math.round(seqBox.clientWidth || 800))); if (w !== seqW) { drawSeq(); draw(); } }) : null;
+  const fit = () => {
+    const n = (root.clientWidth || 800) < 560;
+    if (n !== narrowNet) { layoutNet(n); buildNet(); cur.geo = cur.routes.map(geom); cur.fx = cur.routes.map(effect); markActive(); drawFault(); draw(); }
+    const w = Math.max(300, Math.min(800, Math.round(seqBox.clientWidth || 800)));
+    if (w !== seqW) { drawSeq(); draw(); }
+  };
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(fit) : null;
   ro?.observe(seqBox);
   return { el: root, stop: () => { playing = false; if (raf) cancelAnimationFrame(raf); raf = null; ro?.disconnect(); } };
 }

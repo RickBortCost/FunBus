@@ -44,7 +44,7 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       const t = await pg.textContent('#app');
       if (t.length < 20 || t.startsWith('Errore')) errs.push(`${label}/${lang}/${lv} ${r}: pagina vuota o in errore`);
       if (lang === 'en') await checkEnglish(pg, `${lv} ${r}`);
-      if (ids.includes(r.split('/')[2]) && lv === 'lvP') { await pg.click('button[role=tab] >> nth=1'); await pg.waitForTimeout(60); if (!(await pg.locator('.seq svg').count())) errs.push(`${label}/${lang} ${r}: animazione senza diagramma`); if (lang === 'en') await checkEnglish(pg, `${lv} ${r} animazione`); }
+      if (ids.includes(r.split('/')[2]) && lv === 'lvP') { await pg.click('button[role=tab] >> nth=1'); await pg.waitForTimeout(60); if (!(await pg.locator('.seq svg').count())) errs.push(`${label}/${lang} ${r}: animazione senza diagramma`); const vb = await pg.locator('.sim > svg').getAttribute('viewBox'); if ((label === 'mobile') !== vb.startsWith('0 0 380')) errs.push(`${label} ${r}: disposizione della rete non adatta alla larghezza (${vb})`); if (lang === 'en') await checkEnglish(pg, `${lv} ${r} animazione`); }
       if (label === 'mobile' && !r.startsWith('/confronto')) {
         const ov = await pg.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (ov > 2) errs.push(`mobile/${lv} ${r}: overflow orizzontale ${ov}px`);
