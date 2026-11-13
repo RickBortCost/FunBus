@@ -24,12 +24,15 @@ for (const p of P.protocols) {
   for (const s of p.sources || []) if (!s.n || !s.d || (EN.strings[s.d] === undefined && /[àèéìòù]| (e|di|per|su|il|la) /.test(s.d))) err.push(`${p.id}: fonte «${s.n}» senza descrizione tradotta`);
   if (!(p.attrs.mbps > 0)) err.push(`${p.id}: attrs.mbps (bit rate tipico in Mbit/s, usato dai grafici) mancante`);
 }
-// Varianti (es. OPC UA client/server, PubSub, FX): ogni riga deve avere un valore tradotto per ogni variante
+// Varianti (OPC UA, PROFINET RT/IRT, PROFIBUS DP/PA, Modbus TCP/RTU, CIP/EtherNet/IP): ogni riga ha un valore tradotto per ogni colonna
+const trOk = x => typeof x === 'string' && x && (EN.strings[x] !== undefined || !/[àèéìòù]| (e|di|per|su|il|la|con|da|a) /.test(x));
 for (const v of P.variants || []) {
-  for (const x of v.ids) { if (!ids.includes(x)) err.push(`varianti ${v.id}: protocollo ${x} inesistente`); if (!v.heads?.[x]) err.push(`varianti ${v.id}: intestazione di ${x} mancante`); }
+  for (const x of [...v.show, ...(v.compare || []), ...v.cols.map(c => c.proto).filter(Boolean)]) if (!ids.includes(x)) err.push(`varianti ${v.id}: protocollo ${x} inesistente`);
+  if (v.cols.length < 2) err.push(`varianti ${v.id}: servono almeno due colonne`);
+  for (const c of v.cols) if (!trOk(c.head)) err.push(`varianti ${v.id}: intestazione ${c.key} mancante o non tradotta`);
   for (const k of ['b', 'p']) if (!v.intro?.[k] || !EN.strings[v.intro[k]]) err.push(`varianti ${v.id}: intro/${k} mancante o senza traduzione EN`);
   if (!EN.strings[v.title]) err.push(`varianti ${v.id}: titolo senza traduzione EN`);
-  for (const r of v.rows) { if (!EN.strings[r.label]) err.push(`varianti ${v.id}: riga «${r.label}» senza traduzione EN`); for (const x of v.ids) if (!r.values?.[x] || !EN.strings[r.values[x]]) err.push(`varianti ${v.id}: «${r.label}» senza valore tradotto per ${x}`); }
+  for (const r of v.rows) { if (!EN.strings[r.label]) err.push(`varianti ${v.id}: riga «${r.label}» senza traduzione EN`); for (const c of v.cols) if (!trOk(r.values?.[c.key])) err.push(`varianti ${v.id}: «${r.label}» senza valore tradotto per ${c.key}`); }
 }
 // Gioco «Costruisci la rete»: ogni missione deve avere almeno una soluzione pienamente adatta (stessa logica di evaluate() nell'app)
 const RANK = { none: 0, soft: 1, det: 2, hard: 3 };
