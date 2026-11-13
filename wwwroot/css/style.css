@@ -357,3 +357,8 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
 /* Rete delle animazioni negli spazi stretti: disposizione verticale a grandezza naturale */
 .sim svg.narrow{max-width:460px;margin:0 auto}
 .sim svg.narrow .node text{font-size:12.5px}
+
+/* Gioco: ripetitori e terminatori */
+.stepper{margin:.5rem 0;gap:.4rem}.stepper .icon{width:2rem;height:2rem;padding:0;line-height:1;font-weight:700}
+.repn{min-width:1.6rem;text-align:center;font-size:1.1rem}
+.termico{display:inline-grid;place-items:center;width:16px;height:20px;border:2px solid var(--muted);border-radius:4px;font-size:.7rem;font-weight:700}

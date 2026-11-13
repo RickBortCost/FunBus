@@ -55,7 +55,7 @@ const ALLOW = [
 let nJs = 0;
 for (const f of fs.readdirSync('wwwroot/js').filter(x => x.endsWith('.js'))) {
   for (const s of literals(fs.readFileSync(`wwwroot/js/${f}`, 'utf8'))) {
-    if (s.length < 3 || /^[\w.#-]+$/.test(s) || /[<>{};]|^\.|:\s*\w+\(|^M-?\d/.test(s)) continue; // identificatori, CSS, percorsi SVG
+    if (s.length < 3 || /^[\w.#-]+$/.test(s) || /^[\w-]+:[^ ]|^\.|:\s*\w+\(|^M-?\d/.test(s)) continue; // identificatori, dichiarazioni CSS, percorsi SVG
     nJs++;
     if (looksItalian(s) && !translated(s) && !ALLOW.some(r => r.test(s))) err.push(`interfaccia ${f}: «${s.slice(0, 110)}»`);
   }

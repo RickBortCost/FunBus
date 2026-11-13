@@ -1049,6 +1049,132 @@
    ],
    "a": 0,
    "e": "0xB62C = OPC UA (UADP). 0x8892 = PROFINET, 0x88A4 = EtherCAT, 0x0800 = IPv4."
+  },
+  {
+   "id": "b32",
+   "level": "beginner",
+   "d": 1,
+   "q": "In una rete a stella si rompe il cavo di un solo dispositivo. Che cosa succede?",
+   "o": [
+    "Resta isolato solo quel dispositivo",
+    "Si ferma tutta la rete",
+    "Restano isolati tutti i dispositivi dopo di lui",
+    "Non succede nulla: i dati passano dall'altro lato"
+   ],
+   "a": 0,
+   "e": "Nella stella ogni dispositivo ha il proprio cavo verso lo switch: il guasto resta confinato a quel ramo."
+  },
+  {
+   "id": "b33",
+   "level": "beginner",
+   "d": 2,
+   "q": "A che cosa servono i terminatori alle estremità di un bus RS-485 o CAN?",
+   "o": [
+    "Evitano che il segnale rimbalzi indietro come un'eco",
+    "Alimentano i dispositivi",
+    "Assegnano gli indirizzi",
+    "Aumentano la velocità del bus"
+   ],
+   "a": 0,
+   "e": "Senza terminazione il segnale viene riflesso all'estremità del cavo e disturba i messaggi."
+  },
+  {
+   "id": "b34",
+   "level": "beginner",
+   "d": 2,
+   "q": "In una linea (daisy chain) si spegne un dispositivo a metà. Chi resta isolato?",
+   "o": [
+    "Lui e tutti i dispositivi dopo di lui",
+    "Solo lui",
+    "Nessun dispositivo",
+    "Solo il master"
+   ],
+   "a": 0,
+   "e": "In una catena ogni dispositivo inoltra i dati al successivo: se uno si ferma, quelli a valle non ricevono più nulla."
+  },
+  {
+   "id": "b35",
+   "level": "beginner",
+   "d": 2,
+   "q": "Qual è il vantaggio di chiudere la rete ad anello con un protocollo di ridondanza?",
+   "o": [
+    "Con un cavo interrotto tutti i dispositivi restano raggiungibili",
+    "La rete diventa più veloce",
+    "Non servono più gli indirizzi",
+    "Si possono collegare infiniti dispositivi"
+   ],
+   "a": 0,
+   "e": "L'anello offre un secondo percorso: dopo il guasto la rete si riorganizza e i dati passano dall'altro lato."
+  },
+  {
+   "id": "p48",
+   "level": "professional",
+   "d": 2,
+   "q": "In un anello MRP, che cosa fa il manager (MRM) in condizioni normali?",
+   "o": [
+    "Tiene bloccata una delle sue due porte d'anello e invia frame di test",
+    "Inoltra tutti i frame su entrambe le porte",
+    "Interroga ciclicamente ogni client",
+    "Duplica ogni frame nei due sensi"
+   ],
+   "a": 0,
+   "e": "La porta bloccata evita il loop Ethernet; i frame MRP_Test verificano che l'anello sia integro."
+  },
+  {
+   "id": "p49",
+   "level": "professional",
+   "d": 2,
+   "q": "Qual è il tempo di ripristino tipico di un anello DLR (EtherNet/IP) fino a 50 nodi?",
+   "o": [
+    "Circa 3 ms",
+    "Circa 200 ms",
+    "Circa 1 s",
+    "Circa 30 s"
+   ],
+   "a": 0,
+   "e": "Con beacon ogni 400 µs il supervisor rileva e ripristina in pochi millisecondi; 200 ms è il valore tipico di MRP."
+  },
+  {
+   "id": "p50",
+   "level": "professional",
+   "d": 2,
+   "q": "Uno slave Modbus RTU riceve un frame con CRC errato. Come si comporta?",
+   "o": [
+    "Lo scarta senza rispondere: il master va in timeout",
+    "Risponde con l'eccezione 0x01",
+    "Chiede la ritrasmissione con un NACK",
+    "Corregge l'errore e risponde normalmente"
+   ],
+   "a": 0,
+   "e": "Con il CRC errato anche l'indirizzo potrebbe essere sbagliato: lo slave tace e il master ritenta dopo il timeout."
+  },
+  {
+   "id": "p51",
+   "level": "professional",
+   "d": 3,
+   "q": "Perché su CAN i ripetitori non permettono di allungare il bus a parità di bit rate?",
+   "o": [
+    "Perché il limite è il tempo di propagazione richiesto dall'arbitraggio bit a bit",
+    "Perché CAN non ammette più di 32 nodi",
+    "Perché i ripetitori cancellano il CRC",
+    "Perché il bus va terminato una sola volta"
+   ],
+   "a": 0,
+   "e": "Ogni nodo deve vedere il bit degli altri entro lo stesso tempo di bit: per coprire più distanza si riduce il bit rate."
+  },
+  {
+   "id": "p52",
+   "level": "professional",
+   "d": 2,
+   "q": "In una linea EtherCAT si interrompe il cavo tra due slave. Che cosa fa lo slave prima del guasto?",
+   "o": [
+    "Chiude il loop e rimanda indietro il frame; il master vede un Working Counter più basso",
+    "Si spegne",
+    "Diventa master della parte isolata",
+    "Ritrasmette il frame finché il cavo non torna"
+   ],
+   "a": 0,
+   "e": "L'ESC rileva la perdita del link e fa il loopback automatico: gli slave a valle non incrementano più il WKC."
   }
  ]
 }

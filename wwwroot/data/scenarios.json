@@ -54,6 +54,13 @@
    "notes": {
     "security": "Le Security Class dipendono dalla versione della specifica e dai dispositivi.",
     "redundancy": "MRP (recupero ~200 ms) o MRPD in IRT (senza perdita)."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "profibus": {
@@ -76,6 +83,14 @@
     "motion": "DP-V2 isocrono / PROFIdrive, ma con cicli dell'ordine dei ms.",
     "redundancy": "Ridondanza di master/fibra specifica del costruttore.",
     "powerOnBus": "Solo PROFIBUS PA (31,25 kbit/s) alimenta gli strumenti dal bus."
+   },
+   "wiring": {
+    "segLenM": 200,
+    "regen": false,
+    "segNodes": 32,
+    "term": true,
+    "repMax": 4,
+    "lenNote": "200 m per segmento a 1,5 Mbit/s (100 m a 12 Mbit/s, 1200 m fino a 93,75 kbit/s); 32 stazioni per segmento; il numero di ripetitori in serie dipende dal tipo e dalla velocità."
    }
   },
   "s7": {
@@ -96,6 +111,13 @@
     "security": "S7CommPlus (S7-1200/1500) aggiunge integrità; S7comm classico no.",
     "redundancy": "Delegata alla rete IP (RSTP/MRP).",
     "notify": "Solo polling (Read Var)."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "ethercat": {
@@ -115,6 +137,13 @@
    "notes": {
     "redundancy": "Cable redundancy con secondo porto del master (l'anello fisico).",
     "plcBeckhoff": "Master EtherCAT nativo in TwinCAT."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "ads": {
@@ -136,6 +165,13 @@
    "notes": {
     "security": "ADS Secure (TLS) nelle versioni recenti; altrimenti solo route ADS.",
     "vendorNeutral": "Specifica pubblicata ma ecosistema Beckhoff."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "mqtt": {
@@ -165,6 +201,13 @@
     "siemensData": "Richiede librerie/firmware o gateway.",
     "plcBeckhoff": "Funzione opzionale TwinCAT (TF6701).",
     "plcRockwell": "Tramite gateway o moduli opzionali."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "opcua": {
@@ -195,6 +238,13 @@
     "siemensData": "Server OPC UA sulle CPU S7-1500 a seconda di firmware/licenza.",
     "plcBeckhoff": "Server OPC UA opzionale in TwinCAT.",
     "plcRockwell": "Tramite gateway (es. FactoryTalk Linx) o moduli."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "enip": {
@@ -220,6 +270,13 @@
     "notify": "Connessioni I/O COS (change of state).",
     "security": "CIP Security (TLS/DTLS) solo su dispositivi che la supportano.",
     "redundancy": "DLR (Device Level Ring)."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "modbus": {
@@ -238,6 +295,13 @@
    "notes": {
     "security": "Modbus/TCP Security (TLS) esiste ma è poco diffuso.",
     "redundancy": "Delegata alla rete IP."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "canopen": {
@@ -259,6 +323,13 @@
     "motion": "CiA 402 con PDO sincroni; cicli e jitter peggiori di EtherCAT/IRT.",
     "safety": "CANopen Safety (EN 50325-5).",
     "redundancy": "Soluzioni di bus ridondante specifiche dell'applicazione."
+   },
+   "wiring": {
+    "segLenM": 40,
+    "regen": false,
+    "term": true,
+    "repMax": 0,
+    "lenNote": "≈ 40 m a 1 Mbit/s (100 m a 500 kbit/s, 250 m a 250 kbit/s, 500 m a 125 kbit/s): i ripetitori non allungano il bus, perché il limite è il tempo di propagazione richiesto dall'arbitraggio."
    }
   },
   "iolink": {
@@ -275,6 +346,13 @@
    },
    "notes": {
     "safety": "IO-Link Safety è un'estensione con dispositivi dedicati."
+   },
+   "wiring": {
+    "segLenM": 20,
+    "regen": true,
+    "term": false,
+    "repMax": 0,
+    "lenNote": "20 m al massimo tra la porta del master e il dispositivo; collegamento punto-punto, senza ripetitori."
    }
   },
   "modbusrtu": {
@@ -288,7 +366,15 @@
     "vendorNeutral": "yes",
     "simpleOpen": "yes"
    },
-   "notes": {}
+   "notes": {},
+   "wiring": {
+    "segLenM": 1000,
+    "regen": false,
+    "segNodes": 32,
+    "term": true,
+    "repMax": 3,
+    "lenNote": "≈ 1000 m per segmento RS-485 alle basse velocità (9,6–19,2 kbit/s), meno a velocità maggiori; 32 carichi per segmento senza ripetitori."
+   }
   },
   "asi": {
    "cycleMinUs": 5000,
@@ -306,6 +392,13 @@
    "notes": {
     "safety": "ASIsafe sullo stesso cavo.",
     "sensorParam": "Slave molto semplici (4 bit); i profili più recenti aggiungono parametri."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": false,
+    "term": false,
+    "repMax": 2,
+    "lenNote": "100 m per segmento; fino a 300 m con due ripetitori (o 200 m con una terminazione passiva di estensione)."
    }
   },
   "bacnet": {
@@ -329,6 +422,13 @@
     "security": "BACnet/SC (TLS) disponibile nelle versioni recenti.",
     "itint": "Modello a oggetti standard ma limitato all'edificio.",
     "pubsub": "Sottoscrizioni COV, non un broker."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "knx": {
@@ -349,6 +449,14 @@
    },
    "notes": {
     "pubsub": "Group address: i dispositivi iscritti reagiscono al telegramma."
+   },
+   "wiring": {
+    "segLenM": 1000,
+    "regen": false,
+    "segNodes": 64,
+    "term": false,
+    "repMax": 3,
+    "lenNote": "1000 m di cavo per segmento di linea (700 m al massimo tra due dispositivi, 350 m dall'alimentatore); fino a 3 ripetitori di linea, 64 dispositivi per segmento."
    }
   },
   "hart": {
@@ -366,6 +474,13 @@
    },
    "notes": {
     "sensorParam": "Parametrizzazione e diagnostica di strumenti di campo, non sensori on/off."
+   },
+   "wiring": {
+    "segLenM": 1500,
+    "regen": false,
+    "term": false,
+    "repMax": 0,
+    "lenNote": "Da circa 1500 a 3000 m secondo cavo e capacità: il limite è la costante di tempo dell'anello, non un ripetitore."
    }
   },
   "cip": {
@@ -390,6 +505,13 @@
     "notify": "Produced tag ciclici o COS, non un push on-change generico.",
     "pubsub": "Produced/consumed tag in multicast.",
     "redundancy": "DLR."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "opcuapubsub": {
@@ -422,6 +544,13 @@
     "siemensData": "Disponibile su alcune CPU e firmware; verificare il prodotto.",
     "plcBeckhoff": "Funzione opzionale TwinCAT.",
     "security": "Sicurezza dei messaggi con chiavi di gruppo (SKS); TLS sul trasporto via broker."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   },
   "opcuafx": {
@@ -448,6 +577,13 @@
     "redundancy": "Affidata alla rete (anelli, meccanismi TSN).",
     "notify": "Lo scambio è ciclico; eventi e allarmi passano dai servizi client/server.",
     "vendorNeutral": "Obiettivo principale dello standard; il numero di prodotti è ancora limitato."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
    }
   }
  },
