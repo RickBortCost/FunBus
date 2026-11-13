@@ -52,17 +52,21 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       if (ids.includes(r.split('/')[2]) && lv === 'lvP') await pg.click('button[role=tab] >> nth=0');
     }
   }
-  // varianti (OPC UA client/server, PubSub, FX): tabella delle differenze nelle schede e collegamento al confronto
+  // varianti: tabelle delle differenze nelle schede e collegamento al confronto
   {
     await pg.selectOption('#langSel', 'it');
-    for (const v of data('protocols').variants || []) {
-      for (const id of v.ids) {
-        await pg.evaluate(h => (location.hash = h), '/protocolli/' + id); await pg.waitForTimeout(100);
-        if ((await pg.locator('.vstable tbody tr').count()) !== v.rows.length) errs.push(`${label} ${id}: tabella delle differenze incompleta`);
-        if ((await pg.locator('.vstable tbody tr').first().locator('td.cur').count()) !== 1) errs.push(`${label} ${id}: colonna della scheda non evidenziata`);
-      }
-      await pg.evaluate(h => (location.hash = h), '/confronto/' + v.ids.join(',')); await pg.waitForTimeout(150);
-      if (label === 'desktop' && (await pg.locator('table.cmp thead th').count()) !== v.ids.length + 1) errs.push(`confronto/${v.ids.join(',')}: protocolli non affiancati`);
+    const vs = data('protocols').variants || [];
+    for (const id of [...new Set(vs.flatMap(v => v.show))]) {
+      await pg.evaluate(h => (location.hash = h), '/protocolli/' + id); await pg.waitForTimeout(100);
+      const mine = vs.filter(v => v.show.includes(id));
+      if ((await pg.locator('.vstable').count()) !== mine.length) errs.push(`${label} ${id}: tabelle delle differenze mancanti`);
+      if ((await pg.locator('.vstable tbody tr').count()) !== mine.reduce((a, v) => a + v.rows.length, 0)) errs.push(`${label} ${id}: tabella delle differenze incompleta`);
+      const withCur = mine.some(v => v.cols.some(c => c.proto === id) && v.cols.some(c => c.proto !== id));
+      if (withCur && (await pg.locator('.vstable tbody tr').first().locator('td.cur').count()) !== 1) errs.push(`${label} ${id}: colonna della scheda non evidenziata`);
+    }
+    for (const v of vs.filter(x => x.compare)) {
+      await pg.evaluate(h => (location.hash = h), '/confronto/' + v.compare.join(',')); await pg.waitForTimeout(150);
+      if (label === 'desktop' && (await pg.locator('table.cmp thead th').count()) !== v.compare.length + 1) errs.push(`confronto/${v.compare.join(',')}: protocolli non affiancati`);
     }
     await pg.evaluate(h => (location.hash = h), '/confronto');
   }

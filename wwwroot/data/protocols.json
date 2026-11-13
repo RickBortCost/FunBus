@@ -2832,21 +2832,38 @@
  "variants": [
   {
    "id": "opcua",
-   "ids": [
+   "show": [
+    "opcua",
+    "opcuapubsub",
+    "opcuafx"
+   ],
+   "compare": [
     "opcua",
     "opcuapubsub",
     "opcuafx"
    ],
    "title": "OPC UA tradizionale, PubSub e FX: le differenze",
-   "heads": {
-    "opcua": "OPC UA tradizionale (client/server)",
-    "opcuapubsub": "OPC UA PubSub",
-    "opcuafx": "OPC UA FX"
-   },
    "intro": {
     "b": "Sono tre modi di usare lo stesso «linguaggio». Quello tradizionale è una conversazione a due; PubSub è una trasmissione verso molti; FX usa entrambi per far lavorare insieme i controllori in tempo reale.",
     "p": "Stesso information model e stessa codifica dei dati; cambiano modello di comunicazione, trasporto, sicurezza e garanzie temporali. FX non è un quarto protocollo: è un profilo che combina client/server (connessione) e PubSub (dati) con un proprio modello a FunctionalEntity."
    },
+   "cols": [
+    {
+     "key": "opcua",
+     "head": "OPC UA tradizionale (client/server)",
+     "proto": "opcua"
+    },
+    {
+     "key": "opcuapubsub",
+     "head": "OPC UA PubSub",
+     "proto": "opcuapubsub"
+    },
+    {
+     "key": "opcuafx",
+     "head": "OPC UA FX",
+     "proto": "opcuafx"
+    }
+   ],
    "rows": [
     {
      "label": "A cosa serve",
@@ -2926,6 +2943,336 @@
       "opcua": "SCADA, MES, HMI, diagnostica e configurazione",
       "opcuapubsub": "Dati verso cloud e IT, scambio ciclico tra controllori",
       "opcuafx": "Controllore-controllore multi-costruttore; controllore-dispositivo nelle estensioni successive"
+     }
+    }
+   ]
+  },
+  {
+   "id": "profinet",
+   "show": [
+    "profinet"
+   ],
+   "title": "PROFINET RT e IRT: le differenze",
+   "intro": {
+    "b": "PROFINET ha due «marce». RT va bene per quasi tutte le macchine e usa una rete normale; IRT serve quando molti assi devono muoversi in perfetta sincronia e richiede hardware dedicato.",
+    "p": "Stesso protocollo applicativo e stessi servizi aciclici: cambia il trasporto del traffico ciclico. Nei confronti e nei grafici dell'app PROFINET compare con le prestazioni di IRT; qui le due classi sono distinte."
+   },
+   "cols": [
+    {
+     "key": "rt",
+     "head": "PROFINET RT"
+    },
+    {
+     "key": "irt",
+     "head": "PROFINET IRT"
+    }
+   ],
+   "rows": [
+    {
+     "label": "A cosa serve",
+     "values": {
+      "rt": "I/O distribuito e la maggior parte delle macchine",
+      "irt": "Motion control e applicazioni sincrone ad alte prestazioni"
+     }
+    },
+    {
+     "label": "Come ottiene i tempi",
+     "values": {
+      "rt": "Priorità dei frame (VLAN, PCP 6) su Ethernet standard, senza riserva di banda",
+      "irt": "Intervallo riservato in ogni ciclo, pianificato in anticipo, e orologi sincronizzati (PTCP)"
+     }
+    },
+    {
+     "label": "Determinismo",
+     "values": {
+      "rt": "Soft real-time: tempi tipici ma non garantiti, dipendono dal carico della rete",
+      "irt": "Hard real-time: jitter inferiore a 1 µs"
+     }
+    },
+    {
+     "label": "Tempo di ciclo",
+     "values": {
+      "rt": "Da 1 a 512 ms (comuni 1–4 ms)",
+      "irt": "Da 31,25 µs a 4 ms (comuni 250 µs–1 ms); dipende dai dispositivi"
+     }
+    },
+    {
+     "label": "Hardware di rete",
+     "values": {
+      "rt": "Switch Ethernet standard, meglio se gestiti e con priorità",
+      "irt": "Switch e dispositivi con hardware IRT su tutto il percorso"
+     }
+    },
+    {
+     "label": "Topologia",
+     "values": {
+      "rt": "Libera: non serve dichiararla per comunicare",
+      "irt": "Va progettata nello strumento di ingegneria: i percorsi dei frame sono calcolati su di essa"
+     }
+    },
+    {
+     "label": "Ridondanza ad anello",
+     "values": {
+      "rt": "MRP: ripristino tipico entro 200 ms",
+      "irt": "MRPD: frame duplicati sui due lati dell'anello, senza interruzione"
+     }
+    },
+    {
+     "label": "FrameID dei dati ciclici",
+     "values": {
+      "rt": "0x8000–0xBFFF (RT_Class_1)",
+      "irt": "0x0100–0x7FFF (RT_Class_3); l'intervallo dipende dalla versione"
+     }
+    }
+   ]
+  },
+  {
+   "id": "profibus",
+   "show": [
+    "profibus"
+   ],
+   "title": "PROFIBUS DP e PA: le differenze",
+   "intro": {
+    "b": "Sono lo stesso bus in due «abiti»: DP è veloce e sta nel quadro e sulle macchine; PA è lento ma porta anche l'alimentazione agli strumenti e può entrare nelle zone a rischio di esplosione.",
+    "p": "Stesso protocollo (DP-V1) e stessi servizi: cambia il livello fisico. Un segmento PA si collega a un segmento DP tramite accoppiatore o link; per il master i dispositivi PA sono slave DP."
+   },
+   "cols": [
+    {
+     "key": "dp",
+     "head": "PROFIBUS DP"
+    },
+    {
+     "key": "pa",
+     "head": "PROFIBUS PA"
+    }
+   ],
+   "rows": [
+    {
+     "label": "A cosa serve",
+     "values": {
+      "dp": "Automazione di fabbrica: I/O remoti, azionamenti, isole di valvole",
+      "pa": "Automazione di processo: trasmettitori e attuatori, anche in area a rischio di esplosione"
+     }
+    },
+    {
+     "label": "Livello fisico",
+     "values": {
+      "dp": "RS-485 (o fibra ottica)",
+      "pa": "MBP, Manchester Bus Powered (IEC 61158-2)"
+     }
+    },
+    {
+     "label": "Velocità",
+     "values": {
+      "dp": "Da 9,6 kbit/s a 12 Mbit/s",
+      "pa": "31,25 kbit/s, fissa"
+     }
+    },
+    {
+     "label": "Alimentazione",
+     "values": {
+      "dp": "Separata: il bus porta solo i dati",
+      "pa": "Sullo stesso doppino dei dati; possibile la sicurezza intrinseca (modello FISCO)"
+     }
+    },
+    {
+     "label": "Dispositivi per segmento",
+     "values": {
+      "dp": "32 stazioni; 126 indirizzi con i ripetitori",
+      "pa": "Fino a 32; in area Ex molti meno (circa 10), secondo la corrente disponibile"
+     }
+    },
+    {
+     "label": "Lunghezza del segmento",
+     "values": {
+      "dp": "Da 100 m a 12 Mbit/s fino a 1200 m a 93,75 kbit/s",
+      "pa": "Fino a 1900 m (meno in area Ex)"
+     }
+    },
+    {
+     "label": "Topologia",
+     "values": {
+      "dp": "Linea con terminazioni alle estremità; derivazioni da evitare alle alte velocità",
+      "pa": "Linea, albero o stella con derivazioni; terminatori alle estremità della dorsale"
+     }
+    },
+    {
+     "label": "Collegamento al master",
+     "values": {
+      "dp": "Diretto",
+      "pa": "Tramite accoppiatore o link DP/PA"
+     }
+    }
+   ]
+  },
+  {
+   "id": "modbus",
+   "show": [
+    "modbus",
+    "modbusrtu"
+   ],
+   "compare": [
+    "modbus",
+    "modbusrtu"
+   ],
+   "title": "Modbus TCP e Modbus RTU: le differenze",
+   "intro": {
+    "b": "Parlano la stessa lingua (stesse domande e risposte), ma viaggiano su strade diverse: Modbus TCP sulla rete Ethernet, Modbus RTU su un semplice cavo seriale.",
+    "p": "Stessa PDU (function code e dati), incapsulata in modo diverso: intestazione MBAP su TCP oppure indirizzo e CRC-16 su linea seriale. Un gateway converte tra i due senza toccare la PDU."
+   },
+   "cols": [
+    {
+     "key": "modbus",
+     "head": "Modbus TCP",
+     "proto": "modbus"
+    },
+    {
+     "key": "modbusrtu",
+     "head": "Modbus RTU",
+     "proto": "modbusrtu"
+    }
+   ],
+   "rows": [
+    {
+     "label": "Mezzo",
+     "values": {
+      "modbus": "Ethernet e rete IP (porta TCP 502)",
+      "modbusrtu": "Linea seriale RS-485 (o RS-232)"
+     }
+    },
+    {
+     "label": "Chi parla",
+     "values": {
+      "modbus": "Più client verso più server, anche contemporaneamente",
+      "modbusrtu": "Un solo master interroga gli slave, uno alla volta"
+     }
+    },
+    {
+     "label": "Indirizzamento",
+     "values": {
+      "modbus": "Indirizzo IP; lo Unit ID serve per i dispositivi dietro un gateway",
+      "modbusrtu": "Indirizzo di slave da 1 a 247 (0 = broadcast)"
+     }
+    },
+    {
+     "label": "Frame",
+     "values": {
+      "modbus": "Intestazione MBAP (7 byte) + PDU, senza CRC proprio",
+      "modbusrtu": "Indirizzo + PDU + CRC-16, tra silenzi di almeno 3,5 caratteri"
+     }
+    },
+    {
+     "label": "Controllo degli errori",
+     "values": {
+      "modbus": "Affidato a TCP ed Ethernet, con ritrasmissione automatica",
+      "modbusrtu": "CRC-16 e parità; il master ripete dopo il timeout"
+     }
+    },
+    {
+     "label": "Velocità tipica",
+     "values": {
+      "modbus": "10/100/1000 Mbit/s",
+      "modbusrtu": "Da 9,6 a 115,2 kbit/s"
+     }
+    },
+    {
+     "label": "Quanti dispositivi",
+     "values": {
+      "modbus": "Limitati da rete e connessioni TCP",
+      "modbusrtu": "247 indirizzi; 32 carichi per segmento senza ripetitori"
+     }
+    },
+    {
+     "label": "Distanza",
+     "values": {
+      "modbus": "100 m per tratta in rame, estendibile con switch e fibra",
+      "modbusrtu": "Fino a circa 1000 m alle basse velocità"
+     }
+    },
+    {
+     "label": "Che cosa resta uguale",
+     "values": {
+      "modbus": "Function code, modello dati (coil e registri) ed eccezioni",
+      "modbusrtu": "Function code, modello dati (coil e registri) ed eccezioni"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cip",
+   "show": [
+    "enip",
+    "cip"
+   ],
+   "compare": [
+    "enip",
+    "cip"
+   ],
+   "title": "CIP ed EtherNet/IP: le differenze",
+   "intro": {
+    "b": "CIP è il «linguaggio» con cui i dispositivi si descrivono e si parlano; EtherNet/IP è la «strada» Ethernet su cui quel linguaggio viaggia. Uno non esiste senza l'altro, ma non sono la stessa cosa.",
+    "p": "CIP definisce oggetti, servizi e connessioni indipendentemente dalla rete; EtherNet/IP ne è l'adattamento a Ethernet, TCP e UDP (come DeviceNet lo è per CAN). Le due schede dell'app guardano lo stesso stack da due lati: I/O di campo e scambio tra controllori."
+   },
+   "cols": [
+    {
+     "key": "cip",
+     "head": "CIP (protocollo applicativo)",
+     "proto": "cip"
+    },
+    {
+     "key": "enip",
+     "head": "EtherNet/IP (CIP su Ethernet)",
+     "proto": "enip"
+    }
+   ],
+   "rows": [
+    {
+     "label": "Che cos'è",
+     "values": {
+      "cip": "Modello a oggetti, servizi e tipi di connessione, indipendenti dalla rete",
+      "enip": "L'adattamento di CIP a Ethernet, TCP e UDP"
+     }
+    },
+    {
+     "label": "Dove gira",
+     "values": {
+      "cip": "Su EtherNet/IP, DeviceNet (CAN), ControlNet, CompoNet",
+      "enip": "Su Ethernet standard: TCP 44818, UDP 2222 e 44818"
+     }
+    },
+    {
+     "label": "Messaggi espliciti",
+     "values": {
+      "cip": "Servizi su oggetti (Get_Attribute_Single, Read Tag…) con richiesta e risposta",
+      "enip": "Incapsulati in SendRRData o SendUnitData su TCP"
+     }
+    },
+    {
+     "label": "I/O implicito",
+     "values": {
+      "cip": "Connessioni con RPI, cicliche o a cambio di stato",
+      "enip": "Dati su UDP 2222, unicast o multicast"
+     }
+    },
+    {
+     "label": "Apertura della connessione",
+     "values": {
+      "cip": "Forward_Open al Connection Manager",
+      "enip": "RegisterSession, poi Forward_Open incapsulato"
+     }
+    },
+    {
+     "label": "Estensioni",
+     "values": {
+      "cip": "CIP Safety, CIP Sync, CIP Motion, CIP Security",
+      "enip": "DLR per l'anello, QoS, rilevamento dei conflitti di indirizzo (ACD)"
+     }
+    },
+    {
+     "label": "In questa app",
+     "values": {
+      "cip": "Scheda «CIP / Logix»: produced/consumed tag e lettura dei tag tra controllori Rockwell",
+      "enip": "Scheda «EtherNet/IP»: scanner e adapter, I/O implicito"
      }
     }
    ]

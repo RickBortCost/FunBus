@@ -94,18 +94,19 @@ function card(p) {
       h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(S.data.protocols.sourcesNote))) : null);
 }
 
-// Varianti dello stesso standard (es. OPC UA client/server, PubSub, FX): tabella delle differenze, con la colonna della scheda aperta in evidenza.
+// Varianti dello stesso standard (OPC UA client/server, PubSub, FX; PROFINET RT/IRT; Modbus TCP/RTU…): tabelle delle differenze.
+// Una colonna può corrispondere a un protocollo dell'app (proto): quella della scheda aperta è in evidenza.
 function variantBox(p) {
-  const v = (S.data.protocols.variants || []).find(x => x.ids.includes(p.id));
-  if (!v) return null;
-  const ps = v.ids.map(protoById).filter(Boolean);
-  const head = x => h('span', { class: 'row', style: 'gap:.4rem;flex-wrap:nowrap' }, logo(x, 22), x.id === p.id ? h('strong', {}, v.heads[x.id]) : h('a', { href: `#/protocolli/${x.id}` }, v.heads[x.id]));
-  return h('div', { class: 'card', style: 'margin-top:1rem' },
-    h('h3', { style: 'margin-top:0' }, v.title), h('p', {}, T(v.intro)),
-    h('div', { class: 'vswrap' }, h('table', { class: 'vstable' },
-      h('thead', {}, h('tr', {}, h('th', {}, ''), ps.map(x => h('th', { class: x.id === p.id ? 'cur' : '' }, head(x), x.id === p.id ? h('span', { class: 'tag' }, 'questa scheda') : null)))),
-      h('tbody', {}, v.rows.map(r => h('tr', {}, h('th', { scope: 'row' }, r.label), ps.map(x => h('td', { class: x.id === p.id ? 'cur' : '' }, h('span', { class: 'vh' }, v.heads[x.id]), h('span', {}, r.values[x.id])))))))),
-    h('p', { style: 'margin-bottom:0' }, h('a', { href: `#/confronto/${v.ids.join(',')}` }, 'Apri i tre nel Confronto →')));
+  return (S.data.protocols.variants || []).filter(v => v.show.includes(p.id)).map(v => {
+    const head = c => { const x = c.proto && protoById(c.proto); return h('span', { class: 'row', style: 'gap:.4rem;flex-wrap:nowrap' }, x ? logo(x, 22) : null, !x || x.id === p.id ? h('strong', {}, c.head) : h('a', { href: `#/protocolli/${x.id}` }, c.head)); };
+    const cur = c => (c.proto === p.id && v.cols.some(o => o.proto !== p.id) ? 'cur' : '');
+    return h('div', { class: 'card', style: 'margin-top:1rem' },
+      h('h3', { style: 'margin-top:0' }, v.title), h('p', {}, T(v.intro)),
+      h('div', { class: 'vswrap' }, h('table', { class: 'vstable' },
+        h('thead', {}, h('tr', {}, h('th', {}, ''), v.cols.map(c => h('th', { class: cur(c) }, head(c), cur(c) ? h('span', { class: 'tag' }, 'questa scheda') : null)))),
+        h('tbody', {}, v.rows.map(r => h('tr', {}, h('th', { scope: 'row' }, r.label), v.cols.map(c => h('td', { class: cur(c) }, h('span', { class: 'vh' }, c.head), h('span', {}, r.values[c.key])))))))),
+      v.compare?.length ? h('p', { style: 'margin-bottom:0' }, h('a', { href: `#/confronto/${v.compare.join(',')}` }, 'Apri nel Confronto →')) : null);
+  });
 }
 
 function commSection() {
