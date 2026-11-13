@@ -20,6 +20,8 @@ for (const p of P.protocols) {
   if (!/^#[0-9a-f]{6}$/i.test(p.color)) err.push(`${p.id}: colore non valido`);
   if (!p.illus?.left || !p.illus?.right || !p.illus?.conn || !/^#[0-9a-f]{6}$/i.test(p.illus.cable || '')) err.push(`${p.id}: illustrazione (illus) incompleta`);
   else if (!EN.strings[p.illus.text]) err.push(`${p.id}: didascalia dell'illustrazione senza traduzione EN`);
+  if (!p.sources?.length) err.push(`${p.id}: fonti (sources) mancanti`);
+  for (const s of p.sources || []) if (!s.n || !s.d || (EN.strings[s.d] === undefined && /[àèéìòù]| (e|di|per|su|il|la) /.test(s.d))) err.push(`${p.id}: fonte «${s.n}» senza descrizione tradotta`);
   if (!(p.attrs.mbps > 0)) err.push(`${p.id}: attrs.mbps (bit rate tipico in Mbit/s, usato dai grafici) mancante`);
 }
 // Varianti (es. OPC UA client/server, PubSub, FX): ogni riga deve avere un valore tradotto per ogni variante

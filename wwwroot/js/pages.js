@@ -88,7 +88,10 @@ function card(p) {
     h('div', { class: 'two', style: 'margin-top:1rem' }, list('Vantaggi', p.pros), list('Limiti', p.cons)),
     h('div', { style: 'margin-top:1rem' }, list('Casi d\'uso tipici', p.usecases)),
     isPro() ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Dati tecnici'), h('dl', { class: 'spec' }, p.tech.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]))) : null,
-    p.notes.map(n => h('div', { class: 'note' }, h('strong', {}, 'Accuratezza: '), n)));
+    p.notes.map(n => h('div', { class: 'note' }, h('strong', {}, 'Accuratezza: '), n)),
+    p.sources?.length ? h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', { style: 'margin-top:0' }, 'Fonti e riferimenti'),
+      h('ul', { class: 'clean sources' }, p.sources.map(s => h('li', {}, h('strong', {}, s.n), s.d ? h('span', { class: 'muted' }, ' — ', h('span', {}, s.d)) : null))),
+      h('p', { class: 'muted small', style: 'margin-bottom:0' }, T(S.data.protocols.sourcesNote))) : null);
 }
 
 // Varianti dello stesso standard (es. OPC UA client/server, PubSub, FX): tabella delle differenze, con la colonna della scheda aperta in evidenza.
