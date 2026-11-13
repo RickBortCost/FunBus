@@ -3398,9 +3398,116 @@
 "Quale variante?": "Which variant?",
 "Scegli la variante per vedere l'esito.": "Choose the variant to see the outcome.",
 "Variante": "Variant",
-"La rete non è completa: scegli anche la variante del bus.": "The network is not complete: choose the bus variant as well."
+"La rete non è completa: scegli anche la variante del bus.": "The network is not complete: choose the bus variant as well.",
+"Nove lezioni in ordine, dalla più semplice alla più completa. In ognuna leggi le schede, guardi un'animazione e chiudi con un breve quiz: i passi fatti restano segnati.": "Nine lessons in order, from the simplest to the most complete. In each you read the cards, watch an animation and finish with a short quiz: completed steps stay ticked.",
+"Un percorso in nove lezioni che attraversa tutti i protocolli dell'app: bus seriali, Ethernet industriale, protocolli IT/IIoT, edifici, sicurezza e progetto di rete. Ogni lezione combina schede, animazioni con frame e guasti, e un quiz di verifica.": "A nine-lesson path covering all the protocols in the app: serial buses, industrial Ethernet, IT/IIoT protocols, buildings, security and network design. Each lesson combines cards, animations with frames and faults, and a check quiz.",
+"Le basi: chi parla, quando e su quale cavo": "The basics: who talks, when and on which cable",
+"Prima dei protocolli servono tre idee: come sono collegati i dispositivi, chi decide quando si parla e che cosa vuol dire «tempi garantiti». Prova a rompere un cavo nelle topologie e guarda che cosa succede.": "Before the protocols you need three ideas: how devices are connected, who decides when to talk and what “guaranteed timing” means. Try breaking a cable in the topologies and see what happens.",
+"Topologia, accesso al mezzo e determinismo sono le tre coordinate con cui leggere ogni bus. Le topologie interattive mostrano la propagazione dei guasti; il quiz verifica polling, notifica e classi real-time.": "Topology, medium access and determinism are the three coordinates for reading any bus. The interactive topologies show fault propagation; the quiz checks polling, notification and real-time classes.",
+"Il primo bus: Modbus": "The first bus: Modbus",
+"Modbus è il più semplice: un master chiede, uno slave risponde. Capito questo, hai capito metà dei bus di campo. Guarda la versione su cavo seriale e poi quella su Ethernet.": "Modbus is the simplest: a master asks, a slave answers. Once you get this, you have understood half of all fieldbuses. Look at the serial-cable version and then at the Ethernet one.",
+"Modbus RTU e Modbus TCP condividono function code e modello dati e differiscono per incapsulamento, indirizzamento e controllo degli errori: nella scheda trovi la tabella delle differenze, nell'animazione il frame e i guasti.": "Modbus RTU and Modbus TCP share function codes and data model and differ in encapsulation, addressing and error checking: the card has the table of differences, the animation the frame and the faults.",
+"I bus di campo seriali": "Serial fieldbuses",
+"PROFIBUS, CANopen e AS-Interface collegano macchine e sensori con un solo cavo. Ognuno ha il suo trucco: il token, le priorità, il cavo giallo che porta anche la corrente.": "PROFIBUS, CANopen and AS-Interface connect machines and sensors with a single cable. Each has its own trick: the token, priorities, the yellow cable that also carries power.",
+"Tre modi di gestire un mezzo condiviso: token e polling (PROFIBUS), arbitraggio a priorità (CAN), polling a ciclo fisso con alimentazione sul bus (AS-i). Osserva nell'animazione PROFIBUS il ciclo DP e il passaggio del token.": "Three ways of handling a shared medium: token and polling (PROFIBUS), priority arbitration (CAN), fixed-cycle polling with bus power (AS-i). In the PROFIBUS animation watch the DP cycle and the token pass.",
+"Sensori e strumenti: IO-Link e HART": "Sensors and instruments: IO-Link and HART",
+"Non sono vere reti: collegano un solo sensore o strumento al suo ingresso, aggiungendo al segnale tradizionale la possibilità di leggere dati e cambiare parametri.": "They are not real networks: they connect a single sensor or instrument to its input, adding to the traditional signal the ability to read data and change parameters.",
+"Due interfacce punto-punto che estendono un segnale esistente: IO-Link sul cavo a 3 fili del sensore, HART sovrapposto al 4–20 mA. Confronta velocità, lunghezze e uso della parametrizzazione.": "Two point-to-point interfaces extending an existing signal: IO-Link on the sensor's 3-wire cable, HART superimposed on 4–20 mA. Compare speeds, lengths and the use of parameterisation.",
+"Ethernet industriale in tempo reale": "Real-time industrial Ethernet",
+"Qui si va veloci: PROFINET, EtherCAT ed EtherNet/IP comandano macchine e robot aggiornando i dati ogni millisecondo o meno. Scopri che cosa li rende diversi da una rete d'ufficio.": "This is where things get fast: PROFINET, EtherCAT and EtherNet/IP control machines and robots, updating data every millisecond or less. Find out what makes them different from an office network.",
+"Tre risposte allo stesso problema: priorità e riserva di banda (PROFINET RT/IRT), elaborazione al volo con Distributed Clocks (EtherCAT), CIP su UDP con RPI (EtherNet/IP). Chiudi con uno scenario di fattibilità.": "Three answers to the same problem: priority and bandwidth reservation (PROFINET RT/IRT), on-the-fly processing with Distributed Clocks (EtherCAT), CIP over UDP with RPI (EtherNet/IP). Finish with a feasibility scenario.",
+"Parlare con i PLC: S7, ADS e CIP": "Talking to PLCs: S7, ADS and CIP",
+"Quando un PC, un pannello o un altro PLC vuole leggere una variabile, usa il «dialetto» del costruttore: S7 per Siemens, ADS per Beckhoff, CIP per Rockwell.": "When a PC, a panel or another PLC wants to read a variable, it uses the manufacturer's “dialect”: S7 for Siemens, ADS for Beckhoff, CIP for Rockwell.",
+"Protocolli di accesso ai dati del controllore, su TCP/IP e senza garanzie temporali: indirizzamento per area e offset (S7), per simbolo e handle con notifiche (ADS), per tag e produced/consumed (CIP).": "Controller data access protocols, over TCP/IP and with no timing guarantees: addressing by area and offset (S7), by symbol and handle with notifications (ADS), by tag and produced/consumed (CIP).",
+"Dalla fabbrica all'IT: MQTT e OPC UA": "From the plant to IT: MQTT and OPC UA",
+"I dati escono dalla macchina e arrivano a computer, gestionali e cloud. MQTT li spedisce come messaggi leggeri; OPC UA li descrive con nome e significato, anche in tempo reale con le sue varianti più recenti.": "Data leave the machine and reach computers, business systems and the cloud. MQTT sends them as lightweight messages; OPC UA describes them with name and meaning, even in real time with its latest variants.",
+"Publish/subscribe con broker (MQTT) e architettura a servizi con information model (OPC UA client/server), fino a PubSub e FX per il livello di campo: nelle schede OPC UA trovi la tabella delle differenze tra le tre varianti.": "Publish/subscribe with a broker (MQTT) and service architecture with an information model (OPC UA client/server), up to PubSub and FX for field level: the OPC UA cards contain the table of differences between the three variants.",
+"Gli edifici: KNX e BACnet": "Buildings: KNX and BACnet",
+"Luci, tapparelle, riscaldamento e ventilazione parlano tra loro con protocolli pensati per gli edifici: lenti, ma semplici da estendere e indipendenti dal costruttore.": "Lights, blinds, heating and ventilation talk to each other with protocols designed for buildings: slow, but easy to extend and vendor independent.",
+"KNX lavora senza controllore centrale con indirizzi di gruppo; BACnet modella l'impianto a oggetti e servizi e integra la supervisione su IP. Nell'animazione KNX osserva telegramma, ACK e ripetizioni.": "KNX works with no central controller using group addresses; BACnet models the plant as objects and services and integrates supervision over IP. In the KNX animation watch telegram, ACK and repetitions.",
+"Mettere tutto insieme: sicurezza e progetto di rete": "Putting it all together: security and network design",
+"Ora scegli tu: quale bus per quale impianto, con quale cablaggio, e come proteggerlo. Risolvi alcuni scenari, costruisci una rete e chiudi con il quiz finale.": "Now you choose: which bus for which plant, with which wiring, and how to protect it. Solve a few scenarios, build a network and finish with the final quiz.",
+"Scelta del protocollo dai requisiti (ciclo, determinismo, nodi, capability), dimensionamento del cablaggio e misure di cybersicurezza secondo IEC 62443, NIS2 e CRA: tre scenari, una missione di «Costruisci la rete» e il quiz finale.": "Protocol selection from requirements (cycle, determinism, nodes, capabilities), wiring design and cybersecurity measures according to IEC 62443, NIS2 and CRA: three scenarios, one “Build the network” mission and the final quiz.",
+"Percorso completato": "Path completed",
+"Completa tutte le lezioni del percorso guidato.": "Complete all the lessons of the guided path.",
+"Percorso": "Path",
+"Percorso guidato": "Guided path",
+"🧭 Percorso guidato": "🧭 Guided path",
+"Nove lezioni in ordine, con schede, animazioni e quiz: il modo più semplice per cominciare.": "Nine lessons in order, with cards, animations and quizzes: the easiest way to start.",
+"← Percorso": "← Path",
+"Lezione non trovata.": "Lesson not found.",
+"✔ completata": "✔ completed",
+"Continua da qui": "Continue from here",
+"Passi della lezione": "Lesson steps",
+"Quiz della lezione": "Lesson quiz",
+"Risolvi scenari di fattibilità": "Solve feasibility scenarios",
+"Completa missioni di «Costruisci la rete»": "Complete “Build the network” missions",
+"fatto": "done",
+"da fare": "to do",
+"Lezione precedente": "Previous lesson",
+"Lezione successiva": "Next lesson",
+"↩ Torna alla lezione": "↩ Back to the lesson",
+"Torna alla lezione": "Back to the lesson",
+"Da ripassare:": "To review:",
+"Nessuna domanda disponibile per questa lezione.": "No questions available for this lesson."
 },
 "patterns": [
+[
+"^(\\S+) Nuovo badge: (.*)$",
+"$1 New badge: $2"
+],
+[
+"^Lezione completata: (.*)$",
+"Lesson completed: $1"
+],
+[
+"^Quiz non superato: (\\d+)% \\(serve almeno il (\\d+)%\\)\\.$",
+"Quiz not passed: $1% (at least $2% needed)."
+],
+[
+"^Quiz superato: (\\d+)%\\. Lezione aggiornata\\.$",
+"Quiz passed: $1%. Lesson updated."
+],
+[
+"^miglior risultato (\\d+)%, serve almeno il (\\d+)%$",
+"best result $1%, at least $2% needed"
+],
+[
+"^\\((\\d+) su (\\d+)\\)$",
+"($1 of $2)"
+],
+[
+"^Quiz della lezione: (.*)$",
+"Lesson quiz: $1"
+],
+[
+"^Prova la topologia: (.*)$",
+"Try the topology: $1"
+],
+[
+"^Guarda l'animazione: (.*)$",
+"Watch the animation: $1"
+],
+[
+"^Leggi la scheda: (.*)$",
+"Read the card: $1"
+],
+[
+"^(\\d+) passi su (\\d+)$",
+"$1 of $2 steps"
+],
+[
+"^Lezioni completate: (\\d+) di (\\d+)$",
+"Lessons completed: $1 of $2"
+],
+[
+"^Lezione (\\d+) di (\\d+)$",
+"Lesson $1 of $2"
+],
+[
+"^Lezione (\\d+)$",
+"Lesson $1"
+],
 [
 "^(.*) \\+(\\d+) XP \\(scelta con riserve\\)$",
 "$1 +$2 XP (choice with reservations)"

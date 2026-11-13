@@ -53,6 +53,29 @@ for (const m of GM.build.missions) {
   if (!sol.length) err.push(`missione ${m.id}: nessuna combinazione bus/topologia la risolve`);
 }
 for (const lv of ['beginner', 'professional']) if (GM.build.missions.filter(m => m.level === lv).length < 3) err.push(`costruisci la rete ${lv}: meno di 3 missioni`);
+// Percorso guidato: passi con riferimenti validi, testi tradotti e almeno 3 domande per il quiz di ogni lezione e livello
+const PT = rd('path');
+for (const k of ['b', 'p']) if (!EN.strings[PT.intro?.[k]]) err.push(`percorso: intro/${k} mancante o senza traduzione EN`);
+const lessonIds = new Set();
+for (const l of PT.lessons) {
+  if (lessonIds.has(l.id)) err.push(`percorso: lezione ${l.id} duplicata`); lessonIds.add(l.id);
+  if (!EN.strings[l.title]) err.push(`percorso ${l.id}: titolo senza traduzione EN`);
+  for (const k of ['b', 'p']) if (!EN.strings[l.text?.[k]]) err.push(`percorso ${l.id}: testo/${k} mancante o senza traduzione EN`);
+  for (const x of l.protos || []) if (!ids.includes(x)) err.push(`percorso ${l.id}: protocollo ${x} inesistente`);
+  if (!l.steps?.some(s => s.type === 'quiz')) err.push(`percorso ${l.id}: manca il quiz`);
+  for (const s of l.steps || []) {
+    if (['card', 'anim'].includes(s.type)) { if (!ids.includes(s.id)) err.push(`percorso ${l.id}: passo ${s.type} con protocollo ${s.id} inesistente`); }
+    else if (s.type === 'topo') { if (!TP.topologies.some(t => t.id === s.id)) err.push(`percorso ${l.id}: topologia ${s.id} inesistente`); }
+    else if (['scenario', 'build'].includes(s.type)) { if (!(s.n > 0)) err.push(`percorso ${l.id}: passo ${s.type} senza numero`); }
+    else if (s.type !== 'quiz') err.push(`percorso ${l.id}: tipo di passo ${s.type} sconosciuto`);
+  }
+  for (const lv of ['beginner', 'professional']) {
+    const n = Q.questions.filter(q => q.level === lv && ((q.protos || []).some(x => (l.protos || []).includes(x)) || (q.area || []).some(x => (l.area || []).includes(x)))).length;
+    if (n < 3) err.push(`percorso ${l.id}: solo ${n} domande di livello ${lv} per il quiz (minimo 3)`);
+  }
+}
+// ogni protocollo compare in almeno una lezione
+for (const id of ids) if (!PT.lessons.some(l => (l.protos || []).includes(id))) err.push(`percorso: ${id} non compare in nessuna lezione`);
 // Topologie: ogni topologia citata dai protocolli deve esistere, con testi b/p e traduzione EN
 const tids = TP.topologies.map(t => t.id);
 for (const p of P.protocols) for (const t of p.attrs.topo) if (!tids.includes(t)) err.push(`${p.id}: topologia ${t} senza scheda in topologies.json`);

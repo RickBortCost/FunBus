@@ -23,6 +23,7 @@ export function home(app, { rerender }) {
     h('h1', {}, 'FunBus'),
     h('p', {}, 'Impara i protocolli industriali con schede, animazioni, confronti e test a punti. Tutto è simulato, nessun hardware richiesto.'),
     ...box,
+    h('a', { class: 'card pathcard', href: '#/percorso' }, h('h3', { style: 'margin-top:0' }, '🧭 Percorso guidato'), h('p', { class: 'muted', style: 'margin-bottom:0' }, 'Nove lezioni in ordine, con schede, animazioni e quiz: il modo più semplice per cominciare.')),
     commSection(),
     h('h2', {}, 'Tutti i protocolli'),
     protocolGrid(),

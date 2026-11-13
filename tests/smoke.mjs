@@ -17,7 +17,7 @@ const base = `http://127.0.0.1:${server.address().port}/`;
 
 const data = id => JSON.parse(fs.readFileSync(`wwwroot/data/${id}.json`, 'utf8'));
 const ids = data('protocols').protocols.map(p => p.id);
-const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/test/rete', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
+const routes = ['/', '/protocolli', '/confronto', '/test', '/test/quiz', '/test/match', '/test/scenari', '/test/ripasso', '/test/frame', '/test/rete', '/profilo', '/strumenti', '/glossario', '/approfondimenti', '/normative', '/certificato', '/percorso', ...data('path').lessons.flatMap(l => ['/percorso/' + l.id, '/percorso/' + l.id + '/quiz']), '/topologie', ...data('topologies').topologies.map(t => '/topologie/' + t.id), ...ids.map(i => '/protocolli/' + i)];
 const errs = [];
 // In inglese non deve restare testo italiano (testi composti in pagina compresi): euristica condivisa con tests/i18n.mjs
 const italianLeft = pg => pg.evaluate(([src, not]) => {
@@ -69,6 +69,24 @@ for (const [label, vp] of [['desktop', { width: 1200, height: 800 }], ['mobile',
       if (label === 'desktop' && (await pg.locator('table.cmp thead th').count()) !== v.compare.length + 1) errs.push(`confronto/${v.compare.join(',')}: protocolli non affiancati`);
     }
     await pg.evaluate(h => (location.hash = h), '/confronto');
+  }
+  // percorso guidato: i passi si spuntano con le attività, il quiz di lezione aggiorna la lezione
+  {
+    await pg.selectOption('#langSel', 'it'); await pg.click('#lvB');
+    const l = data('path').lessons[1]; // Modbus: scheda, animazione, scheda, quiz
+    await pg.evaluate(h => (location.hash = h), '/percorso/' + l.id); await pg.waitForTimeout(150);
+    if ((await pg.locator('.steps .step').count()) !== l.steps.length) errs.push(`${label} percorso: passi della lezione incompleti`);
+    const before = await pg.locator('.steps .step.done').count();
+    await pg.locator('.steps .step:not(.done) .steplink').first().click(); await pg.waitForTimeout(200);
+    if (await pg.locator('.sim button.primary').count()) { await pg.click('.sim button.primary'); await pg.waitForTimeout(80); } // l'animazione conta quando viene avviata
+    if (!(await pg.locator('.backlesson').count())) errs.push(`${label} percorso: manca il ritorno alla lezione`);
+    else { await pg.click('.backlesson'); await pg.waitForTimeout(150); }
+    if ((await pg.locator('.steps .step.done').count()) <= before) errs.push(`${label} percorso: il passo svolto non viene spuntato`);
+    await pg.evaluate(h => (location.hash = h), '/percorso/' + l.id + '/quiz'); await pg.waitForTimeout(150);
+    for (let k = 0; k < 6 && (await pg.locator('.opts button').count()); k++) { await pg.locator('.opts button').first().click(); await pg.locator('#app button.primary').click(); await pg.waitForTimeout(60); }
+    if (!(await pg.locator('.fb.ok, .fb.ko').count())) errs.push(`${label} percorso: il quiz di lezione non riporta l'esito`);
+    await pg.evaluate(h => (location.hash = h), '/percorso'); await pg.waitForTimeout(100);
+    if ((await pg.locator('.lessons .lesson').count()) !== data('path').lessons.length) errs.push(`${label} percorso: elenco delle lezioni incompleto`);
   }
   // scenari con varianti: per PROFINET va scelta la variante (RT o IRT) e l'esito cambia
   {

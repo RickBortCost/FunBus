@@ -13,6 +13,7 @@ const ART = {
   animator: ['shield', '#c2407a', 'M-10 -8H10V8H-10Z', 'M-3 -4.5V4.5L5 0Z'],
   pro: ['shield', '#5d6b7a', 'M6 -10a6 6 0 0 0 -7 8L-10 7L-7 10L2 1a6 6 0 0 0 8 -7L6 -2L2 -6Z'],
   builder: ['hex', '#0f8a5f', 'M0 -7V0M0 0L-7 6M0 0L7 6', CIRCLE(3).replace('M-3 0', 'M-3 -9') + CIRCLE(3).replace('M-3 0', 'M-11 8') + CIRCLE(3).replace('M-3 0', 'M5 8')],
+  graduate: ['hex', '#a17a00', 'M-11 -3L0 -8L11 -3L0 2ZM-6 0V5C-6 8 6 8 6 5V0M11 -3V4'],
   architect: ['hex', '#6250d6', CIRCLE(8), [[0, -8], [8, 0], [0, 8], [-8, 0]].map(([x, y]) => CIRCLE(2.8).replace('M-2.8 0', `M${x - 2.8} ${y}`)).join('')]
 };
 const SHAPE = {

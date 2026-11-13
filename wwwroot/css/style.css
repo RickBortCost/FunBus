@@ -366,3 +366,21 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
 /* Varianti di un protocollo negli scenari e nel gioco */
 .variants{margin:.2rem 0 .8rem}
 .varchip{font-size:.85rem;padding:.3rem .8rem;margin:0}
+
+/* Percorso guidato */
+.pathcard{margin:1rem 0;border-left-color:var(--accent)}
+.lessons{list-style:none;padding:0;margin:1rem 0;display:grid;gap:.7rem}
+a.card.lesson{display:flex;gap:.9rem;align-items:center;border-left-color:var(--border)}
+a.card.lesson.next{border-left-color:var(--accent)}a.card.lesson.done{border-left-color:var(--ok)}
+.lnum{flex:none;display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:50%;background:var(--surface2);font-weight:700;font-size:1.1rem}
+.lesson.done .lnum{background:var(--ok);color:var(--k-t)}.lesson.next .lnum{background:var(--accent);color:var(--accent-t)}
+.lbody{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.nextag{border-color:var(--accent);color:var(--accent);font-weight:600}
+.steps{list-style:none;padding:0;margin:.4rem 0;display:grid;gap:.4rem}
+.step{display:flex;gap:.6rem;align-items:center}
+.stepmark{flex:none;display:grid;place-items:center;width:1.7rem;height:1.7rem;border-radius:50%;border:2px solid var(--muted);color:var(--muted);font-weight:700;font-size:.9rem}
+.step.done .stepmark{background:var(--ok);border-color:var(--ok);color:var(--k-t)}
+.steplink{display:flex;flex:1;flex-wrap:wrap;gap:.3rem .5rem;align-items:center;text-align:left;border-radius:var(--r-sm);min-width:0}
+.backlesson{position:fixed;left:1rem;bottom:1rem;z-index:40;background:var(--surface);color:var(--text);border:2px solid var(--accent);border-radius:999px;padding:.45rem 1rem;text-decoration:none;font-weight:600;box-shadow:var(--shadow)}
+.review a{font-weight:600}
+@media print{.backlesson{display:none!important}}

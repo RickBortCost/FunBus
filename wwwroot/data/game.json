@@ -14,7 +14,8 @@
   {"id":"animator","icon":"🎬","name":"Regista","desc":"Avvia l'animazione di almeno 4 protocolli."},
   {"id":"pro","icon":"🛠","name":"Professional","desc":"Ottieni 100 XP in modalità Professional."},
   {"id":"builder","icon":"🏗","name":"Costruttore di reti","desc":"Completa 3 missioni di «Costruisci la rete»."},
-  {"id":"architect","icon":"🏛","name":"Architetto di rete","desc":"Completa 5 missioni di «Costruisci la rete»."}
+  {"id":"architect","icon":"🏛","name":"Architetto di rete","desc":"Completa 5 missioni di «Costruisci la rete»."},
+  {"id":"graduate","icon":"🎓","name":"Percorso completato","desc":"Completa tutte le lezioni del percorso guidato."}
  ],
  "build":{"pointsCorrect":40,"pointsPartial":15,"pointsLean":10,"missions":[
   {"id":"nb1","level":"beginner","title":"Nastro con sensori e valvole","text":"Una piccola macchina con 20 sensori e valvole on/off sparsi lungo un nastro di 150 m. Vuoi un solo cavo che porti insieme dati e alimentazione, e un aggiornamento entro 10 ms.","req":{"maxCycleUs":10000,"nodes":20,"caps":["powerOnBus"],"totalM":150},"why":{"b":"AS-Interface è nato proprio per questo: un cavo giallo per dati e alimentazione, moduli agganciati dove serve e un ciclo di pochi millisecondi.","p":"AS-i: dati e alimentazione sullo stesso cavo piatto, topologia libera (linea, stella, albero) senza terminazioni e ciclo ≈ 5 ms con 31 slave: 20 nodi stanno ampiamente nei limiti."}},

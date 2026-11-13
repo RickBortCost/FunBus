@@ -1,5 +1,5 @@
 // Topologie interattive: bus, linea, stella, albero e anello (MRP/DLR) con guasti e ripristino animato.
-import { S, h, svgEl, T, protoById } from './core.js';
+import { S, h, svgEl, T, protoById, mark } from './core.js';
 import { logo } from './logos.js';
 import { pktShape } from './sim.js';
 
@@ -82,6 +82,8 @@ export function topologie(app, { id, cleanups }) {
   app.append(h('h1', {}, 'Topologie di rete'), h('p', {}, T(D.intro)),
     h('div', { class: 'tabs', role: 'tablist' }, ORDER.filter(topoData).map(t => h('a', { class: 'btn topotab' + (t === tid ? ' on' : ''), role: 'tab', 'aria-selected': String(t === tid), href: `#/topologie/${t}` }, topoIcon(t, 16), h('span', {}, topoData(t).name)))));
   if (!topo) { app.append(h('p', {}, 'Topologia non trovata.')); return; }
+  S.progress.topoSeen ||= [];
+  mark('topoSeen', tid);
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isRing = tid === 'ring';
