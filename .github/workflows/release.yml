@@ -25,12 +25,33 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           NOTES: ${{ inputs.notes }}
+          # Firma del codice (facoltativa): se i due segreti non esistono l'exe viene pubblicato non firmato, come prima.
+          SIGN_PFX_BASE64: ${{ secrets.SIGN_PFX_BASE64 }}
+          SIGN_PFX_PASSWORD: ${{ secrets.SIGN_PFX_PASSWORD }}
+          SIGN_TIMESTAMP_URL: ${{ vars.SIGN_TIMESTAMP_URL }}
         run: |
           tag="${{ inputs.tag || github.ref_name }}"
-          { cat .github/RELEASE_INTRO.md; echo "## Novità di $tag"; echo; echo "${NOTES:-Nuova versione di FunBus.}"; } > notes.md
+          signed=""
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            dotnet publish -c Release -r win-x64 -o publish -p:Version="${tag#v}"
+            if [ -n "$SIGN_PFX_BASE64" ]; then
+              sudo apt-get update -qq && sudo apt-get install -y -qq osslsigncode
+              printf '%s' "$SIGN_PFX_BASE64" | base64 -d > "$RUNNER_TEMP/cert.pfx"
+              osslsigncode sign -pkcs12 "$RUNNER_TEMP/cert.pfx" -pass "$SIGN_PFX_PASSWORD" \
+                -n "FunBus" -i "https://github.com/${{ github.repository }}" -h sha256 \
+                -ts "${SIGN_TIMESTAMP_URL:-http://timestamp.digicert.com}" \
+                -in publish/FunBus.exe -out publish/FunBus.signed.exe
+              rm -f "$RUNNER_TEMP/cert.pfx"
+              mv publish/FunBus.signed.exe publish/FunBus.exe
+              signed=1
+            fi
+          fi
+          {
+            cat .github/RELEASE_INTRO.md; echo "## Novità di $tag"; echo; echo "${NOTES:-Nuova versione di FunBus.}"
+            if [ -n "$signed" ]; then echo; echo "_FunBus.exe di questa versione è firmato digitalmente._"; fi
+          } > notes.md
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release edit "$tag" --notes-file notes.md
           else
-            dotnet publish -c Release -r win-x64 -o publish -p:Version="${tag#v}"
             gh release create "$tag" --target "${{ github.sha }}" publish/FunBus.exe --title "FunBus $tag" --notes-file notes.md
           fi
