@@ -195,6 +195,126 @@
      "e": "Il bit 7 del byte E1 vale 1 → group address; 09 01 = 1/1/1."
     }
    ]
+  },
+  {
+   "id": "d7",
+   "title": "Frame EtherCAT (un datagram)",
+   "hex": "FF FF FF FF FF FF 00 01 05 10 20 30 88 A4 10 10 0C 00 00 00 01 00 04 00 00 00 11 22 33 44 00 00",
+   "q": [
+    {
+     "q": "Quale EtherType identifica EtherCAT?",
+     "o": [
+      "0x88A4",
+      "0x8892",
+      "0x0800",
+      "0xB62C"
+     ],
+     "a": 0,
+     "e": "Dopo i due MAC (12 byte) si legge 88 A4."
+    },
+    {
+     "q": "Qual è il comando del datagram?",
+     "o": [
+      "0x0C = LRW (lettura e scrittura logica)",
+      "0x07 = BRD (lettura broadcast)",
+      "0x02 = APWR",
+      "0x04 = FPRD"
+     ],
+     "a": 0,
+     "e": "Dopo l'header EtherCAT (10 10) il primo byte del datagram è il comando: 0C."
+    },
+    {
+     "q": "Quanti byte di dati di processo trasporta il datagram?",
+     "o": [
+      "4",
+      "2",
+      "16",
+      "32"
+     ],
+     "a": 0,
+     "e": "Il campo lunghezza vale 04 00 (little endian, 11 bit): 4 byte, cioè 11 22 33 44, seguiti dal Working Counter."
+    }
+   ]
+  },
+  {
+   "id": "d8",
+   "title": "Frame PROFINET RT",
+   "hex": "00 0E CF 12 34 56 00 1B 1B AA BB CC 81 00 C0 00 88 92 80 01 … 12 40 35 00",
+   "q": [
+    {
+     "q": "Qual è la priorità VLAN (PCP) del frame?",
+     "o": [
+      "6",
+      "0",
+      "3",
+      "7"
+     ],
+     "a": 0,
+     "e": "Dopo il TPID 81 00 il byte C0 ha i tre bit più alti a 110: PCP = 6, la priorità del traffico RT."
+    },
+    {
+     "q": "A quale classe appartiene il FrameID 0x8001?",
+     "o": [
+      "RT_Class_1 (dati ciclici RT)",
+      "Allarme",
+      "DCP",
+      "IRT (RT_Class_3)"
+     ],
+     "a": 0,
+     "e": "L'intervallo 0x8000–0xBFFF è riservato ai dati ciclici RT_Class_1."
+    },
+    {
+     "q": "Che cosa sono i byte 12 40 in coda?",
+     "o": [
+      "Il Cycle Counter",
+      "Il CRC",
+      "L'indirizzo IP",
+      "La lunghezza del frame"
+     ],
+     "a": 0,
+     "e": "Dopo i dati di I/O seguono Cycle Counter (2 byte), Data Status (35) e Transfer Status (00)."
+    }
+   ]
+  },
+  {
+   "id": "d9",
+   "title": "Messaggio OPC UA (UA TCP)",
+   "hex": "48 45 4C 46 38 00 00 00 00 00 00 00 00 00 01 00 00 00 01 00 …",
+   "q": [
+    {
+     "q": "Che tipo di messaggio è?",
+     "o": [
+      "HEL (Hello)",
+      "ACK",
+      "OPN (OpenSecureChannel)",
+      "MSG"
+     ],
+     "a": 0,
+     "e": "I primi tre byte sono caratteri ASCII: 48 45 4C = «HEL»."
+    },
+    {
+     "q": "Quanto è lungo l'intero messaggio?",
+     "o": [
+      "56 byte",
+      "38 byte",
+      "4 byte",
+      "65 536 byte"
+     ],
+     "a": 0,
+     "e": "MessageSize è un intero a 32 bit little endian: 38 00 00 00 = 0x38 = 56."
+    },
+    {
+     "q": "Che cosa indica il quarto byte (46 = «F»)?",
+     "o": [
+      "Chunk finale: il messaggio non prosegue in altri pezzi",
+      "Messaggio fallito",
+      "Messaggio firmato",
+      "Messaggio frammentato"
+     ],
+     "a": 0,
+     "e": "ChunkType: F = final, C = intermedio, A = interrotto."
+    }
+   ]
   }
  ]
 }

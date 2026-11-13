@@ -12,7 +12,10 @@
     "S7"
    ],
    "a": 0,
-   "e": "MQTT usa un broker centrale e il modello publish/subscribe."
+   "e": "MQTT usa un broker centrale e il modello publish/subscribe.",
+   "protos": [
+    "mqtt"
+   ]
   },
   {
    "id": "b02",
@@ -26,7 +29,10 @@
     "ADS"
    ],
    "a": 1,
-   "e": "PROFIBUS DP usa RS-485. Gli altri citati lavorano su Ethernet/TCP-IP."
+   "e": "PROFIBUS DP usa RS-485. Gli altri citati lavorano su Ethernet/TCP-IP.",
+   "protos": [
+    "profibus"
+   ]
   },
   {
    "id": "b03",
@@ -40,7 +46,10 @@
     "OPC UA"
    ],
    "a": 0,
-   "e": "EtherCAT elabora il frame 'al volo' mentre passa in ogni slave."
+   "e": "EtherCAT elabora il frame 'al volo' mentre passa in ogni slave.",
+   "protos": [
+    "ethercat"
+   ]
   },
   {
    "id": "b04",
@@ -54,7 +63,10 @@
     "Funziona anche via Internet"
    ],
    "a": 1,
-   "e": "Determinismo = tempi di scambio prevedibili, essenziale nel controllo di macchine."
+   "e": "Determinismo = tempi di scambio prevedibili, essenziale nel controllo di macchine.",
+   "area": [
+    "base"
+   ]
   },
   {
    "id": "b04b",
@@ -68,7 +80,10 @@
     "PROFINET IRT"
    ],
    "a": 1,
-   "e": "MQTT è leggero e tollera reti instabili: ideale per IIoT e cloud."
+   "e": "MQTT è leggero e tollera reti instabili: ideale per IIoT e cloud.",
+   "protos": [
+    "mqtt"
+   ]
   },
   {
    "id": "b05",
@@ -82,7 +97,10 @@
     "DLR"
    ],
    "a": 1,
-   "e": "S7comm (S7) è il protocollo dei PLC Siemens S7 su Ethernet."
+   "e": "S7comm (S7) è il protocollo dei PLC Siemens S7 su Ethernet.",
+   "protos": [
+    "s7"
+   ]
   },
   {
    "id": "b06",
@@ -96,7 +114,10 @@
     "Schneider"
    ],
    "a": 0,
-   "e": "ADS/AMS è il protocollo di TwinCAT di Beckhoff."
+   "e": "ADS/AMS è il protocollo di TwinCAT di Beckhoff.",
+   "protos": [
+    "ads"
+   ]
   },
   {
    "id": "b07",
@@ -110,7 +131,10 @@
     "Funziona solo con Siemens"
    ],
    "a": 1,
-   "e": "OPC UA offre modello dati standard e sicurezza integrata."
+   "e": "OPC UA offre modello dati standard e sicurezza integrata.",
+   "protos": [
+    "opcua"
+   ]
   },
   {
    "id": "b08",
@@ -124,7 +148,10 @@
     "ADS"
    ],
    "a": 0,
-   "e": "EtherNet/IP (ODVA, CIP) è lo standard di riferimento in Nord America."
+   "e": "EtherNet/IP (ODVA, CIP) è lo standard di riferimento in Nord America.",
+   "protos": [
+    "enip"
+   ]
   },
   {
    "id": "b09",
@@ -138,7 +165,13 @@
     "Si passa automaticamente a Ethernet"
    ],
    "a": 1,
-   "e": "Il bus RS-485 richiede terminazioni corrette ai due estremi."
+   "e": "Il bus RS-485 richiede terminazioni corrette ai due estremi.",
+   "protos": [
+    "profibus"
+   ],
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "b10",
@@ -152,7 +185,10 @@
     "HTTP"
    ],
    "a": 1,
-   "e": "EtherCAT (come PROFIBUS) è master/slave."
+   "e": "EtherCAT (come PROFIBUS) è master/slave.",
+   "protos": [
+    "ethercat"
+   ]
   },
   {
    "id": "b11",
@@ -166,7 +202,10 @@
     "OPC UA client/server"
    ],
    "a": 2,
-   "e": "Servono determinismo e sincronizzazione: EtherCAT (o PROFINET IRT)."
+   "e": "Servono determinismo e sincronizzazione: EtherCAT (o PROFINET IRT).",
+   "protos": [
+    "ethercat"
+   ]
   },
   {
    "id": "b12",
@@ -180,7 +219,10 @@
     "Perché è un protocollo cloud"
    ],
    "a": 0,
-   "e": "PROFINET è Ethernet industriale con corsie preferenziali per i dati in tempo reale."
+   "e": "PROFINET è Ethernet industriale con corsie preferenziali per i dati in tempo reale.",
+   "protos": [
+    "profinet"
+   ]
   },
   {
    "id": "b13",
@@ -194,7 +236,10 @@
     "Una password"
    ],
    "a": 1,
-   "e": "Il broker disaccoppia chi pubblica da chi consuma."
+   "e": "Il broker disaccoppia chi pubblica da chi consuma.",
+   "protos": [
+    "mqtt"
+   ]
   },
   {
    "id": "b14",
@@ -208,7 +253,10 @@
     "Rete isolata con switch industriali"
    ],
    "a": 0,
-   "e": "TCP/IP condiviso, con altro traffico, non garantisce tempi."
+   "e": "TCP/IP condiviso, con altro traffico, non garantisce tempi.",
+   "area": [
+    "base"
+   ]
   },
   {
    "id": "b15",
@@ -222,7 +270,10 @@
     "Solo di notte"
    ],
    "a": 1,
-   "e": "QoS riguarda la consegna, non la latenza."
+   "e": "QoS riguarda la consegna, non la latenza.",
+   "protos": [
+    "mqtt"
+   ]
   },
   {
    "id": "b16",
@@ -236,7 +287,10 @@
     "OPC UA"
    ],
    "a": 0,
-   "e": "PROFIBUS è un bus RS-485; gli altri richiedono Ethernet/IP."
+   "e": "PROFIBUS è un bus RS-485; gli altri richiedono Ethernet/IP.",
+   "protos": [
+    "profibus"
+   ]
   },
   {
    "id": "p01",
@@ -250,7 +304,10 @@
     "0x88CC"
    ],
    "a": 1,
-   "e": "0x8892 = PROFINET. 0x88A4 = EtherCAT, 0x0800 = IPv4, 0x88CC = LLDP."
+   "e": "0x8892 = PROFINET. 0x88A4 = EtherCAT, 0x0800 = IPv4, 0x88CC = LLDP.",
+   "protos": [
+    "profinet"
+   ]
   },
   {
    "id": "p02",
@@ -264,7 +321,10 @@
     "0x8100"
    ],
    "a": 1,
-   "e": "EtherCAT = 0x88A4. 0x88F7 è PTP, 0x8100 il tag VLAN."
+   "e": "EtherCAT = 0x88A4. 0x88F7 è PTP, 0x8100 il tag VLAN.",
+   "protos": [
+    "ethercat"
+   ]
   },
   {
    "id": "p03",
@@ -278,7 +338,10 @@
     "4840"
    ],
    "a": 0,
-   "e": "ISO-on-TCP (RFC 1006): porta 102. 502 è Modbus/TCP, 1883 MQTT, 4840 OPC UA."
+   "e": "ISO-on-TCP (RFC 1006): porta 102. 502 è Modbus/TCP, 1883 MQTT, 4840 OPC UA.",
+   "protos": [
+    "s7"
+   ]
   },
   {
    "id": "p04",
@@ -292,7 +355,10 @@
     "8883"
    ],
    "a": 0,
-   "e": "4840. 44818 = EtherNet/IP, 48898 = ADS, 8883 = MQTT/TLS."
+   "e": "4840. 44818 = EtherNet/IP, 48898 = ADS, 8883 = MQTT/TLS.",
+   "protos": [
+    "opcua"
+   ]
   },
   {
    "id": "p05",
@@ -306,7 +372,10 @@
     "Il CRC"
    ],
    "a": 1,
-   "e": "Ogni slave che elabora il datagram incrementa il WKC; il master lo confronta con l'atteso."
+   "e": "Ogni slave che elabora il datagram incrementa il WKC; il master lo confronta con l'atteso.",
+   "protos": [
+    "ethercat"
+   ]
   },
   {
    "id": "p06",
@@ -320,7 +389,10 @@
     "1024 indirizzi, 128 stazioni"
    ],
    "a": 0,
-   "e": "Indirizzi 0–125 (126 = broadcast) e fino a 32 stazioni per segmento RS-485, estendibili con ripetitori."
+   "e": "Indirizzi 0–125 (126 = broadcast) e fino a 32 stazioni per segmento RS-485, estendibili con ripetitori.",
+   "protos": [
+    "profibus"
+   ]
   },
   {
    "id": "p07",
@@ -334,7 +406,10 @@
     "Retained"
    ],
    "a": 2,
-   "e": "QoS 2 usa la sequenza PUBLISH/PUBREC/PUBREL/PUBCOMP."
+   "e": "QoS 2 usa la sequenza PUBLISH/PUBREC/PUBREL/PUBCOMP.",
+   "protos": [
+    "mqtt"
+   ]
   },
   {
    "id": "p08",
@@ -348,7 +423,10 @@
     "34980"
    ],
    "a": 0,
-   "e": "UDP 2222 per I/O implicito; 44818 per messaggi espliciti (TCP) e List Identity (UDP)."
+   "e": "UDP 2222 per I/O implicito; 44818 per messaggi espliciti (TCP) e List Identity (UDP).",
+   "protos": [
+    "enip"
+   ]
   },
   {
    "id": "p09",
@@ -362,7 +440,10 @@
     "Il CRC"
    ],
    "a": 0,
-   "e": "1 ReadDevInfo, 2 Read, 3 Write, 4 ReadState, 5 WriteControl, 6/7/8 notifiche, 9 ReadWrite."
+   "e": "1 ReadDevInfo, 2 Read, 3 Write, 4 ReadState, 5 WriteControl, 6/7/8 notifiche, 9 ReadWrite.",
+   "protos": [
+    "ads"
+   ]
   },
   {
    "id": "p10",
@@ -376,7 +457,10 @@
     "0x1A"
    ],
    "a": 2,
-   "e": "0xF0 negozia la PDU. 0x04 = Read Var, 0x05 = Write Var."
+   "e": "0xF0 negozia la PDU. 0x04 = Read Var, 0x05 = Write Var.",
+   "protos": [
+    "s7"
+   ]
   },
   {
    "id": "p11",
@@ -390,7 +474,10 @@
     "Ha un broker"
    ],
    "a": 1,
-   "e": "IRT riserva una finestra temporale (banda) e richiede hardware e ingegnerizzazione di topologia."
+   "e": "IRT riserva una finestra temporale (banda) e richiede hardware e ingegnerizzazione di topologia.",
+   "protos": [
+    "profinet"
+   ]
   },
   {
    "id": "p13",
@@ -404,7 +491,10 @@
     "EtherType 0x8892"
    ],
    "a": 0,
-   "e": "SD2 = 0x68 con LE e LEr ripetuti. SD4 (0xDC) è il token."
+   "e": "SD2 = 0x68 con LE e LEr ripetuti. SD4 (0xDC) è il token.",
+   "protos": [
+    "profibus"
+   ]
   },
   {
    "id": "p14",
@@ -418,7 +508,10 @@
     "Cifrare i dati"
    ],
    "a": 1,
-   "e": "Forward_Open (Connection Manager) crea la connessione I/O con RPI e parametri."
+   "e": "Forward_Open (Connection Manager) crea la connessione I/O con RPI e parametri.",
+   "protos": [
+    "enip"
+   ]
   },
   {
    "id": "p15",
@@ -432,7 +525,10 @@
     "Aes256_Sha256_RsaPss"
    ],
    "a": 2,
-   "e": "TLS-PSK per MQTT non è una policy OPC UA."
+   "e": "TLS-PSK per MQTT non è una policy OPC UA.",
+   "protos": [
+    "opcua"
+   ]
   },
   {
    "id": "p16",
@@ -446,7 +542,13 @@
     "0 ms sempre"
    ],
    "a": 0,
-   "e": "MRP definisce profili di recupero (500/200/30/10 ms); 200 ms è il valore più comune. 0 ms solo con MRPD in IRT."
+   "e": "MRP definisce profili di recupero (500/200/30/10 ms); 200 ms è il valore più comune. 0 ms solo con MRPD in IRT.",
+   "protos": [
+    "profinet"
+   ],
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "p17",
@@ -460,7 +562,10 @@
     "Assegnare gli indirizzi MAC"
    ],
    "a": 0,
-   "e": "I DC compensano ritardi di propagazione e offset, sincronizzando eventi e I/O."
+   "e": "I DC compensano ritardi di propagazione e offset, sincronizzando eventi e I/O.",
+   "protos": [
+    "ethercat"
+   ]
   },
   {
    "id": "p18",
@@ -474,7 +579,10 @@
     "Non esiste"
    ],
    "a": 0,
-   "e": "Codifica a lunghezza variabile: 7 bit utili per byte con bit di continuazione."
+   "e": "Codifica a lunghezza variabile: 7 bit utili per byte con bit di continuazione.",
+   "protos": [
+    "mqtt"
+   ]
   },
   {
    "id": "p19",
@@ -488,7 +596,11 @@
     "Nessuna"
    ],
    "a": 1,
-   "e": "Part 14: DataSetWriter/Reader, trasporti UDP, MQTT, AMQP o Ethernet L2 con UADP."
+   "e": "Part 14: DataSetWriter/Reader, trasporti UDP, MQTT, AMQP o Ethernet L2 con UADP.",
+   "protos": [
+    "opcua",
+    "opcuapubsub"
+   ]
   },
   {
    "id": "p20",
@@ -502,7 +614,10 @@
     "Cifratura"
    ],
    "a": 1,
-   "e": "Discovery and basic Configuration Protocol: identify, set name, set IP."
+   "e": "Discovery and basic Configuration Protocol: identify, set name, set IP.",
+   "protos": [
+    "profinet"
+   ]
   },
   {
    "id": "b17",
@@ -516,7 +631,10 @@
     "PROFINET IRT"
    ],
    "a": 0,
-   "e": "Modbus TCP espone una tabella di registri: facile, ma senza significato incorporato."
+   "e": "Modbus TCP espone una tabella di registri: facile, ma senza significato incorporato.",
+   "protos": [
+    "modbus"
+   ]
   },
   {
    "id": "b18",
@@ -530,7 +648,10 @@
     "Siti web"
    ],
    "a": 0,
-   "e": "CAN è robusto a disturbi e vibrazioni, tipico di macchine mobili."
+   "e": "CAN è robusto a disturbi e vibrazioni, tipico di macchine mobili.",
+   "protos": [
+    "canopen"
+   ]
   },
   {
    "id": "b19",
@@ -544,7 +665,10 @@
     "Cifrare le password"
    ],
    "a": 0,
-   "e": "IO-Link porta comunicazione e parametri fino al singolo sensore."
+   "e": "IO-Link porta comunicazione e parametri fino al singolo sensore.",
+   "protos": [
+    "iolink"
+   ]
   },
   {
    "id": "b20",
@@ -558,7 +682,10 @@
     "Nessuno"
    ],
    "a": 0,
-   "e": "È un collegamento punto-punto: un dispositivo per porta."
+   "e": "È un collegamento punto-punto: un dispositivo per porta.",
+   "protos": [
+    "iolink"
+   ]
   },
   {
    "id": "p21",
@@ -572,7 +699,10 @@
     "1883"
    ],
    "a": 0,
-   "e": "502 (802 per Modbus/TCP Security). 102 = S7, 4840 = OPC UA, 1883 = MQTT."
+   "e": "502 (802 per Modbus/TCP Security). 102 = S7, 4840 = OPC UA, 1883 = MQTT.",
+   "protos": [
+    "modbus"
+   ]
   },
   {
    "id": "p22",
@@ -586,7 +716,10 @@
     "Fine della connessione"
    ],
    "a": 0,
-   "e": "Il bit alto (0x80) segnala un'eccezione; l'exception code spiega il motivo."
+   "e": "Il bit alto (0x80) segnala un'eccezione; l'exception code spiega il motivo.",
+   "protos": [
+    "modbus"
+   ]
   },
   {
    "id": "p23",
@@ -600,7 +733,10 @@
     "0x700"
    ],
    "a": 0,
-   "e": "0x080 SYNC; 0x000 NMT; 0x180+ID TPDO1; 0x700+ID heartbeat."
+   "e": "0x080 SYNC; 0x000 NMT; 0x180+ID TPDO1; 0x700+ID heartbeat.",
+   "protos": [
+    "canopen"
+   ]
   },
   {
    "id": "p24",
@@ -614,7 +750,10 @@
     "65535"
    ],
    "a": 0,
-   "e": "Node-ID da 1 a 127."
+   "e": "Node-ID da 1 a 127.",
+   "protos": [
+    "canopen"
+   ]
   },
   {
    "id": "p25",
@@ -628,7 +767,10 @@
     "1 Mbit/s"
    ],
    "a": 0,
-   "e": "COM1 4,8, COM2 38,4, COM3 230,4 kbit/s."
+   "e": "COM1 4,8, COM2 38,4, COM3 230,4 kbit/s.",
+   "protos": [
+    "iolink"
+   ]
   },
   {
    "id": "p26",
@@ -642,7 +784,10 @@
     "Il master NMT sempre"
    ],
    "a": 0,
-   "e": "L'ID dominante (più basso) prosegue senza perdita di tempo; l'altro si ritira."
+   "e": "L'ID dominante (più basso) prosegue senza perdita di tempo; l'altro si ritira.",
+   "protos": [
+    "canopen"
+   ]
   },
   {
    "id": "b21",
@@ -656,7 +801,10 @@
     "OPC UA"
    ],
    "a": 0,
-   "e": "AS-i usa un cavo giallo piatto con dati e alimentazione."
+   "e": "AS-i usa un cavo giallo piatto con dati e alimentazione.",
+   "protos": [
+    "asi"
+   ]
   },
   {
    "id": "b22",
@@ -670,7 +818,11 @@
     "Stampanti"
    ],
    "a": 0,
-   "e": "Luci, clima, accessi e supervisione degli edifici."
+   "e": "Luci, clima, accessi e supervisione degli edifici.",
+   "protos": [
+    "knx",
+    "bacnet"
+   ]
   },
   {
    "id": "b23",
@@ -684,7 +836,10 @@
     "Cifrare l'MQTT"
    ],
    "a": 0,
-   "e": "HART sovrappone un segnale FSK al 4–20 mA."
+   "e": "HART sovrappone un segnale FSK al 4–20 mA.",
+   "protos": [
+    "hart"
+   ]
   },
   {
    "id": "b24",
@@ -698,7 +853,10 @@
     "Nessuno"
    ],
    "a": 0,
-   "e": "RS-485 half-duplex a 2 fili."
+   "e": "RS-485 half-duplex a 2 fili.",
+   "protos": [
+    "modbusrtu"
+   ]
   },
   {
    "id": "p27",
@@ -712,7 +870,10 @@
     "5094"
    ],
    "a": 0,
-   "e": "47808 (0xBAC0). 3671 = KNX IP, 502 = Modbus TCP, 5094 = HART-IP."
+   "e": "47808 (0xBAC0). 3671 = KNX IP, 502 = Modbus TCP, 5094 = HART-IP.",
+   "protos": [
+    "bacnet"
+   ]
   },
   {
    "id": "p28",
@@ -726,7 +887,10 @@
     "32"
    ],
    "a": 0,
-   "e": "Master call a 14 bit, risposta dello slave a 7 bit."
+   "e": "Master call a 14 bit, risposta dello slave a 7 bit.",
+   "protos": [
+    "asi"
+   ]
   },
   {
    "id": "p29",
@@ -740,7 +904,10 @@
     "Con la lunghezza LE/LEr"
    ],
    "a": 0,
-   "e": "RTU usa silenzi tra frame; 0x16 è PROFIBUS."
+   "e": "RTU usa silenzi tra frame; 0x16 è PROFIBUS.",
+   "protos": [
+    "modbusrtu"
+   ]
   },
   {
    "id": "p30",
@@ -754,7 +921,10 @@
     "0xC0"
    ],
    "a": 0,
-   "e": "0x00 Read, 0x40 Response, 0x80 Write."
+   "e": "0x00 Read, 0x40 Response, 0x80 Write.",
+   "protos": [
+    "knx"
+   ]
   },
   {
    "id": "p31",
@@ -768,7 +938,10 @@
     "OFDM"
    ],
    "a": 0,
-   "e": "1200 Hz = 1, 2200 Hz = 0, ±0,5 mA."
+   "e": "1200 Hz = 1, 2200 Hz = 0, ±0,5 mA.",
+   "protos": [
+    "hart"
+   ]
   },
   {
    "id": "p32",
@@ -782,7 +955,10 @@
     "SubscribeCOV (solo)"
    ],
    "a": 0,
-   "e": "ReadProperty è il servizio confermato 12."
+   "e": "ReadProperty è il servizio confermato 12.",
+   "protos": [
+    "bacnet"
+   ]
   },
   {
    "id": "p33",
@@ -796,7 +972,10 @@
     "16 bit, byte alto per primo"
    ],
    "a": 0,
-   "e": "CRC-16 (0xA001) trasmesso low byte first."
+   "e": "CRC-16 (0xA001) trasmesso low byte first.",
+   "protos": [
+    "modbusrtu"
+   ]
   },
   {
    "id": "b25",
@@ -810,7 +989,10 @@
     "I dati passano dal cloud"
    ],
    "a": 0,
-   "e": "Polling = interrogazione periodica; la notifica invece è non sollecitata."
+   "e": "Polling = interrogazione periodica; la notifica invece è non sollecitata.",
+   "area": [
+    "base"
+   ]
   },
   {
    "id": "b26",
@@ -824,7 +1006,10 @@
     "È sempre più sicura"
    ],
    "a": 0,
-   "e": "Si invia solo quando serve, ma i tempi non sono garantiti."
+   "e": "Si invia solo quando serve, ma i tempi non sono garantiti.",
+   "area": [
+    "base"
+   ]
   },
   {
    "id": "b27",
@@ -838,7 +1023,10 @@
     "Tag RFID"
    ],
    "a": 0,
-   "e": "Produced/consumed tag: scambio di variabili tra controllori con CIP."
+   "e": "Produced/consumed tag: scambio di variabili tra controllori con CIP.",
+   "protos": [
+    "cip"
+   ]
   },
   {
    "id": "p34",
@@ -852,7 +1040,10 @@
     "0x4D Write Tag"
    ],
    "a": 0,
-   "e": "0x4C Read Tag e 0x4D Write Tag con percorso simbolico (0x91). Forward_Open è 0x54."
+   "e": "0x4C Read Tag e 0x4D Write Tag con percorso simbolico (0x91). Forward_Open è 0x54.",
+   "protos": [
+    "cip"
+   ]
   },
   {
    "id": "p35",
@@ -866,7 +1057,10 @@
     "È sempre cifrata"
    ],
    "a": 0,
-   "e": "Se molte variabili cambiano insieme, code e latenza diventano variabili."
+   "e": "Se molte variabili cambiano insieme, code e latenza diventano variabili.",
+   "area": [
+    "base"
+   ]
   },
   {
    "id": "p36",
@@ -880,7 +1074,10 @@
     "MTU"
    ],
    "a": 0,
-   "e": "Requested Packet Interval della connessione CIP."
+   "e": "Requested Packet Interval della connessione CIP.",
+   "protos": [
+    "cip"
+   ]
   },
   {
    "id": "b28",
@@ -894,7 +1091,13 @@
     "HART cablato"
    ],
    "a": 0,
-   "e": "OPC UA nasce con un modello di sicurezza integrato; gli altri non hanno autenticazione né cifratura."
+   "e": "OPC UA nasce con un modello di sicurezza integrato; gli altri non hanno autenticazione né cifratura.",
+   "protos": [
+    "opcua"
+   ],
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "b29",
@@ -908,7 +1111,10 @@
     "Con più slave"
    ],
    "a": 0,
-   "e": "Si usano segmentazione, protezione fisica e firewall ai confini."
+   "e": "Si usano segmentazione, protezione fisica e firewall ai confini.",
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "p37",
@@ -922,7 +1128,10 @@
     "Non è prevista notifica"
    ],
    "a": 0,
-   "e": "Art. 23: early warning entro 24 ore, notifica entro 72 ore, relazione finale entro un mese."
+   "e": "Art. 23: early warning entro 24 ore, notifica entro 72 ore, relazione finale entro un mese.",
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "p38",
@@ -936,7 +1145,10 @@
     "Solo ai provider cloud"
    ],
    "a": 0,
-   "e": "Il CRA riguarda i prodotti; NIS2 riguarda i soggetti che gestiscono servizi essenziali o importanti."
+   "e": "Il CRA riguarda i prodotti; NIS2 riguarda i soggetti che gestiscono servizi essenziali o importanti.",
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "p39",
@@ -950,7 +1162,10 @@
     "FR7 — RA"
    ],
    "a": 0,
-   "e": "FR1 Identification and Authentication Control; FR4 è la riservatezza dei dati (DC)."
+   "e": "FR1 Identification and Authentication Control; FR4 è la riservatezza dei dati (DC).",
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "p40",
@@ -964,7 +1179,10 @@
     "Perché non hanno CRC"
    ],
    "a": 0,
-   "e": "I protocolli safety sono pensati contro guasti casuali; la security richiede misure aggiuntive (IEC TR 63074)."
+   "e": "I protocolli safety sono pensati contro guasti casuali; la security richiede misure aggiuntive (IEC TR 63074).",
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "p41",
@@ -978,7 +1196,10 @@
     "Non ha una data"
    ],
    "a": 0,
-   "e": "Si applica dal 20/01/2027 e sostituisce la direttiva 2006/42/CE (verificare)."
+   "e": "Si applica dal 20/01/2027 e sostituisce la direttiva 2006/42/CE (verificare).",
+   "area": [
+    "sicurezza"
+   ]
   },
   {
    "id": "b30",
@@ -992,7 +1213,10 @@
     "Solo se usa il Wi-Fi"
    ],
    "a": 0,
-   "e": "Publisher e subscriber sono disaccoppiati: è il subscriber a sorvegliare che i messaggi arrivino."
+   "e": "Publisher e subscriber sono disaccoppiati: è il subscriber a sorvegliare che i messaggi arrivino.",
+   "protos": [
+    "opcuapubsub"
+   ]
   },
   {
    "id": "b31",
@@ -1006,7 +1230,10 @@
     "Sostituire Internet"
    ],
    "a": 0,
-   "e": "FX porta OPC UA al livello di campo: prima di tutto la comunicazione controllore-controllore."
+   "e": "FX porta OPC UA al livello di campo: prima di tutto la comunicazione controllore-controllore.",
+   "protos": [
+    "opcuafx"
+   ]
   },
   {
    "id": "p45",
@@ -1020,7 +1247,10 @@
     "Dal server DHCP"
    ],
    "a": 0,
-   "e": "L'SKS distribuisce chiavi simmetriche di gruppo (GetSecurityKeys): non c'è alcun handshake tra publisher e subscriber."
+   "e": "L'SKS distribuisce chiavi simmetriche di gruppo (GetSecurityKeys): non c'è alcun handshake tra publisher e subscriber.",
+   "protos": [
+    "opcuapubsub"
+   ]
   },
   {
    "id": "p46",
@@ -1034,7 +1264,10 @@
     "Un DCP Identify"
    ],
    "a": 0,
-   "e": "EstablishConnections verifica gli asset, riserva la comunicazione e abilita i ConnectionEndpoint; poi i dati viaggiano in PubSub."
+   "e": "EstablishConnections verifica gli asset, riserva la comunicazione e abilita i ConnectionEndpoint; poi i dati viaggiano in PubSub.",
+   "protos": [
+    "opcuafx"
+   ]
   },
   {
    "id": "p47",
@@ -1048,7 +1281,10 @@
     "0x0800"
    ],
    "a": 0,
-   "e": "0xB62C = OPC UA (UADP). 0x8892 = PROFINET, 0x88A4 = EtherCAT, 0x0800 = IPv4."
+   "e": "0xB62C = OPC UA (UADP). 0x8892 = PROFINET, 0x88A4 = EtherCAT, 0x0800 = IPv4.",
+   "protos": [
+    "opcuapubsub"
+   ]
   },
   {
    "id": "b32",
@@ -1062,7 +1298,10 @@
     "Non succede nulla: i dati passano dall'altro lato"
    ],
    "a": 0,
-   "e": "Nella stella ogni dispositivo ha il proprio cavo verso lo switch: il guasto resta confinato a quel ramo."
+   "e": "Nella stella ogni dispositivo ha il proprio cavo verso lo switch: il guasto resta confinato a quel ramo.",
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "b33",
@@ -1076,7 +1315,10 @@
     "Aumentano la velocità del bus"
    ],
    "a": 0,
-   "e": "Senza terminazione il segnale viene riflesso all'estremità del cavo e disturba i messaggi."
+   "e": "Senza terminazione il segnale viene riflesso all'estremità del cavo e disturba i messaggi.",
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "b34",
@@ -1090,7 +1332,10 @@
     "Solo il master"
    ],
    "a": 0,
-   "e": "In una catena ogni dispositivo inoltra i dati al successivo: se uno si ferma, quelli a valle non ricevono più nulla."
+   "e": "In una catena ogni dispositivo inoltra i dati al successivo: se uno si ferma, quelli a valle non ricevono più nulla.",
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "b35",
@@ -1104,7 +1349,10 @@
     "Si possono collegare infiniti dispositivi"
    ],
    "a": 0,
-   "e": "L'anello offre un secondo percorso: dopo il guasto la rete si riorganizza e i dati passano dall'altro lato."
+   "e": "L'anello offre un secondo percorso: dopo il guasto la rete si riorganizza e i dati passano dall'altro lato.",
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "p48",
@@ -1118,7 +1366,13 @@
     "Duplica ogni frame nei due sensi"
    ],
    "a": 0,
-   "e": "La porta bloccata evita il loop Ethernet; i frame MRP_Test verificano che l'anello sia integro."
+   "e": "La porta bloccata evita il loop Ethernet; i frame MRP_Test verificano che l'anello sia integro.",
+   "protos": [
+    "profinet"
+   ],
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "p49",
@@ -1132,7 +1386,13 @@
     "Circa 30 s"
    ],
    "a": 0,
-   "e": "Con beacon ogni 400 µs il supervisor rileva e ripristina in pochi millisecondi; 200 ms è il valore tipico di MRP."
+   "e": "Con beacon ogni 400 µs il supervisor rileva e ripristina in pochi millisecondi; 200 ms è il valore tipico di MRP.",
+   "protos": [
+    "enip"
+   ],
+   "area": [
+    "topologie"
+   ]
   },
   {
    "id": "p50",
@@ -1146,7 +1406,10 @@
     "Corregge l'errore e risponde normalmente"
    ],
    "a": 0,
-   "e": "Con il CRC errato anche l'indirizzo potrebbe essere sbagliato: lo slave tace e il master ritenta dopo il timeout."
+   "e": "Con il CRC errato anche l'indirizzo potrebbe essere sbagliato: lo slave tace e il master ritenta dopo il timeout.",
+   "protos": [
+    "modbusrtu"
+   ]
   },
   {
    "id": "p51",
@@ -1160,7 +1423,10 @@
     "Perché il bus va terminato una sola volta"
    ],
    "a": 0,
-   "e": "Ogni nodo deve vedere il bit degli altri entro lo stesso tempo di bit: per coprire più distanza si riduce il bit rate."
+   "e": "Ogni nodo deve vedere il bit degli altri entro lo stesso tempo di bit: per coprire più distanza si riduce il bit rate.",
+   "protos": [
+    "canopen"
+   ]
   },
   {
    "id": "p52",
@@ -1174,7 +1440,350 @@
     "Ritrasmette il frame finché il cavo non torna"
    ],
    "a": 0,
-   "e": "L'ESC rileva la perdita del link e fa il loopback automatico: gli slave a valle non incrementano più il WKC."
+   "e": "L'ESC rileva la perdita del link e fa il loopback automatico: gli slave a valle non incrementano più il WKC.",
+   "protos": [
+    "ethercat"
+   ]
+  },
+  {
+   "id": "b36",
+   "level": "beginner",
+   "d": 1,
+   "q": "In PROFINET, come si chiamano il PLC che comanda e i moduli di campo che gli obbediscono?",
+   "o": [
+    "IO-Controller e IO-Device",
+    "Broker e client",
+    "Publisher e subscriber",
+    "Scanner e tag"
+   ],
+   "a": 0,
+   "e": "Il controllore (IO-Controller) scambia dati ciclici con i dispositivi di campo (IO-Device).",
+   "protos": [
+    "profinet"
+   ]
+  },
+  {
+   "id": "b37",
+   "level": "beginner",
+   "d": 1,
+   "q": "A che cosa serve soprattutto il protocollo S7?",
+   "o": [
+    "A leggere e scrivere i dati di un PLC Siemens da PC, HMI o SCADA",
+    "A comandare gli I/O di campo in tempo reale",
+    "Ad alimentare i sensori dal cavo del bus",
+    "A comandare le luci di un edificio"
+   ],
+   "a": 0,
+   "e": "S7 è un protocollo a richiesta e risposta per l'accesso ai dati: per gli I/O in tempo reale si usano PROFINET o PROFIBUS.",
+   "protos": [
+    "s7"
+   ]
+  },
+  {
+   "id": "b38",
+   "level": "beginner",
+   "d": 2,
+   "q": "Che cosa può fare un programma su PC con ADS?",
+   "o": [
+    "Leggere e scrivere le variabili di un controllore TwinCAT e ricevere una notifica quando cambiano",
+    "Sincronizzare 50 assi con jitter sotto il microsecondo",
+    "Alimentare i dispositivi dal cavo",
+    "Sostituire lo switch di rete"
+   ],
+   "a": 0,
+   "e": "ADS è il protocollo di servizio di TwinCAT: accesso alle variabili per nome o handle, con notifiche.",
+   "protos": [
+    "ads"
+   ]
+  },
+  {
+   "id": "b39",
+   "level": "beginner",
+   "d": 2,
+   "q": "Che cosa fa un subscriber OPC UA PubSub se non riceve più messaggi?",
+   "o": [
+    "Dopo un tempo di attesa segnala i dati come non validi",
+    "Chiede al publisher di rispedirli",
+    "Riavvia il publisher",
+    "Continua come se nulla fosse"
+   ],
+   "a": 0,
+   "e": "Nel PubSub non ci sono conferme né richieste: è il subscriber a sorvegliare l'arrivo dei messaggi.",
+   "protos": [
+    "opcuapubsub"
+   ]
+  },
+  {
+   "id": "b40",
+   "level": "beginner",
+   "d": 2,
+   "q": "In OPC UA FX, che cosa serve perché i tempi di scambio siano garantiti?",
+   "o": [
+    "Una rete Ethernet con TSN",
+    "Un broker nel cloud",
+    "Un cavo piatto giallo",
+    "Una linea seriale RS-485"
+   ],
+   "a": 0,
+   "e": "Senza TSN lo scambio funziona, ma i tempi sono solo «di solito» rispettati.",
+   "protos": [
+    "opcuafx"
+   ]
+  },
+  {
+   "id": "b41",
+   "level": "beginner",
+   "d": 2,
+   "q": "In EtherNet/IP, che cosa indica l'RPI?",
+   "o": [
+    "Ogni quanto vengono scambiati i dati di I/O di una connessione",
+    "L'indirizzo IP del PLC",
+    "Il tipo di cavo da usare",
+    "Il numero massimo di dispositivi"
+   ],
+   "a": 0,
+   "e": "RPI = Requested Packet Interval: la cadenza dei dati ciclici, impostata per ogni connessione.",
+   "protos": [
+    "enip"
+   ]
+  },
+  {
+   "id": "b42",
+   "level": "beginner",
+   "d": 1,
+   "q": "In Modbus, chi inizia sempre la comunicazione?",
+   "o": [
+    "Il client (o master): il server risponde soltanto",
+    "Il server, quando un valore cambia",
+    "Chiunque, in qualsiasi momento",
+    "Un broker centrale"
+   ],
+   "a": 0,
+   "e": "Modbus è a richiesta e risposta: senza domanda, il server non trasmette nulla.",
+   "protos": [
+    "modbus"
+   ]
+  },
+  {
+   "id": "b43",
+   "level": "beginner",
+   "d": 2,
+   "q": "Sul bus CAN, che cosa succede se due nodi iniziano a trasmettere nello stesso momento?",
+   "o": [
+    "Prosegue il messaggio più prioritario, senza perdere tempo",
+    "Entrambi i messaggi vanno persi",
+    "Il bus si blocca finché non interviene il master",
+    "Vince il nodo più vicino"
+   ],
+   "a": 0,
+   "e": "L'arbitraggio di CAN non distrugge i messaggi: chi ha priorità più bassa si ritira e riprova subito dopo.",
+   "protos": [
+    "canopen"
+   ]
+  },
+  {
+   "id": "b44",
+   "level": "beginner",
+   "d": 2,
+   "q": "Che cosa fa un «consumed tag» in un PLC Rockwell?",
+   "o": [
+    "Riceve a ritmo fisso il valore pubblicato da un altro PLC",
+    "Cancella un tag dalla memoria",
+    "Chiede un valore solo quando serve",
+    "Salva i dati su una scheda di memoria"
+   ],
+   "a": 0,
+   "e": "Un PLC «produce» il tag, gli altri lo «consumano» senza doverlo chiedere ogni volta.",
+   "protos": [
+    "cip"
+   ]
+  },
+  {
+   "id": "b45",
+   "level": "beginner",
+   "d": 1,
+   "q": "Su una linea Modbus RTU, quanti master possono interrogare gli slave?",
+   "o": [
+    "Uno solo",
+    "Due, a turno",
+    "Tutti i dispositivi",
+    "Nessuno: gli slave parlano da soli"
+   ],
+   "a": 0,
+   "e": "Sulla linea seriale c'è un unico master; con Modbus TCP, invece, più client possono interrogare lo stesso server.",
+   "protos": [
+    "modbusrtu"
+   ]
+  },
+  {
+   "id": "b46",
+   "level": "beginner",
+   "d": 1,
+   "q": "Come si collega di solito un modulo AS-Interface al cavo?",
+   "o": [
+    "A perforazione: si aggancia al cavo piatto senza tagliarlo",
+    "Con un connettore RJ45",
+    "Saldando i fili",
+    "In fibra ottica"
+   ],
+   "a": 0,
+   "e": "I contatti perforano l'isolante del cavo giallo: il modulo si può aggiungere o spostare in pochi secondi.",
+   "protos": [
+    "asi"
+   ]
+  },
+  {
+   "id": "b47",
+   "level": "beginner",
+   "d": 2,
+   "q": "A che cosa serve il messaggio «Who-Is» di BACnet?",
+   "o": [
+    "A scoprire quali dispositivi sono presenti in rete",
+    "A spegnere un dispositivo",
+    "A leggere una temperatura",
+    "A cambiare la password"
+   ],
+   "a": 0,
+   "e": "Chi riceve il Who-Is risponde con I-Am: così il supervisore costruisce l'elenco dei dispositivi.",
+   "protos": [
+    "bacnet"
+   ]
+  },
+  {
+   "id": "b48",
+   "level": "beginner",
+   "d": 2,
+   "q": "In KNX, come fa un pulsante a comandare più lampade insieme?",
+   "o": [
+    "Invia un telegramma a un indirizzo di gruppo a cui le lampade sono associate",
+    "Le interroga una alla volta",
+    "Passa sempre da un PLC centrale",
+    "Usa un broker nel cloud"
+   ],
+   "a": 0,
+   "e": "Tutti i dispositivi associati allo stesso indirizzo di gruppo reagiscono allo stesso telegramma, senza controllore centrale.",
+   "protos": [
+    "knx"
+   ]
+  },
+  {
+   "id": "b49",
+   "level": "beginner",
+   "d": 2,
+   "q": "Con HART, che cosa succede al segnale 4–20 mA mentre si comunica in digitale?",
+   "o": [
+    "Resta valido: il segnale digitale gli è sovrapposto e non lo altera",
+    "Si interrompe finché dura la comunicazione",
+    "Raddoppia di valore",
+    "Diventa un segnale 0–10 V"
+   ],
+   "a": 0,
+   "e": "Il segnale FSK ha media nulla: il PLC continua a leggere la misura analogica.",
+   "protos": [
+    "hart"
+   ]
+  },
+  {
+   "id": "p53",
+   "level": "professional",
+   "d": 2,
+   "q": "Come viene instradato un messaggio ADS verso il destinatario?",
+   "o": [
+    "Con AMS NetId e numero di porta, tramite il router AMS",
+    "Con il nome DNS del PLC",
+    "Con il topic del messaggio",
+    "Con l'indirizzo di slave"
+   ],
+   "a": 0,
+   "e": "L'AMS header contiene NetId e porta di destinazione e sorgente; il router usa le route configurate.",
+   "protos": [
+    "ads"
+   ]
+  },
+  {
+   "id": "p54",
+   "level": "professional",
+   "d": 2,
+   "q": "Che cosa trasporta i dati ciclici di una connessione OPC UA FX?",
+   "o": [
+    "OPC UA PubSub (UADP) su UDP/IP o direttamente su Ethernet",
+    "OPC UA client/server su TCP",
+    "MQTT tramite un broker",
+    "Frame PROFINET RT ciclici"
+   ],
+   "a": 0,
+   "e": "Il client/server serve a stabilire la connessione (EstablishConnections); i dati viaggiano in PubSub.",
+   "protos": [
+    "opcuafx"
+   ]
+  },
+  {
+   "id": "p55",
+   "level": "professional",
+   "d": 2,
+   "q": "Come inizia la comunicazione IO-Link su una porta in cui il device è in modalità SIO?",
+   "o": [
+    "Il master invia un impulso di wake-up e prova le velocità COM3, COM2, COM1",
+    "Il device invia un heartbeat",
+    "Con un handshake TCP",
+    "Con il passaggio di un token"
+   ],
+   "a": 0,
+   "e": "Dopo il wake-up il master legge i parametri di identificazione e porta il device in Operate.",
+   "protos": [
+    "iolink"
+   ]
+  },
+  {
+   "id": "p56",
+   "level": "professional",
+   "d": 2,
+   "q": "Quanti slave gestisce una rete AS-i con indirizzamento esteso A/B (dalla versione 2.1)?",
+   "o": [
+    "62",
+    "31",
+    "127",
+    "247"
+   ],
+   "a": 0,
+   "e": "31 indirizzi, ciascuno sdoppiato in A e B: 62 slave, con ciclo circa doppio.",
+   "protos": [
+    "asi"
+   ]
+  },
+  {
+   "id": "p57",
+   "level": "professional",
+   "d": 3,
+   "q": "Su KNX TP1, come si risolvono le collisioni tra telegrammi?",
+   "o": [
+    "CSMA/CA con bit dominanti: prosegue il telegramma con priorità più alta",
+    "Con il passaggio di un token",
+    "Un master assegna i turni",
+    "Ritrasmissione dopo un tempo casuale, come su Ethernet con hub"
+   ],
+   "a": 0,
+   "e": "Lo 0 è dominante: il mittente che legge un bit diverso dal proprio si ritira, e l'altro telegramma non viene distrutto.",
+   "protos": [
+    "knx"
+   ]
+  },
+  {
+   "id": "p58",
+   "level": "professional",
+   "d": 2,
+   "q": "In una rete HART, che cosa distingue il master primario da quello secondario?",
+   "o": [
+    "Il primario è di solito il sistema di controllo, il secondario un configuratore portatile: possono coesistere",
+    "Il secondario entra in funzione solo se il primario si guasta",
+    "Il primario usa il 4–20 mA, il secondario la radio",
+    "Non c'è differenza"
+   ],
+   "a": 0,
+   "e": "HART ammette due master sullo stesso anello: tipicamente il sistema di controllo e un comunicatore portatile.",
+   "protos": [
+    "hart"
+   ]
   }
  ]
 }
