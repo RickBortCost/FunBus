@@ -22,7 +22,7 @@ La versione (es. `-p:Version=1.2.0`) compare nelle proprietà dell'exe e nel pi�
 ## Versione web (tablet, telefono, Chromebook)
 La stessa app funziona senza exe, come sito statico: <https://rickbortcost.github.io/FunBus/>. Il workflow `pages` la pubblica a ogni modifica di `main`.
 
-- **Attivazione, una volta sola**: *Settings → Pages → Source: «GitHub Actions»*, poi avviare il workflow `pages` (o attendere la modifica successiva). Finché Pages non è attivo il workflow non fa nulla.
+- **Attivazione, una volta sola**: *Settings → Pages → Source: «GitHub Actions»*, poi avviare il workflow `pages` (o attendere la modifica successiva).
 - **Installazione sul dispositivo**: aprire il sito e scegliere «Aggiungi a schermata Home» (Safari su iPad/iPhone: pulsante Condividi) o «Installa app» (Chrome, Edge). Dopo la prima visita funziona anche senza rete.
 - **Progressi**: restano nel browser del dispositivo. Per spostarli: *Profilo → Esporta progressi / Importa progressi*.
 - **In locale**: `node web/build.mjs _site` crea la cartella da pubblicare su un qualsiasi server web statico (serve HTTPS per l'uso senza rete).
