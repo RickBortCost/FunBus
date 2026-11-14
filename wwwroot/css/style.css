@@ -288,7 +288,7 @@ table.cmp tr.diff td:not(:first-child){background-image:repeating-linear-gradien
 .chip.on{font-weight:600}
 
 /* Barra di navigazione su una riga scorrevole negli schermi stretti */
-@media(max-width:760px){#nav{flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}#nav::-webkit-scrollbar{display:none}.brand{flex:none}}
+@media(max-width:760px){#nav{flex-wrap:nowrap;min-width:0}.brand{flex:none}}
 
 /* Tema ad alto contrasto: nero/bianco, accento giallo, bordi pieni, niente ombre o sfumature */
 [data-theme=hc] body{background:var(--bg)}
@@ -408,3 +408,37 @@ mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;bor
   .tablewrap{max-height:none;overflow:visible}
   @page{margin:14mm}
 }
+
+/* Menu a gruppi */
+.navg{position:relative}
+.navb{border:0;background:transparent;color:var(--text);font:inherit;padding:.4rem .7rem;border-radius:999px;cursor:pointer;white-space:nowrap}
+.navb::after{content:"";display:inline-block;margin-left:.4rem;border:4px solid transparent;border-top-color:currentColor;border-bottom:0;vertical-align:middle}
+.navb[aria-expanded=true]::after{transform:rotate(180deg)}
+.navb:hover,.navb[aria-expanded=true]{background:var(--surface2)}
+.navb.on{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);font-weight:600}
+.navp{position:absolute;top:calc(100% + .35rem);left:0;z-index:20;min-width:13.5rem;display:grid;gap:.1rem;padding:.4rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.navg:last-child .navp{left:auto;right:0}
+#nav .navp a{border-radius:8px;padding:.5rem .7rem;white-space:nowrap}
+[data-theme=hc] .navb{border:0}[data-theme=hc] .navb.on{background:var(--accent);color:var(--accent-t)}[data-theme=hc] .navp{border-width:2px;box-shadow:none}
+.tools a.icon.on{background:color-mix(in srgb,var(--accent) 16%,transparent);outline:2px solid var(--accent)}
+@media(max-width:560px){.bname{display:none}.navb{padding:.4rem .5rem}#nav{gap:0}}
+@media(max-width:400px){.navb{font-size:.94rem;padding:.4rem .4rem}.navb::after{margin-left:.25rem}}
+/* Primo avvio e «Riprendi» */
+.welcome{max-width:44rem;margin:1rem auto;text-align:center}.welcome h2{margin:.4rem 0}
+.wdots{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.6rem}
+.wdot{display:inline-flex;gap:.35rem}.wdot i{width:.6rem;height:.6rem;border-radius:50%;border:2px solid var(--muted)}.wdot i.on{background:var(--accent);border-color:var(--accent)}
+.wlist{display:inline-grid;gap:.35rem;text-align:left;margin:.4rem 0 .2rem}
+.wact{justify-content:center;margin-top:1rem}.welcome .two{margin-top:.6rem}
+.textbtn{border:0;background:transparent;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;padding:.2rem .3rem}
+[data-theme=hc] .textbtn{border:0}
+.resume{margin:1rem 0;border-left-color:var(--accent)}.resume h2{margin:0 0 .7rem;font-size:1.15rem}
+.rtiles{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))}
+.rtile{display:flex;align-items:center;gap:.7rem;padding:.7rem .8rem;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);text-decoration:none;min-width:0}
+.rtile:hover{border-color:var(--accent)}
+.ric{flex:none;display:grid;place-items:center;width:2.25rem;height:2.25rem;border-radius:50%;background:var(--surface);font-size:1.2rem}
+.rbody{display:grid;gap:.15rem;min-width:0;justify-items:start}.rbody strong{overflow-wrap:anywhere}
+.wlist{list-style:none;padding:0}
+/* Schermi stretti: nel selettore della lingua resta la bandiera (il nome è nell'etichetta accessibile e nell'elenco) */
+@media(max-width:560px){.tools{gap:.3rem}.tools .icon{width:2rem;height:2rem;flex:none}.seg{flex:none;padding:2px}.seg button{padding:.3rem .5rem;font-size:.9rem}select.lang{width:3.4rem;padding:.3rem .3rem;flex:none}}
+@media(max-width:380px){.tools{gap:.2rem}.tools .icon{width:1.85rem;height:1.85rem}.seg button{padding:.3rem .35rem;font-size:.82rem}select.lang{width:3.1rem}}
+@media(max-width:340px){.navb{font-size:.84rem;padding:.35rem .25rem}.seg button{padding:.3rem .22rem;font-size:.76rem}.topbar{gap:.4rem .5rem}.tools .icon{width:1.7rem;height:1.7rem}select.lang{width:2.9rem}}
