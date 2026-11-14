@@ -3489,9 +3489,33 @@
 "✔ Esatto.": "✔ Correct.",
 "✘ Non proprio: guarda che cosa succede.": "✘ Not quite: watch what happens.",
 "Fine della sequenza.": "End of the sequence.",
-"↺ Riprova": "↺ Try again"
+"↺ Riprova": "↺ Try again",
+"Le domande sbagliate tornano dopo 1, 3 e 7 giorni.": "Wrong answers come back after 1, 3 and 7 days.",
+"Le domande sbagliate tornano dopo 1, 3 e 7 giorni. Alla terza risposta giusta di fila escono dal ripasso; se sbagli, ripartono da capo.": "Wrong answers come back after 1, 3 and 7 days. After the third correct answer in a row they leave the review; if you get one wrong, it starts over.",
+"Imparata: esce dal ripasso.": "Learned: it leaves the review.",
+"La ritrovi nel ripasso di domani.": "You will find it in tomorrow’s review.",
+"Prossimo ripasso: ": "Next review: ",
+"Prossimo ripasso:": "Next review:",
+"Ripassa in anticipo": "Review early",
+"Per oggi hai finito: nessuna domanda in scadenza.": "You are done for today: no questions due."
 },
 "patterns": [
+[
+"^Domande da ripassare oggi: (\\d+)$",
+"Questions to review today: $1"
+],
+[
+"^Domande in programma: (\\d+)$",
+"Scheduled questions: $1"
+],
+[
+"^La ritrovi nel ripasso tra (\\d+) giorni\\.$",
+"You will find it in the review in $1 days."
+],
+[
+"^Da ripassare oggi: (\\d+)$",
+"To review today: $1"
+],
 [
 "^Previsioni corrette: (\\d+) su (\\d+)$",
 "Correct predictions: $1 of $2"

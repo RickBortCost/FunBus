@@ -1,4 +1,18 @@
-import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress, protoById, WEB } from './core.js';
+import {
+  S,
+  h,
+  isPro,
+  shuffle,
+  addXP,
+  save,
+  checkBadges,
+  levelInfo,
+  defProgress,
+  protoById,
+  WEB,
+  reviewAnswer,
+  reviewState,
+} from './core.js';
 import { exportProgress, importProgress } from './extra.js';
 import { badgeArt, hasArt } from './badges.js';
 
@@ -29,7 +43,8 @@ export function hub(app) {
         'a',
         { class: 'card', href: '#/test/ripasso' },
         h('h3', {}, '🔁 Ripasso errori'),
-        h('p', { class: 'muted' }, `Rivedi le domande sbagliate (${(S.progress.wrong || []).length}).`),
+        h('p', { class: 'muted' }, 'Le domande sbagliate tornano dopo 1, 3 e 7 giorni.'),
+        h('span', { class: 'tag' }, `Da ripassare oggi: ${reviewState().due.length}`),
       ),
       h(
         'a',
@@ -67,9 +82,12 @@ const reviewLinks = q => [
 // opts (quiz di lezione): filter(q), count, title, empty, back { href, label, text }, onEnd(pct) → nodo da mostrare nel risultato
 export function quiz(app, ctx, review = false, opts = {}) {
   const cfg = S.data.game.quiz;
-  S.progress.wrong ||= [];
+  // ripasso distanziato: di norma solo le domande in scadenza; con #/test/ripasso/tutte anche quelle programmate più avanti
+  const early = review && ctx.arg === 'tutte',
+    rs = reviewState(),
+    inReview = new Set(early ? [...rs.due, ...rs.later] : rs.due);
   const pool = S.data.quiz.questions.filter(
-    q => q.level === lvKey() && (!review || S.progress.wrong.includes(q.id)) && (!opts.filter || opts.filter(q)),
+    q => q.level === lvKey() && (!review || inReview.has(q.id)) && (!opts.filter || opts.filter(q)),
   );
   const qs = shuffle(pool)
     .slice(0, opts.count || cfg.questions)
@@ -84,6 +102,13 @@ export function quiz(app, ctx, review = false, opts = {}) {
   app.append(
     opts.back ? h('a', { href: opts.back.href }, opts.back.label, h('span', {}, opts.back.text)) : h('a', { href: '#/test' }, '← Test'),
     h('h1', {}, opts.title || (review ? 'Ripasso errori' : 'Quiz')),
+    review
+      ? h(
+          'p',
+          { class: 'muted' },
+          'Le domande sbagliate tornano dopo 1, 3 e 7 giorni. Alla terza risposta giusta di fila escono dal ripasso; se sbagli, ripartono da capo.',
+        )
+      : '',
     box,
   );
 
@@ -109,10 +134,16 @@ export function quiz(app, ctx, review = false, opts = {}) {
               e.currentTarget.classList.add(right ? 'right' : 'wrong');
               if (!right) opts.querySelectorAll('button')[order.findIndex(x => x.k === q.a)].classList.add('right');
               let pts = 0;
-              const w = S.progress.wrong;
-              const wi = w.indexOf(q.id);
-              if (right && wi >= 0) w.splice(wi, 1);
-              if (!right && wi < 0) w.push(q.id);
+              const days = reviewAnswer(q.id, right, early);
+              save(); // subito: il ripasso non deve dipendere dall'arrivare in fondo al quiz
+              const again =
+                days == null
+                  ? null
+                  : days === 0
+                    ? 'Imparata: esce dal ripasso.'
+                    : days === 1
+                      ? 'La ritrovi nel ripasso di domani.'
+                      : `La ritrovi nel ripasso tra ${days} giorni.`;
               if (right) {
                 ok++;
                 streak++;
@@ -130,6 +161,7 @@ export function quiz(app, ctx, review = false, opts = {}) {
                   h('strong', {}, right ? `Corretto! +${pts} punti${streak >= 3 ? ' (bonus serie)' : ''}` : 'Non esatto. '),
                   ' ',
                   q.e,
+                  again ? h('span', { class: 'again' }, again) : null,
                 ),
               );
               nextBtn.style.display = '';
@@ -188,7 +220,38 @@ export function quiz(app, ctx, review = false, opts = {}) {
   qs.length
     ? ask()
     : box.append(
-        h('p', {}, opts.empty || (review ? 'Nessun errore da ripassare: ottimo!' : 'Nessuna domanda disponibile per questo livello.')),
+        h(
+          'p',
+          {},
+          opts.empty ||
+            (review
+              ? rs.later.length
+                ? 'Per oggi hai finito: nessuna domanda in scadenza.'
+                : 'Nessun errore da ripassare: ottimo!'
+              : 'Nessuna domanda disponibile per questo livello.'),
+        ),
+        review && rs.later.length
+          ? h(
+              'div',
+              { class: 'card', id: 'reviewLater' },
+              h('p', {}, h('strong', {}, `Domande in programma: ${rs.later.length}`)),
+              h(
+                'p',
+                {},
+                'Prossimo ripasso: ',
+                h(
+                  'span',
+                  {},
+                  new Date(rs.next).toLocaleDateString(S.lang === 'en' ? 'en-GB' : 'it-IT', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                  }),
+                ),
+              ),
+              h('a', { class: 'btn', href: '#/test/ripasso/tutte' }, 'Ripassa in anticipo'),
+            )
+          : '',
       );
 }
 
