@@ -1,4 +1,4 @@
-import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress, protoById } from './core.js';
+import { S, h, isPro, shuffle, addXP, save, checkBadges, levelInfo, defProgress, protoById, WEB } from './core.js';
 import { exportProgress, importProgress } from './extra.js';
 import { badgeArt, hasArt } from './badges.js';
 
@@ -517,6 +517,13 @@ export function profilo(app, { rerender }) {
       h('li', {}, `Reti costruite: ${(p.built || []).length}`),
       h('li', {}, `Schede aperte: ${p.visited.length}/${S.data.protocols.protocols.length}`),
     ),
+    WEB
+      ? h(
+          'p',
+          { class: 'muted small', id: 'webNote' },
+          'I progressi sono salvati in questo browser, su questo dispositivo. Per portarli altrove usa «Esporta progressi» e poi «Importa progressi».',
+        )
+      : null,
     h(
       'div',
       { class: 'row', style: 'margin-top:1rem' },

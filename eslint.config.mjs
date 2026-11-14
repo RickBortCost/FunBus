@@ -31,6 +31,7 @@ const browser = [
   'MutationObserver',
   'ResizeObserver',
   'WeakMap',
+  'caches',
 ];
 const node = ['process', 'console', 'setTimeout', 'clearTimeout', 'fetch', 'Buffer', 'URL'];
 const globals = list => Object.fromEntries(list.map(n => [n, 'readonly']));
@@ -52,7 +53,16 @@ export default [
   { ignores: ['bin/**', 'obj/**', 'publish/**'] },
   { files: ['wwwroot/js/**/*.js'], languageOptions: { ecmaVersion: 2023, sourceType: 'module', globals: globals(browser) }, rules },
   {
-    files: ['tests/**/*.mjs', 'eslint.config.mjs'],
+    files: ['web/sw.js'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'script',
+      globals: globals(['self', 'caches', 'fetch', 'URL', 'Promise', 'Response']),
+    },
+    rules,
+  },
+  {
+    files: ['tests/**/*.mjs', 'web/build.mjs', 'eslint.config.mjs'],
     languageOptions: { ecmaVersion: 2023, sourceType: 'module', globals: globals([...node, ...browser]) },
     rules,
   },

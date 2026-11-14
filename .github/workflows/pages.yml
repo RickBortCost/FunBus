@@ -1,0 +1,45 @@
+name: pages
+# Pubblica la versione web su GitHub Pages a ogni modifica di main.
+# Da attivare una volta: Settings → Pages → Source: «GitHub Actions». Finché non è attivo, il workflow non fa nulla.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: GitHub Pages è attivo?
+        id: on
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then echo "ok=1" >> "$GITHUB_OUTPUT"
+          else echo "::notice::GitHub Pages non è attivo: Settings → Pages → Source: GitHub Actions"; fi
+      - uses: actions/checkout@v4
+        if: steps.on.outputs.ok
+      - uses: actions/setup-node@v4
+        if: steps.on.outputs.ok
+        with:
+          node-version: 22
+      - run: node web/build.mjs _site
+        if: steps.on.outputs.ok
+      - uses: actions/configure-pages@v5
+        if: steps.on.outputs.ok
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.on.outputs.ok
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        if: steps.on.outputs.ok
+        id: deploy
