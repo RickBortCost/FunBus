@@ -3481,9 +3481,21 @@
 "Ultima scheda aperta": "Last card opened",
 "Nuovo badge": "New badge",
 "Nuovo livello": "New level",
-"Chiudi": "Close"
+"Chiudi": "Close",
+"🤔 Prevedi il prossimo passo": "🤔 Predict the next step",
+"Il diagramma a sequenza è nascosto mentre fai le previsioni.": "The sequence diagram is hidden while you make predictions.",
+"L'animazione si ferma prima di ogni passo: scegli che cosa succede, poi guarda se avevi ragione.": "The animation stops before each step: choose what happens, then see whether you were right.",
+"Che cosa succede adesso?": "What happens now?",
+"✔ Esatto.": "✔ Correct.",
+"✘ Non proprio: guarda che cosa succede.": "✘ Not quite: watch what happens.",
+"Fine della sequenza.": "End of the sequence.",
+"↺ Riprova": "↺ Try again"
 },
 "patterns": [
+[
+"^Previsioni corrette: (\\d+) su (\\d+)$",
+"Correct predictions: $1 of $2"
+],
 [
 "^Livello (\\d+)$",
 "Level $1"

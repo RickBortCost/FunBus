@@ -1,5 +1,5 @@
 // Motore di animazione generico, guidato dai dati di data/animations.json
-import { h, svgEl, T, L, isPro, S, mark } from './core.js';
+import { h, svgEl, T, L, isPro, S, mark, shuffle, addXP } from './core.js';
 
 const W = 800,
   H = 300,
@@ -112,6 +112,9 @@ export function createSim(proto, anim) {
     track = null,
     seqDot = null,
     seqW = 0;
+  let predict = false,
+    asking = false,
+    pScore = { ok: 0, n: 0 };
   // Guasto simulato: collegamento e nodo coinvolti (dai dati, con valori predefiniti).
   const fLink = anim.faults?.cable?.link || anim.links[anim.links.length - 1];
   const fNode = anim.faults?.node?.id || anim.nodes[anim.nodes.length - 1].id;
@@ -227,6 +230,13 @@ export function createSim(proto, anim) {
     },
     '⚠ Simula guasto',
   );
+  // Modalità previsione: l'animazione si ferma prima di ogni passo e chiede che cosa succederà.
+  const predBox = h('div', { class: 'predict', 'aria-live': 'polite' });
+  const pBtn = h(
+    'button',
+    { class: 'predbtn', 'aria-pressed': 'false', onclick: () => setPredict(!predict) },
+    '🤔 Prevedi il prossimo passo',
+  );
   const ctl = h(
     'div',
     { class: 'ctl' },
@@ -245,6 +255,7 @@ export function createSim(proto, anim) {
     ),
     h('label', {}, 'Velocità', spd),
     fBtn,
+    pBtn,
   );
   const legend = h(
     'div',
@@ -259,14 +270,9 @@ export function createSim(proto, anim) {
   const faultBox = h('div', { 'aria-live': 'polite' });
   const seqBox = h('div', { class: 'seq' });
   const frameBox = h('div');
-  root.append(
-    h('h3', {}, anim.title),
-    svg,
-    legend,
-    ctl,
-    fRow,
-    info,
-    faultBox,
+  const seqWrap = h(
+    'div',
+    {},
     h('h3', {}, 'Diagramma a sequenza'),
     seqBox,
     h(
@@ -276,8 +282,9 @@ export function createSim(proto, anim) {
       anim.timeNote ? ' ' : null,
       anim.timeNote ? h('span', {}, anim.timeNote) : null,
     ),
-    frameBox,
   );
+  const seqHidden = h('p', { class: 'muted small', hidden: true }, 'Il diagramma a sequenza è nascosto mentre fai le previsioni.');
+  root.append(h('h3', {}, anim.title), svg, legend, ctl, fRow, predBox, info, faultBox, seqWrap, seqHidden, frameBox);
 
   /* ---- geometria dei percorsi ---- */
   function geom(route) {
@@ -746,6 +753,8 @@ export function createSim(proto, anim) {
         setPlaying(false);
         elapsed = cur.dur;
         draw();
+        raf = null; // il passo singolo è finito: senza questo il Play successivo non ripartirebbe
+        if (predict) setTimeout(askNext, 0);
         return;
       }
       let n = idx + 1;
@@ -771,10 +780,12 @@ export function createSim(proto, anim) {
     }
   }
   function togglePlay() {
+    clearAsk();
     stopAfter = false;
     setPlaying(!playing);
   }
   function stepTo(i, once, keepPlaying) {
+    clearAsk();
     startStep(i);
     if (once) {
       stopAfter = true;
@@ -783,6 +794,121 @@ export function createSim(proto, anim) {
       stopAfter = false;
       setPlaying(true);
     } else setPlaying(false);
+  }
+
+  /* ---- modalità previsione ---- */
+  const nodeLabel = id => anim.nodes.find(n => n.id === id)?.label || id;
+  // che cosa dice un passo: chi trasmette, a chi, che cosa (dai percorsi già calcolati)
+  const says = i => {
+    const r = allRoutes[i];
+    return { from: nodeLabel(r[0][0]), to: r.map(x => nodeLabel(x[x.length - 1])), label: steps[i].label };
+  };
+  const keyOf = o => `${o.from}>${o.to.join(',')}:${o.label}`;
+  function optionsFor(n) {
+    const right = says(n),
+      seen = new Set([keyOf(right)]),
+      others = [];
+    for (const i of shuffle(steps.map((_, k) => k))) {
+      const o = says(i);
+      if (seen.has(keyOf(o))) continue;
+      seen.add(keyOf(o));
+      others.push(o);
+    }
+    return others.length < 2 ? null : shuffle([{ ...right, right: true }, ...others.slice(0, 2)]);
+  }
+  const scoreLine = () => h('span', { class: 'tag pscore' }, `Previsioni corrette: ${pScore.ok} su ${pScore.n}`);
+  function clearAsk() {
+    if (!asking) return;
+    asking = false;
+    predBox.replaceChildren();
+  }
+  function setPredict(v) {
+    predict = v;
+    asking = false;
+    pScore = { ok: 0, n: 0 };
+    pBtn.setAttribute('aria-pressed', String(v));
+    pBtn.classList.toggle('on', v);
+    seqWrap.hidden = v;
+    seqHidden.hidden = !v;
+    predBox.replaceChildren(
+      v
+        ? h('p', { class: 'note' }, "L'animazione si ferma prima di ogni passo: scegli che cosa succede, poi guarda se avevi ragione.")
+        : '',
+    );
+    cycles = 0;
+    if (v) stepTo(0, true);
+    else {
+      stepTo(0, false);
+      fit();
+    }
+  }
+  function askNext() {
+    if (!predict || playing) return;
+    const n = idx + 1;
+    if (n >= steps.length) return finishPredict();
+    const options = optionsFor(n);
+    if (!options) return stepTo(n, true);
+    asking = true;
+    const answer = o => {
+      pScore.n++;
+      if (o.right) pScore.ok++;
+      stepTo(n, true);
+      predBox.replaceChildren(
+        h(
+          'p',
+          { class: 'fb ' + (o.right ? 'ok' : 'ko') },
+          h('strong', {}, o.right ? '✔ Esatto.' : '✘ Non proprio: guarda che cosa succede.'),
+          ' ',
+          scoreLine(),
+        ),
+      );
+    };
+    const first = [];
+    predBox.replaceChildren(
+      h(
+        'div',
+        { class: 'pask' },
+        h('div', { class: 'row' }, h('strong', {}, 'Che cosa succede adesso?'), scoreLine()),
+        h(
+          'div',
+          { class: 'opts popts' },
+          options.map(o => {
+            const b = h(
+              'button',
+              { onclick: () => answer(o) },
+              h('span', {}, o.from),
+              ' → ',
+              o.to.flatMap((t, k) => [k ? ', ' : '', h('span', {}, t)]),
+              ': ',
+              h('strong', {}, o.label),
+            );
+            first.push(b);
+            return b;
+          }),
+        ),
+      ),
+    );
+    first[0].focus({ preventScroll: true });
+  }
+  function finishPredict() {
+    const done = (S.progress.predicted ||= {}),
+      gain = Math.max(0, pScore.ok - (done[proto.id] || 0)) * 2;
+    if (gain) {
+      done[proto.id] = pScore.ok;
+      addXP(gain);
+    }
+    predBox.replaceChildren(
+      h(
+        'p',
+        { class: 'fb ok pend' },
+        h('strong', {}, 'Fine della sequenza.'),
+        ' ',
+        scoreLine(),
+        gain ? h('span', { class: 'tag' }, `+${gain} XP`) : '',
+        ' ',
+        h('button', { onclick: () => setPredict(true) }, '↺ Riprova'),
+      ),
+    );
   }
 
   startStep(0);
