@@ -3478,9 +3478,16 @@
 "Primo avvio": "First launch",
 "Salta l'introduzione": "Skip the introduction",
 "Riprendi da dove eri": "Pick up where you left off",
-"Ultima scheda aperta": "Last card opened"
+"Ultima scheda aperta": "Last card opened",
+"Nuovo badge": "New badge",
+"Nuovo livello": "New level",
+"Chiudi": "Close"
 },
 "patterns": [
+[
+"^Livello (\\d+)$",
+"Level $1"
+],
 [
 "^Domande da rivedere: (\\d+)$",
 "Questions to review: $1"

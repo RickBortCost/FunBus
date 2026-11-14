@@ -142,6 +142,11 @@ export function toast(msg) {
   setTimeout(() => t.remove(), 3200);
 }
 
+// Traguardi (badge e livelli): riquadro con la grafica in grande; il disegno sta in badges.js, caricato quando serve.
+function celebrate(what) {
+  import('./badges.js').then(m => m.celebrate(what)).catch(() => toast(`${what.label}: ${what.name}`));
+}
+
 export function levelInfo(xp = S.progress.xp) {
   const th = S.data.game.xpPerLevel,
     names = S.data.game.levelNames;
@@ -183,7 +188,7 @@ export function checkBadges() {
   for (const b of S.data.game.badges) {
     if (!p.badges[b.id] && BADGE_COND[b.id]?.(p)) {
       p.badges[b.id] = Date.now();
-      toast(`${b.icon} Nuovo badge: ${b.name}`);
+      celebrate({ kind: 'badge', id: b.id, icon: b.icon, label: 'Nuovo badge', name: b.name, desc: b.desc });
     }
   }
 }
@@ -197,7 +202,8 @@ export function addXP(n) {
   S.progress.xp += n;
   if (isPro()) S.progress.xpPro += n;
   const after = levelInfo();
-  if (after.index > before) toast(`⬆ Livello ${after.index + 1}: ${after.name}`);
+  if (after.index > before)
+    celebrate({ kind: 'level', n: after.index + 1, label: 'Nuovo livello', name: after.name, desc: `Livello ${after.index + 1}` });
   checkBadges();
   save();
 }

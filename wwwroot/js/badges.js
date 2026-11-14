@@ -1,5 +1,5 @@
 // Grafica dei badge: medaglie, scudi ed esagoni disegnati in SVG (niente emoji), con lucchetto quando non ottenuti.
-import { svgEl } from './core.js';
+import { h, svgEl } from './core.js';
 
 const CIRCLE = r => `M${-r} 0a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`;
 // forma, colore, tratto, [pieno]
@@ -63,4 +63,50 @@ export function badgeArt(id, earned, size = 56) {
   if (fl) g.append(svgEl('path', { class: 'bfl', d: fl }));
   s.append(g);
   return s;
+}
+
+// Medaglia del livello raggiunto: stella con il numero.
+function levelArt(n, size) {
+  const s = svgEl('svg', { viewBox: '0 0 56 56', width: size, height: size, class: 'badgeart', 'aria-hidden': 'true' });
+  s.style.setProperty('--bc', '#0b6bcb');
+  const t = svgEl('text', { class: 'blvl', x: 28, y: 36, 'text-anchor': 'middle' });
+  t.textContent = String(n);
+  s.append(
+    svgEl('path', {
+      class: 'bbase',
+      d: 'M28 2L35 11L46 8L46 19.5L56 25L49 34L52 45L41 46L36 56L28 49L20 56L15 46L4 45L7 34L0 25L10 19.5L10 8L21 11Z',
+    }),
+    svgEl('circle', { class: 'brim', cx: 28, cy: 29, r: 16 }),
+    t,
+  );
+  return s;
+}
+
+// Traguardo raggiunto: riquadro in basso con la grafica in grande. Non blocca la pagina, si chiude da solo o con un clic;
+// più traguardi insieme si mostrano uno dopo l'altro. L'animazione è spenta da prefers-reduced-motion (nel CSS).
+const queue = [];
+let showing = false;
+export function celebrate(what) {
+  queue.push(what);
+  if (!showing) nextCelebration();
+}
+function nextCelebration() {
+  const w = queue.shift();
+  showing = !!w;
+  if (!w) return;
+  const close = () => {
+    clearTimeout(timer);
+    box.remove();
+    nextCelebration();
+  };
+  const art = w.kind === 'level' ? levelArt(w.n, 88) : hasArt(w.id) ? badgeArt(w.id, true, 88) : h('span', { class: 'cicon' }, w.icon);
+  const box = h(
+    'div',
+    { class: 'celebrate', role: 'status', 'data-kind': w.kind },
+    h('span', { class: 'cart' }, art),
+    h('span', { class: 'cbody' }, h('span', { class: 'clabel' }, w.label), h('strong', {}, w.name), h('span', { class: 'cdesc' }, w.desc)),
+    h('button', { class: 'cclose', 'aria-label': 'Chiudi', onclick: close }, '✕'),
+  );
+  document.body.append(box);
+  const timer = setTimeout(close, 6000);
 }
