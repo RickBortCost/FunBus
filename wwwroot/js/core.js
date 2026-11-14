@@ -1,6 +1,9 @@
 // Stato globale, utilità DOM, persistenza, XP e badge.
 export const S = { lang: 'it', raw: null, level: 'beginner', levelChosen: false, theme: null, progress: null, data: {} };
 
+// Versione web (statica, senza server locale): web/build.mjs scrive la versione in un <meta>; i progressi restano nel browser.
+export const WEB = (typeof document !== 'undefined' && document.querySelector('meta[name="funbus-web"]')?.content) || '';
+
 export const defProgress = () => ({
   xp: 0,
   xpPro: 0,
@@ -99,6 +102,7 @@ export function save() {
     } catch {
       /* ignora */
     }
+    if (WEB) return;
     try {
       await fetch('/api/state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
     } catch {
@@ -109,12 +113,13 @@ export function save() {
 
 export async function loadState() {
   let st = {};
-  try {
-    const r = await fetch('/api/state');
-    if (r.ok) st = await r.json();
-  } catch {
-    /* ignora */
-  }
+  if (!WEB)
+    try {
+      const r = await fetch('/api/state');
+      if (r.ok) st = await r.json();
+    } catch {
+      /* ignora */
+    }
   if (!st.progress) {
     try {
       st = JSON.parse(localStorage.getItem('ipl') || '{}');

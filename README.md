@@ -8,7 +8,8 @@ node tests/validate.mjs                           # contenuti JSON, traduzioni, 
 node tests/i18n.mjs                               # ogni testo italiano (dati e interfaccia) ha la sua voce nel dizionario EN
 NODE_PATH=$(npm root -g) node tests/smoke.mjs     # Playwright: pagine, lingue, livelli, desktop e 390 px
 node tests/server.mjs                             # server C#: file incorporati, API, --export-content, cartella content (serve l'SDK .NET 8)
-npx prettier --check "wwwroot/js/**/*.js" "tests/**/*.mjs" eslint.config.mjs && npx eslint wwwroot/js tests eslint.config.mjs   # formato e lint (prettier 3, eslint 10)
+NODE_PATH=$(npm root -g) node tests/web.mjs       # versione web: sottocartella, nessuna chiamata al server, uso senza rete
+npx prettier --check "wwwroot/js/**/*.js" "tests/**/*.mjs" "web/*.js" "web/*.mjs" eslint.config.mjs && npx eslint wwwroot/js tests web eslint.config.mjs   # formato e lint (prettier 3, eslint 10)
 ```
 
 ## Build
@@ -17,6 +18,14 @@ dotnet publish -c Release -r win-x64 -o publish
 publish\FunBus.exe --export-content   # crea content\ modificabile senza ricompilare
 ```
 La versione (es. `-p:Version=1.2.0`) compare nelle proprietà dell'exe e nel piè di pagina dell'app. Le release si creano con un tag `v*` (workflow `release`).
+
+## Versione web (tablet, telefono, Chromebook)
+La stessa app funziona senza exe, come sito statico: <https://rickbortcost.github.io/FunBus/>. Il workflow `pages` la pubblica a ogni modifica di `main`.
+
+- **Attivazione, una volta sola**: *Settings → Pages → Source: «GitHub Actions»*, poi avviare il workflow `pages` (o attendere la modifica successiva). Finché Pages non è attivo il workflow non fa nulla.
+- **Installazione sul dispositivo**: aprire il sito e scegliere «Aggiungi a schermata Home» (Safari su iPad/iPhone: pulsante Condividi) o «Installa app» (Chrome, Edge). Dopo la prima visita funziona anche senza rete.
+- **Progressi**: restano nel browser del dispositivo. Per spostarli: *Profilo → Esporta progressi / Importa progressi*.
+- **In locale**: `node web/build.mjs _site` crea la cartella da pubblicare su un qualsiasi server web statico (serve HTTPS per l'uso senza rete).
 
 ## Firma digitale dell'exe (facoltativa)
 Senza firma Windows SmartScreen mostra un avviso al primo avvio. Il workflow `release` firma `FunBus.exe` (Authenticode, SHA-256, con marca temporale) se nel repository esistono due segreti in *Settings → Secrets and variables → Actions*:

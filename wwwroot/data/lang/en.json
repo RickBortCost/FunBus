@@ -3456,7 +3456,8 @@
 "Cerca in tutta l'app…": "Search the whole app…",
 "Scrivi almeno due lettere: la ricerca guarda schede, glossario, topologie, lezioni, approfondimenti, normative, scenari e missioni.": "Type at least two letters: the search looks at cards, glossary, topologies, lessons, insights, regulations, scenarios and missions.",
 "Nessun risultato.": "No results.",
-"🖨 Stampa / PDF": "🖨 Print / PDF"
+"🖨 Stampa / PDF": "🖨 Print / PDF",
+"I progressi sono salvati in questo browser, su questo dispositivo. Per portarli altrove usa «Esporta progressi» e poi «Importa progressi».": "Progress is saved in this browser, on this device. To move it elsewhere use “Export progress” and then “Import progress”."
 },
 "patterns": [
 [

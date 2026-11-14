@@ -1,4 +1,4 @@
-import { S, h, loadData, loadState, save, toast, DATA_FILES } from './core.js';
+import { S, h, loadData, loadState, save, toast, DATA_FILES, WEB } from './core.js';
 import * as pages from './pages.js';
 import { compare } from './compare.js';
 import * as games from './games.js';
@@ -169,10 +169,17 @@ async function init() {
   await wait(Math.max(300, 1500 - (Date.now() - t0)));
   document.getElementById('splash').classList.add('hide');
   setTimeout(() => document.getElementById('splash').remove(), 600);
+  const footer = v => (document.getElementById('ver').textContent = `FunBus v${v} · Autore: Riccardo Bortolussi`);
+  if (WEB) {
+    // versione web: nessun server locale; il service worker rende l'app usabile senza rete dopo la prima visita
+    footer(WEB);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    return;
+  }
   fetch('/api/version')
     .then(r => (r.ok ? r.text() : ''))
     .then(v => {
-      if (v && v.length < 20) document.getElementById('ver').textContent = `FunBus v${v} · Autore: Riccardo Bortolussi`;
+      if (v && v.length < 20) footer(v);
     })
     .catch(() => {});
   const ping = () => fetch('/api/ping').catch(() => {});
