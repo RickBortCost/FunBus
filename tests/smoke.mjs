@@ -486,6 +486,62 @@ for (const [label, vp] of [
       await fp.click('.celebrate .cclose');
     }
     if (await fp.locator('.celebrate').count()) errs.push(`${label}: traguardo non chiuso`);
+    // ripasso distanziato: l'errore torna dopo un giorno, poi 3 e 7; alla terza risposta giusta esce
+    {
+      await fp.selectOption('#langSel', 'it');
+      const questions = data('quiz').questions;
+      const stored = () => fp.evaluate(() => JSON.parse(localStorage.getItem('ipl')).progress.review);
+      const answer = async right => {
+        const text = (await fp.textContent('#app h2')).trim();
+        const cur = questions.find(x => x.q === text);
+        const want = right ? cur.o[cur.a] : cur.o[(cur.a + 1) % cur.o.length];
+        const all = await fp.locator('.opts button').allTextContents();
+        await fp
+          .locator('.opts button')
+          .nth(all.findIndex(t => t.trim() === want))
+          .click();
+        await fp.waitForSelector('.fb');
+        await fp.waitForTimeout(350); // il salvataggio è differito
+        return cur.id;
+      };
+      const days = e => Math.round((e.due - Date.now()) / 864e5);
+      await fp.evaluate(h => (location.hash = h), '/test/quiz');
+      await fp.waitForSelector('.opts button');
+      const id = await answer(false);
+      if (!(await fp.locator('.fb .again').count())) errs.push(`${label}: errore senza avviso di ripasso`);
+      let e = (await stored())[id];
+      if (!e || e.box !== 0 || days(e) !== 1) errs.push(`${label}: l'errore deve tornare dopo 1 giorno`);
+      await fp.evaluate(h => (location.hash = h), '/test/ripasso');
+      await fp.waitForSelector('#reviewLater');
+      if (await fp.locator('.opts button').count()) errs.push(`${label}: domanda proposta prima della scadenza`);
+      await fp.selectOption('#langSel', 'en');
+      await fp.waitForTimeout(150);
+      await checkEnglish(fp, 'ripasso in programma');
+      await fp.selectOption('#langSel', 'it');
+      await fp.click('#reviewLater a');
+      await fp.waitForSelector('.opts button');
+      await answer(true);
+      e = (await stored())[id];
+      if (!e || e.box !== 1 || days(e) !== 3) errs.push(`${label}: dopo la prima risposta giusta il ripasso è a 3 giorni`);
+      await fp.evaluate(k => {
+        const st = JSON.parse(localStorage.getItem('ipl'));
+        st.progress.review[k] = { box: 2, due: 1 };
+        localStorage.setItem('ipl', JSON.stringify(st));
+      }, id);
+      await fp.reload();
+      await fp.waitForSelector('#splash', { state: 'detached', timeout: 8000 });
+      await fp.evaluate(h => (location.hash = h), '/');
+      await fp.waitForTimeout(80);
+      if (!(await fp.locator('#resume a[href="#/test/ripasso"]').count()))
+        errs.push(`${label}: «Riprendi» non propone il ripasso in scadenza`);
+      await fp.evaluate(h => (location.hash = h), '/test/ripasso');
+      await fp.waitForSelector('.opts button');
+      await answer(true);
+      if ((await stored())[id]) errs.push(`${label}: alla terza risposta giusta la domanda deve uscire dal ripasso`);
+      await fp.selectOption('#langSel', 'en');
+      await fp.waitForTimeout(150);
+      await checkEnglish(fp, 'ripasso: domanda imparata');
+    }
     await fp.close();
   }
   // animazione di ogni protocollo

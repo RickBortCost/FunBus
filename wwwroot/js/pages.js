@@ -1,4 +1,4 @@
-import { S, h, T, isPro, mark, protoById, save, stepDone, lessonDone } from './core.js';
+import { S, h, T, isPro, mark, protoById, save, stepDone, lessonDone, reviewState } from './core.js';
 import { createSim } from './sim.js';
 import { logo } from './logos.js';
 import { pyramid, pyramidLegend } from './osi.js';
@@ -132,7 +132,7 @@ function resume() {
         h('span', { class: 'rbody' }, h('span', { class: 'muted small' }, 'Ultima scheda aperta'), h('strong', {}, last.name)),
       ),
     );
-  const wrong = (p.wrong || []).length;
+  const wrong = reviewState().due.length;
   if (wrong)
     tiles.push(
       h(
@@ -143,7 +143,7 @@ function resume() {
           'span',
           { class: 'rbody' },
           h('span', { class: 'muted small' }, 'Ripasso errori'),
-          h('strong', {}, `Domande da rivedere: ${wrong}`),
+          h('strong', {}, `Domande da ripassare oggi: ${wrong}`),
         ),
       ),
     );

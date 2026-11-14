@@ -20,6 +20,7 @@ export const defProgress = () => ({
   lessonsAwarded: [],
   lastProto: null,
   predicted: {},
+  review: {},
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');
@@ -135,6 +136,44 @@ export async function loadState() {
   S.theme = st.theme || null;
   S.progress = Object.assign(defProgress(), st.progress || {});
   S.progress.stats = Object.assign(defProgress().stats, S.progress.stats || {});
+  // progressi salvati prima del ripasso distanziato: le domande sbagliate entrano nel ripasso di oggi
+  for (const id of S.progress.wrong) S.progress.review[id] ||= { box: 0, due: 0 };
+}
+
+// Ripasso distanziato: una domanda sbagliata torna dopo 1 giorno, poi dopo 3 e dopo 7; alla terza risposta giusta esce.
+export const REVIEW_DAYS = [1, 3, 7];
+const DAY = 864e5;
+// Esito di una risposta. force = ripasso anticipato (conta anche se la domanda non era ancora in scadenza).
+// Restituisce i giorni al prossimo ripasso, 0 se la domanda esce dal ripasso, null se non cambia nulla.
+export function reviewAnswer(id, right, force = false, now = Date.now()) {
+  const p = S.progress,
+    r = (p.review ||= {}),
+    e = r[id];
+  let days = null;
+  if (!right) {
+    r[id] = { box: 0, due: now + REVIEW_DAYS[0] * DAY };
+    days = REVIEW_DAYS[0];
+  } else if (e && (force || e.due <= now)) {
+    const box = e.box + 1;
+    if (box >= REVIEW_DAYS.length) {
+      delete r[id];
+      days = 0;
+    } else {
+      r[id] = { box, due: now + REVIEW_DAYS[box] * DAY };
+      days = REVIEW_DAYS[box];
+    }
+  }
+  p.wrong = Object.keys(r);
+  return days;
+}
+// Domande in ripasso per il livello attuale: quelle in scadenza e quelle programmate più avanti.
+export function reviewState(now = Date.now()) {
+  const r = S.progress.review || {},
+    lv = S.level,
+    mine = S.data.quiz.questions.filter(q => q.level === lv && r[q.id]);
+  const due = mine.filter(q => r[q.id].due <= now).map(q => q.id),
+    later = mine.filter(q => r[q.id].due > now).map(q => q.id);
+  return { due, later, next: later.length ? Math.min(...later.map(id => r[id].due)) : null };
 }
 
 export function toast(msg) {

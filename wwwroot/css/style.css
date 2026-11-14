@@ -459,3 +459,4 @@ mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;bor
 .predict{margin:.4rem 0}.pask{border:2px solid var(--accent);border-radius:var(--r-sm);padding:.7rem .8rem;background:var(--surface)}
 .pask .row{justify-content:space-between;gap:.5rem}.popts{margin:.6rem 0 0}.popts button{overflow-wrap:anywhere}
 .predict .fb{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:0}
+.again{display:block;margin-top:.35rem;font-weight:600}
