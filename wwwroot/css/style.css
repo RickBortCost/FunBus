@@ -454,3 +454,8 @@ mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;bor
 @keyframes cspin{from{transform:rotate(-25deg) scale(.4)}}
 @media(prefers-reduced-motion:reduce){.celebrate,.cart{animation:none}}
 @media print{.celebrate{display:none!important}}
+/* Animazioni: modalità previsione */
+.predbtn.on{border-color:var(--accent);color:var(--accent);font-weight:600;box-shadow:0 0 0 2px var(--accent)}
+.predict{margin:.4rem 0}.pask{border:2px solid var(--accent);border-radius:var(--r-sm);padding:.7rem .8rem;background:var(--surface)}
+.pask .row{justify-content:space-between;gap:.5rem}.popts{margin:.6rem 0 0}.popts button{overflow-wrap:anywhere}
+.predict .fb{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:0}

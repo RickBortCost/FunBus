@@ -392,6 +392,37 @@ for (const [label, vp] of [
     await pg.waitForTimeout(80);
     if (await pg.locator('.tlinkg.broken, .tnode.off').count()) errs.push(`${label} topologia ${t.id}: ripristino non riuscito`);
   }
+  // animazioni attive: in modalità previsione l'animazione si ferma e chiede il passo successivo
+  for (const lang of ['it', 'en']) {
+    await pg.selectOption('#langSel', lang);
+    await pg.evaluate(h => (location.hash = h), '/protocolli/modbus');
+    await pg.click('button[role=tab] >> nth=1');
+    await pg.selectOption('.sim .ctl select', '4');
+    await pg.click('.predbtn');
+    if (await pg.locator('.seq').isVisible()) errs.push(`${label}/${lang}: diagramma a sequenza visibile durante le previsioni`);
+    const total = data('animations').modbus.steps.length;
+    let asked = 0;
+    for (let k = 0; k < total + 2 && !(await pg.locator('.predict .pend').count()); k++) {
+      await pg.waitForSelector('.predict .popts button, .predict .pend', { timeout: 8000 });
+      if (await pg.locator('.predict .pend').count()) break;
+      if ((await pg.locator('.predict .popts button').count()) !== 3) errs.push(`${label}/${lang}: la previsione deve offrire tre scelte`);
+      if (lang === 'en') await checkEnglish(pg, 'previsione');
+      if ((await pg.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)) > 0)
+        errs.push(`${label}/${lang}: previsione con overflow orizzontale`);
+      await pg.locator('.predict .popts button').first().click();
+      asked++;
+      await pg.waitForSelector('.predict .fb');
+    }
+    if (!asked) errs.push(`${label}/${lang}: nessuna previsione chiesta`);
+    if (!(await pg.locator('.predict .pend').count())) errs.push(`${label}/${lang}: la sequenza di previsioni non arriva alla fine`);
+    else if (!(await pg.textContent('.predict .pscore')).includes(String(asked)))
+      errs.push(`${label}/${lang}: conteggio delle previsioni errato`);
+    if (lang === 'en') await checkEnglish(pg, 'fine previsioni');
+    await pg.click('.predbtn');
+    if (!(await pg.locator('.seq').isVisible())) errs.push(`${label}/${lang}: diagramma a sequenza non ripristinato`);
+    await pg.click('button[role=tab] >> nth=0');
+  }
+  await pg.selectOption('#langSel', 'it');
   // primo avvio guidato, «Riprendi» in home e menu a gruppi (pagina nuova: nessun progresso salvato)
   {
     const fp = await b.newPage({ viewport: vp });
