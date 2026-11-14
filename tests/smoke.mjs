@@ -439,6 +439,22 @@ for (const [label, vp] of [
     await fp.locator('#nav .navb').first().click();
     await fp.keyboard.press('Escape');
     if (!(await fp.evaluate(() => document.getElementById('nav-impara').hidden))) errs.push(`${label}: Esc non chiude il menu`);
+    // traguardi: badge e livello in grande, uno dopo l'altro, chiudibili
+    await fp.evaluate(async () => {
+      const m = await import('./js/badges.js');
+      m.celebrate({ kind: 'badge', id: 'builder', icon: '🏗', label: 'Nuovo badge', name: 'Costruttore', desc: 'Completa un quiz.' });
+      m.celebrate({ kind: 'level', n: 2, label: 'Nuovo livello', name: 'Tecnico', desc: 'Livello 2' });
+    });
+    for (const kind of ['badge', 'level']) {
+      await fp.waitForSelector(`.celebrate[data-kind=${kind}] svg.badgeart`);
+      await fp.waitForTimeout(80);
+      if ((await overflow()) > 0) errs.push(`${label}: traguardo ${kind} con overflow orizzontale`);
+      const cb = await fp.locator('.celebrate').boundingBox();
+      if (cb.x < 0 || cb.x + cb.width > vp.width) errs.push(`${label}: traguardo ${kind} fuori dallo schermo`);
+      await checkEnglish(fp, `traguardo ${kind}`);
+      await fp.click('.celebrate .cclose');
+    }
+    if (await fp.locator('.celebrate').count()) errs.push(`${label}: traguardo non chiuso`);
     await fp.close();
   }
   // animazione di ogni protocollo

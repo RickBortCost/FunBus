@@ -442,3 +442,15 @@ mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;bor
 @media(max-width:560px){.tools{gap:.3rem}.tools .icon{width:2rem;height:2rem;flex:none}.seg{flex:none;padding:2px}.seg button{padding:.3rem .5rem;font-size:.9rem}select.lang{width:3.4rem;padding:.3rem .3rem;flex:none}}
 @media(max-width:380px){.tools{gap:.2rem}.tools .icon{width:1.85rem;height:1.85rem}.seg button{padding:.3rem .35rem;font-size:.82rem}select.lang{width:3.1rem}}
 @media(max-width:340px){.navb{font-size:.84rem;padding:.35rem .25rem}.seg button{padding:.3rem .22rem;font-size:.76rem}.topbar{gap:.4rem .5rem}.tools .icon{width:1.7rem;height:1.7rem}select.lang{width:2.9rem}}
+/* Traguardi: badge e livelli in grande */
+.celebrate{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:55;display:flex;align-items:center;gap:.9rem;width:min(26rem,calc(100vw - 1.2rem));padding:.8rem 2.4rem .8rem .9rem;background:var(--surface);color:var(--text);border:2px solid var(--accent);border-radius:var(--r);box-shadow:0 10px 30px rgba(0,0,0,.35);animation:cpop .45s cubic-bezier(.2,1.4,.4,1)}
+.cart{flex:none;display:grid;place-items:center;animation:cspin .7s ease-out}.cicon{font-size:3.4rem;line-height:1}
+.cbody{display:grid;gap:.1rem;min-width:0}.cbody strong{font-size:1.2rem;overflow-wrap:anywhere}
+.clabel{color:var(--accent);font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}.cdesc{color:var(--muted);font-size:.9rem}
+.cclose{position:absolute;top:.35rem;right:.35rem;border:0;background:transparent;color:var(--muted);font-size:1rem;width:2rem;height:2rem;border-radius:50%;cursor:pointer}
+.cclose:hover{background:var(--surface2)}[data-theme=hc] .cclose{border:0}
+.blvl{fill:#fff;font-weight:800;font-size:20px}
+@keyframes cpop{from{transform:translateX(-50%) translateY(30px) scale(.8);opacity:0}}
+@keyframes cspin{from{transform:rotate(-25deg) scale(.4)}}
+@media(prefers-reduced-motion:reduce){.celebrate,.cart{animation:none}}
+@media print{.celebrate{display:none!important}}
