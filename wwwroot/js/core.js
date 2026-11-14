@@ -18,6 +18,7 @@ export const defProgress = () => ({
   topoSeen: [],
   lessons: {},
   lessonsAwarded: [],
+  lastProto: null,
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');

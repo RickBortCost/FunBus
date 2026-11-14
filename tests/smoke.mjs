@@ -392,6 +392,55 @@ for (const [label, vp] of [
     await pg.waitForTimeout(80);
     if (await pg.locator('.tlinkg.broken, .tnode.off').count()) errs.push(`${label} topologia ${t.id}: ripristino non riuscito`);
   }
+  // primo avvio guidato, «Riprendi» in home e menu a gruppi (pagina nuova: nessun progresso salvato)
+  {
+    const fp = await b.newPage({ viewport: vp });
+    fp.on('pageerror', e => errs.push(`${label} avvio PE ${e.message}`));
+    const overflow = () => fp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    await fp.goto(base + '#/');
+    await fp.waitForSelector('#splash', { state: 'detached', timeout: 8000 });
+    await fp.selectOption('#langSel', 'en');
+    if (!(await fp.locator('#welcome').count())) errs.push(`${label}: al primo avvio manca l'introduzione`);
+    if (await fp.locator('#resume').count()) errs.push(`${label}: «Riprendi» mostrato senza progressi`);
+    for (let i = 0; i < 3; i++) {
+      await checkEnglish(fp, `primo avvio, passo ${i + 1}`);
+      if ((await overflow()) > 0) errs.push(`${label}: primo avvio, passo ${i + 1} con overflow orizzontale`);
+      if (i === 0) await fp.click('#welcome button.primary');
+      if (i === 1) await fp.click('#welcome .two button >> nth=1');
+      await fp.waitForTimeout(60);
+    }
+    if (!(await fp.evaluate(() => document.getElementById('lvP').classList.contains('on')))) errs.push(`${label}: livello non applicato`);
+    await fp.click('#welcome .two button.primary');
+    await fp.waitForTimeout(80);
+    const first = data('course').lessons[0].id;
+    if ((await fp.evaluate(() => location.hash)) !== `#/percorso/${first}`)
+      errs.push(`${label}: il primo avvio non porta alla prima lezione`);
+    await fp.evaluate(h => (location.hash = h), '/protocolli/' + ids[0]);
+    await fp.waitForTimeout(80);
+    await fp.evaluate(h => (location.hash = h), '/');
+    await fp.waitForTimeout(80);
+    if (await fp.locator('#welcome').count()) errs.push(`${label}: introduzione mostrata di nuovo`);
+    if ((await fp.locator('#resume .rtile').count()) !== 2) errs.push(`${label}: «Riprendi» deve proporre lezione e ultima scheda`);
+    if (!(await fp.locator(`#resume a[href="#/protocolli/${ids[0]}"]`).count())) errs.push(`${label}: «Riprendi» senza l'ultima scheda`);
+    await checkEnglish(fp, 'home con Riprendi');
+    // menu: si apre, non esce dallo schermo, porta alla pagina, segna la voce attiva e si chiude con Esc
+    for (const g of [0, 1, 2]) {
+      await fp.locator('#nav .navb').nth(g).click();
+      if ((await overflow()) > 0) errs.push(`${label}: menu ${g} con overflow orizzontale`);
+      const box = await fp.locator('#nav .navp').nth(g).boundingBox();
+      if (!box || box.x < 0 || box.x + box.width > vp.width) errs.push(`${label}: menu ${g} fuori dallo schermo`);
+      await checkEnglish(fp, `menu ${g}`);
+    }
+    await fp.click('#nav a[data-s=quiz]');
+    await fp.waitForTimeout(80);
+    if ((await fp.evaluate(() => location.hash)) !== '#/test/quiz') errs.push(`${label}: la voce di menu non apre la pagina`);
+    if (!(await fp.evaluate(() => document.getElementById('nav-prova').hidden))) errs.push(`${label}: menu non chiuso dopo la scelta`);
+    if ((await fp.locator('#nav a[aria-current=page]').getAttribute('data-s')) !== 'quiz') errs.push(`${label}: voce attiva non segnata`);
+    await fp.locator('#nav .navb').first().click();
+    await fp.keyboard.press('Escape');
+    if (!(await fp.evaluate(() => document.getElementById('nav-impara').hidden))) errs.push(`${label}: Esc non chiude il menu`);
+    await fp.close();
+  }
   // animazione di ogni protocollo
   if (label === 'desktop')
     for (const id of ids) {

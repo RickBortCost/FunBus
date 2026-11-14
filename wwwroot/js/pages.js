@@ -1,4 +1,4 @@
-import { S, h, T, isPro, mark, protoById, save } from './core.js';
+import { S, h, T, isPro, mark, protoById, save, stepDone, lessonDone } from './core.js';
 import { createSim } from './sim.js';
 import { logo } from './logos.js';
 import { pyramid, pyramidLegend } from './osi.js';
@@ -8,34 +8,150 @@ import { illustration } from './illus.js';
 
 const FIELDS = () => S.data.protocols.fields;
 
-export function home(app, { rerender }) {
-  const choose = lv => {
-    S.level = lv;
+// Primo avvio: tre passi (che cos'è, livello, da dove cominciare). Il passo resta in memoria tra un ridisegno e l'altro.
+let welcomeStep = 0;
+function welcome(rerender) {
+  const finish = href => {
     S.levelChosen = true;
+    welcomeStep = 0;
     save();
+    if (href) location.hash = href;
+    else rerender(true);
+  };
+  const go = n => {
+    welcomeStep = n;
     rerender(true);
   };
-  const box = [];
-  if (!S.levelChosen) {
-    box.push(
+  const first = S.data.course?.lessons[0];
+  const steps = [
+    () => [
+      h('img', { src: 'logo-splash.svg', alt: '', width: 96, height: 96 }),
+      h('h2', {}, 'Benvenuto in FunBus'),
+      h(
+        'p',
+        {},
+        'Qui impari come si parlano PLC, sensori e azionamenti: i bus di campo e i protocolli industriali, spiegati con schede, animazioni e giochi.',
+      ),
+      h(
+        'ul',
+        { class: 'clean wlist' },
+        h('li', {}, '🧭 Un percorso guidato in nove lezioni'),
+        h('li', {}, '▶ Animazioni da seguire un passo alla volta'),
+        h('li', {}, '🎮 Quiz e giochi con punti e badge'),
+        h('li', {}, '🔌 Tutto è simulato: non serve alcun hardware'),
+      ),
+      h('div', { class: 'row wact' }, h('button', { class: 'primary', onclick: () => go(1) }, 'Avanti')),
+    ],
+    () => [
+      h('h2', {}, 'Scegli il tuo livello'),
+      h('p', {}, 'Puoi cambiarlo in qualsiasi momento dal selettore in alto.'),
       h(
         'div',
-        { class: 'card' },
-        h('h2', {}, 'Scegli il tuo livello'),
-        h('p', {}, 'Puoi cambiarlo in qualsiasi momento dal selettore in alto.'),
-        h(
-          'div',
-          { class: 'two' },
-          h('button', { class: 'primary', onclick: () => choose('beginner') }, 'Beginner — concetti base, analogie, terminologia semplice'),
+        { class: 'two' },
+        ...[
+          ['beginner', 'Beginner — concetti base, analogie, terminologia semplice'],
+          ['professional', 'Professional — livello fisico/data link, frame, cicli, topologie, diagnostica'],
+        ].map(([lv, label]) =>
           h(
             'button',
-            { class: 'primary', onclick: () => choose('professional') },
-            'Professional — livello fisico/data link, frame, cicli, topologie, diagnostica',
+            {
+              class: 'primary',
+              onclick: () => {
+                S.level = lv;
+                save();
+                go(2);
+              },
+            },
+            label,
           ),
+        ),
+      ),
+      h('div', { class: 'row wact' }, h('button', { onclick: () => go(0) }, 'Indietro')),
+    ],
+    () => [
+      h('h2', {}, 'Da dove vuoi cominciare?'),
+      h('p', {}, 'Se è la prima volta, il percorso guidato ti accompagna dalle basi. Puoi sempre esplorare liberamente dal menu.'),
+      h(
+        'div',
+        { class: 'two' },
+        first ? h('button', { class: 'primary', onclick: () => finish(`#/percorso/${first.id}`) }, '🧭 Inizia dalla prima lezione') : null,
+        h('button', { onclick: () => finish() }, 'Esplora da solo'),
+      ),
+      h('div', { class: 'row wact' }, h('button', { onclick: () => go(1) }, 'Indietro')),
+    ],
+  ];
+  return h(
+    'section',
+    { class: 'card welcome', id: 'welcome', 'aria-label': 'Primo avvio' },
+    h(
+      'div',
+      { class: 'wdots' },
+      h('span', { class: 'muted small' }, `Passo ${welcomeStep + 1} di 3`),
+      h(
+        'span',
+        { class: 'wdot', 'aria-hidden': 'true' },
+        steps.map((_, i) => h('i', { class: i === welcomeStep ? 'on' : '' })),
+      ),
+      h('button', { class: 'textbtn', id: 'welcomeSkip', onclick: () => finish() }, "Salta l'introduzione"),
+    ),
+    ...steps[welcomeStep](),
+  );
+}
+
+// «Riprendi»: lezione in corso, ultima scheda aperta, domande da ripassare.
+function resume() {
+  const p = S.progress,
+    lessons = S.data.course?.lessons || [];
+  if (!(p.xp > 0 || p.visited.length || p.animated.length)) return null;
+  const tiles = [];
+  const next = lessons.find(l => !lessonDone(l));
+  if (next) {
+    const n = next.steps.filter(s => stepDone(s, next)).length;
+    tiles.push(
+      h(
+        'a',
+        { class: 'rtile', href: `#/percorso/${next.id}` },
+        h('span', { class: 'ric', 'aria-hidden': 'true' }, '🧭'),
+        h(
+          'span',
+          { class: 'rbody' },
+          h('span', { class: 'muted small' }, `Lezione ${lessons.indexOf(next) + 1}`),
+          h('strong', {}, next.title),
+          h('span', { class: 'tag' }, `${n} passi su ${next.steps.length}`),
         ),
       ),
     );
   }
+  const last = p.lastProto && protoById(p.lastProto);
+  if (last)
+    tiles.push(
+      h(
+        'a',
+        { class: 'rtile', href: `#/protocolli/${last.id}`, style: `--pc:${last.color}` },
+        logo(last, 36),
+        h('span', { class: 'rbody' }, h('span', { class: 'muted small' }, 'Ultima scheda aperta'), h('strong', {}, last.name)),
+      ),
+    );
+  const wrong = (p.wrong || []).length;
+  if (wrong)
+    tiles.push(
+      h(
+        'a',
+        { class: 'rtile', href: '#/test/ripasso' },
+        h('span', { class: 'ric', 'aria-hidden': 'true' }, '🔁'),
+        h(
+          'span',
+          { class: 'rbody' },
+          h('span', { class: 'muted small' }, 'Ripasso errori'),
+          h('strong', {}, `Domande da rivedere: ${wrong}`),
+        ),
+      ),
+    );
+  if (!tiles.length) return null;
+  return h('section', { class: 'card resume', id: 'resume' }, h('h2', {}, 'Riprendi da dove eri'), h('div', { class: 'rtiles' }, tiles));
+}
+
+export function home(app, { rerender }) {
   app.append(
     h('h1', {}, 'FunBus'),
     h(
@@ -43,17 +159,26 @@ export function home(app, { rerender }) {
       {},
       'Impara i protocolli industriali con schede, animazioni, confronti e test a punti. Tutto è simulato, nessun hardware richiesto.',
     ),
-    ...box,
-    h(
-      'a',
-      { class: 'card pathcard', href: '#/percorso' },
-      h('h3', { style: 'margin-top:0' }, '🧭 Percorso guidato'),
-      h(
-        'p',
-        { class: 'muted', style: 'margin-bottom:0' },
-        'Nove lezioni in ordine, con schede, animazioni e quiz: il modo più semplice per cominciare.',
-      ),
-    ),
+  );
+  if (!S.levelChosen) {
+    app.append(welcome(rerender));
+    return;
+  }
+  const again = resume();
+  app.append(
+    again || '',
+    again?.querySelector('[href^="#/percorso/"]')
+      ? ''
+      : h(
+          'a',
+          { class: 'card pathcard', href: '#/percorso' },
+          h('h3', { style: 'margin-top:0' }, '🧭 Percorso guidato'),
+          h(
+            'p',
+            { class: 'muted', style: 'margin-bottom:0' },
+            'Nove lezioni in ordine, con schede, animazioni e quiz: il modo più semplice per cominciare.',
+          ),
+        ),
     commSection(),
     h('h2', {}, 'Tutti i protocolli'),
     protocolGrid(),
@@ -114,6 +239,10 @@ export function protocol(app, { id, cleanups }) {
     return;
   }
   mark('visited', p.id);
+  if (S.progress.lastProto !== p.id) {
+    S.progress.lastProto = p.id;
+    save();
+  }
   document.title = `${p.name} – FunBus`;
   let tab = sessionStorage.getItem('tab') || 'scheda';
   const body = h('div');

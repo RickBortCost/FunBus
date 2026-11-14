@@ -3457,9 +3457,38 @@
 "Scrivi almeno due lettere: la ricerca guarda schede, glossario, topologie, lezioni, approfondimenti, normative, scenari e missioni.": "Type at least two letters: the search looks at cards, glossary, topologies, lessons, insights, regulations, scenarios and missions.",
 "Nessun risultato.": "No results.",
 "🖨 Stampa / PDF": "🖨 Print / PDF",
-"I progressi sono salvati in questo browser, su questo dispositivo. Per portarli altrove usa «Esporta progressi» e poi «Importa progressi».": "Progress is saved in this browser, on this device. To move it elsewhere use “Export progress” and then “Import progress”."
+"I progressi sono salvati in questo browser, su questo dispositivo. Per portarli altrove usa «Esporta progressi» e poi «Importa progressi».": "Progress is saved in this browser, on this device. To move it elsewhere use “Export progress” and then “Import progress”.",
+"Impara": "Learn",
+"Esplora": "Explore",
+"Mettiti alla prova": "Practice",
+"Tutti i test e i giochi": "All tests and games",
+"Profilo: punti, badge e progressi": "Profile: points, badges and progress",
+"Benvenuto in FunBus": "Welcome to FunBus",
+"Qui impari come si parlano PLC, sensori e azionamenti: i bus di campo e i protocolli industriali, spiegati con schede, animazioni e giochi.": "Here you learn how PLCs, sensors and drives talk to each other: fieldbuses and industrial protocols, explained with cards, animations and games.",
+"🧭 Un percorso guidato in nove lezioni": "🧭 A guided path in nine lessons",
+"▶ Animazioni da seguire un passo alla volta": "▶ Animations to follow one step at a time",
+"🎮 Quiz e giochi con punti e badge": "🎮 Quizzes and games with points and badges",
+"🔌 Tutto è simulato: non serve alcun hardware": "🔌 Everything is simulated: no hardware needed",
+"Avanti": "Next",
+"Indietro": "Back",
+"Da dove vuoi cominciare?": "Where do you want to start?",
+"Se è la prima volta, il percorso guidato ti accompagna dalle basi. Puoi sempre esplorare liberamente dal menu.": "If this is your first time, the guided path takes you from the basics. You can always explore freely from the menu.",
+"🧭 Inizia dalla prima lezione": "🧭 Start with the first lesson",
+"Esplora da solo": "Explore on your own",
+"Primo avvio": "First launch",
+"Salta l'introduzione": "Skip the introduction",
+"Riprendi da dove eri": "Pick up where you left off",
+"Ultima scheda aperta": "Last card opened"
 },
 "patterns": [
+[
+"^Domande da rivedere: (\\d+)$",
+"Questions to review: $1"
+],
+[
+"^Passo (\\d+) di (\\d+)$",
+"Step $1 of $2"
+],
 [
 "^Risultati: (\\d+)$",
 "Results: $1"

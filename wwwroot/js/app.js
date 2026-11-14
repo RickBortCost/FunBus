@@ -57,12 +57,17 @@ function render(scroll = false) {
   const back = backToLesson(root);
   if (back) app.append(back);
   app.classList.toggle('wide', root === 'confronto');
-  document.querySelectorAll('#nav a').forEach(a => {
-    const on = a.dataset.r === root;
+  // menu: la voce esatta (es. #/test/quiz) vince su quella generica del gruppo (#/test)
+  const links = [...document.querySelectorAll('#nav .navp a, .tools a[data-r]')];
+  const exact = links.find(a => a.dataset.r === root && a.dataset.s && a.dataset.s === sub);
+  links.forEach(a => {
+    const on = exact ? a === exact : a.dataset.r === root && !a.dataset.s;
     a.classList.toggle('on', on);
     if (on) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   });
+  document.querySelectorAll('#nav .navg').forEach(g => g.querySelector('.navb').classList.toggle('on', !!g.querySelector('a.on')));
+  closeMenus();
   // transizione leggera solo al cambio di pagina (disattivata da prefers-reduced-motion nel CSS)
   if (location.hash !== lastHash) {
     lastHash = location.hash;
@@ -70,13 +75,46 @@ function render(scroll = false) {
     void app.offsetWidth;
     app.classList.add('enter');
   }
-  const cur = document.querySelector('#nav a.on'),
-    nav = document.getElementById('nav');
-  if (cur && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = cur.offsetLeft - nav.offsetLeft - (nav.clientWidth - cur.offsetWidth) / 2;
   app.focus({ preventScroll: true });
   document.getElementById('lvB').classList.toggle('on', S.level === 'beginner');
   document.getElementById('lvP').classList.toggle('on', S.level === 'professional');
   if (scroll) window.scrollTo(0, 0);
+}
+
+// Menu a gruppi: un pulsante apre l'elenco delle pagine; si chiude con Esc, con un clic fuori o scegliendo una voce.
+function closeMenus(except) {
+  document.querySelectorAll('#nav .navg').forEach(g => {
+    if (g === except) return;
+    g.querySelector('.navb').setAttribute('aria-expanded', 'false');
+    g.querySelector('.navp').hidden = true;
+  });
+}
+function initMenus() {
+  document.querySelectorAll('#nav .navg').forEach(g => {
+    const b = g.querySelector('.navb'),
+      p = g.querySelector('.navp');
+    b.addEventListener('click', () => {
+      const open = p.hidden;
+      closeMenus();
+      p.hidden = !open;
+      b.setAttribute('aria-expanded', String(open));
+    });
+    p.addEventListener('click', e => {
+      if (e.target.closest('a')) closeMenus();
+    });
+    g.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !p.hidden) {
+        closeMenus();
+        b.focus();
+      }
+    });
+    g.addEventListener('focusout', e => {
+      if (e.relatedTarget && !g.contains(e.relatedTarget)) closeMenus();
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#nav .navg')) closeMenus();
+  });
 }
 
 const THEMES = { light: ['◐', 'chiaro'], dark: ['◑', 'scuro'], hc: ['◉', 'alto contrasto'] };
@@ -155,6 +193,7 @@ async function init() {
     save();
     toast(`Tema: ${THEMES[S.theme][1]}`);
   });
+  initMenus();
   // la ricerca aggiorna l'indirizzo mentre si scrive: non deve ridisegnare la pagina a ogni lettera
   window.addEventListener('hashchange', () => render(true));
   // «/» apre la ricerca (se non si sta già scrivendo in un campo)

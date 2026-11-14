@@ -17,20 +17,41 @@
   <div class="sp-auth">Autore: Riccardo Bortolussi</div>
 </div>
 <header class="topbar">
-  <a class="brand" href="#/"><img src="logo.svg" alt="" width="32" height="32"> FunBus</a>
+  <a class="brand" href="#/"><img src="logo.svg" alt="" width="32" height="32"> <span class="bname">FunBus</span></a>
   <nav id="nav" aria-label="Navigazione principale">
-    <a href="#/percorso" data-r="percorso">Percorso</a>
-    <a href="#/protocolli" data-r="protocolli">Protocolli</a>
-    <a href="#/topologie" data-r="topologie">Topologie</a>
-    <a href="#/confronto" data-r="confronto">Confronto</a>
-    <a href="#/test" data-r="test">Test</a>
-    <a href="#/strumenti" data-r="strumenti">Strumenti</a>
-    <a href="#/glossario" data-r="glossario">Glossario</a>
-    <a href="#/approfondimenti" data-r="approfondimenti">Approfondimenti</a>
-    <a href="#/normative" data-r="normative">Normative</a>
-    <a href="#/profilo" data-r="profilo">Profilo</a>
+    <div class="navg">
+      <button type="button" class="navb" aria-expanded="false" aria-controls="nav-impara">Impara</button>
+      <div class="navp" id="nav-impara" hidden>
+        <a href="#/percorso" data-r="percorso">Percorso guidato</a>
+        <a href="#/protocolli" data-r="protocolli">Protocolli</a>
+        <a href="#/topologie" data-r="topologie">Topologie</a>
+        <a href="#/glossario" data-r="glossario">Glossario</a>
+      </div>
+    </div>
+    <div class="navg">
+      <button type="button" class="navb" aria-expanded="false" aria-controls="nav-esplora">Esplora</button>
+      <div class="navp" id="nav-esplora" hidden>
+        <a href="#/confronto" data-r="confronto">Confronto</a>
+        <a href="#/strumenti" data-r="strumenti">Strumenti</a>
+        <a href="#/approfondimenti" data-r="approfondimenti">Approfondimenti</a>
+        <a href="#/normative" data-r="normative">Normative</a>
+      </div>
+    </div>
+    <div class="navg">
+      <button type="button" class="navb" aria-expanded="false" aria-controls="nav-prova">Mettiti alla prova</button>
+      <div class="navp" id="nav-prova" hidden>
+        <a href="#/test" data-r="test">Tutti i test e i giochi</a>
+        <a href="#/test/quiz" data-r="test" data-s="quiz">Quiz</a>
+        <a href="#/test/match" data-r="test" data-s="match">Collega le schede</a>
+        <a href="#/test/scenari" data-r="test" data-s="scenari">Scenari di fattibilità</a>
+        <a href="#/test/rete" data-r="test" data-s="rete">Costruisci la rete</a>
+        <a href="#/test/frame" data-r="test" data-s="frame">Decodifica il frame</a>
+        <a href="#/test/ripasso" data-r="test" data-s="ripasso">Ripasso errori</a>
+      </div>
+    </div>
   </nav>
   <div class="tools">
+    <a id="profBtn" class="btn icon" href="#/profilo" data-r="profilo" title="Profilo" aria-label="Profilo: punti, badge e progressi">👤</a>
     <a id="searchBtn" class="btn icon" href="#/cerca" title="Cerca (tasto /)" aria-label="Cerca in tutta l'app">🔍</a>
     <select id="langSel" class="lang" aria-label="Lingua"><option value="it">🇮🇹 Italiano</option><option value="en">🇬🇧 English</option></select>
     <div class="seg" role="group" aria-label="Livello">
