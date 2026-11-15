@@ -1,45 +1,30 @@
 name: pages
-# Pubblica la versione web su GitHub Pages a ogni modifica di main.
-# Da attivare una volta: Settings → Pages → Source: «GitHub Actions». Finché non è attivo, il workflow non fa nulla.
+# Pubblica la versione web a ogni modifica di main: costruisce il sito e lo scrive sul branch gh-pages,
+# da cui GitHub Pages lo serve (Settings → Pages → Source: «Deploy from a branch», branch gh-pages, cartella /).
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: GitHub Pages è attivo?
-        id: on
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then echo "ok=1" >> "$GITHUB_OUTPUT"
-          else echo "::notice::GitHub Pages non è attivo: Settings → Pages → Source: GitHub Actions"; fi
       - uses: actions/checkout@v4
-        if: steps.on.outputs.ok
       - uses: actions/setup-node@v4
-        if: steps.on.outputs.ok
         with:
           node-version: 22
-      - run: node web/build.mjs _site
-        if: steps.on.outputs.ok
-      - uses: actions/configure-pages@v5
-        if: steps.on.outputs.ok
-      - uses: actions/upload-pages-artifact@v3
-        if: steps.on.outputs.ok
-        with:
-          path: _site
-      - uses: actions/deploy-pages@v4
-        if: steps.on.outputs.ok
-        id: deploy
+      - run: node web/build.mjs "$RUNNER_TEMP/site"
+      - name: Aggiorna il branch gh-pages
+        run: |
+          cd "$RUNNER_TEMP/site"
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Versione web da ${GITHUB_SHA::7}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
