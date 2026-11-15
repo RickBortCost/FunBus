@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="FunBus">
+  <rect width="128" height="128" rx="28" fill="#0b6bcb"/>
+  <!-- la linea di bus piegata a sorriso, con tre nodi -->
+  <path d="M28 60C28 104 100 104 100 60" stroke="#fff" stroke-width="11" stroke-linecap="round" fill="none"/>
+  <circle cx="28" cy="44" r="13" fill="#ffd23f"/>
+  <circle cx="100" cy="44" r="13" fill="#ffd23f"/>
+  <circle cx="64" cy="93" r="12" fill="#ffd23f" stroke="#0b6bcb" stroke-width="5"/>
+</svg>

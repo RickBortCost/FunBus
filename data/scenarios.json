@@ -1,0 +1,992 @@
+{
+ "rtLabels": {
+  "none": "nessuna garanzia",
+  "soft": "soft real-time (priorità, non garantito matematicamente)",
+  "det": "deterministico (ciclo calcolabile)",
+  "hard": "hard real-time (sincronizzato, jitter minimo)"
+ },
+ "topoLabels": {
+  "line": "a linea",
+  "star": "a stella",
+  "ring": "ad anello",
+  "tree": "ad albero",
+  "bus": "a bus RS-485"
+ },
+ "capLabels": {
+  "motion": "motion multi-asse sincronizzato",
+  "pubsub": "modello publish/subscribe",
+  "notify": "notifiche on-change (push dal server)",
+  "wan": "collegamenti WAN/Internet o linee instabili",
+  "security": "sicurezza integrata (autenticazione/cifratura)",
+  "itint": "modello dati semantico per l'integrazione IT",
+  "vendorNeutral": "interoperabilità multi-costruttore",
+  "safety": "sicurezza funzionale (safety) sullo stesso bus",
+  "redundancy": "ridondanza di cablaggio",
+  "siemensData": "accesso ai dati di un PLC Siemens S7",
+  "siemensIO": "periferia decentrata per controllore Siemens",
+  "plcBeckhoff": "integrazione nativa con TwinCAT",
+  "plcRockwell": "integrazione nativa con PLC Rockwell/Logix",
+  "sensorParam": "sensori semplici punto-punto con parametrizzazione remota",
+  "mobile": "robustezza per macchine mobili e ambienti gravosi",
+  "simpleOpen": "semplicità di implementazione e specifica aperta",
+  "building": "automazione di edifici (luci, clima, accessi)",
+  "analog420": "riuso di anelli analogici 4–20 mA esistenti",
+  "powerOnBus": "alimentazione e dati sullo stesso cavo",
+  "nativeSec": "autenticazione e cifratura native nel protocollo",
+  "exArea": "installazione in area a rischio di esplosione (sicurezza intrinseca)",
+  "stdSwitch": "funzionamento con switch Ethernet standard"
+ },
+ "matrix": {
+  "profinet": {
+   "cycleMinUs": 250,
+   "cycleNote": "IRT: send clock da 31,25 µs, cicli pratici ≥ 250 µs; RT tipico ≥ 1 ms (dipende da controllore e dispositivi).",
+   "rt": "hard",
+   "rtNote": "Hard real-time solo in IRT; in RT è soft.",
+   "maxNodes": 512,
+   "nodesNote": "Stima indicativa: dipende dalla CPU/controllore.",
+   "caps": {
+    "motion": "yes",
+    "security": "partial",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "yes",
+    "siemensIO": "yes",
+    "nativeSec": "partial",
+    "stdSwitch": "partial"
+   },
+   "notes": {
+    "security": "Le Security Class dipendono dalla versione della specifica e dai dispositivi.",
+    "redundancy": "MRP (recupero ~200 ms) o MRPD in IRT (senza perdita).",
+    "stdSwitch": "Sì in RT; IRT richiede switch e dispositivi con hardware dedicato."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   },
+   "variants": [
+    {
+     "id": "rt",
+     "name": "PROFINET RT",
+     "cycleMinUs": 1000,
+     "cycleNote": "RT: ciclo da 1 a 512 ms, comunemente 1–4 ms.",
+     "rt": "soft",
+     "rtNote": "Priorità dei frame senza riserva di banda: tempi tipici, non garantiti.",
+     "caps": {
+      "motion": "partial",
+      "stdSwitch": "yes"
+     },
+     "notes": {
+      "motion": "Adatto ad assi poco esigenti; il motion sincronizzato richiede IRT.",
+      "redundancy": "MRP: ripristino tipico entro 200 ms."
+     }
+    },
+    {
+     "id": "irt",
+     "name": "PROFINET IRT",
+     "cycleMinUs": 250,
+     "cycleNote": "IRT: send clock da 31,25 µs, cicli pratici ≥ 250 µs secondo i dispositivi.",
+     "rt": "hard",
+     "rtNote": "Intervallo riservato e orologi sincronizzati: jitter inferiore a 1 µs.",
+     "caps": {
+      "motion": "yes",
+      "stdSwitch": "no"
+     },
+     "notes": {
+      "stdSwitch": "Servono switch e dispositivi con hardware IRT su tutto il percorso.",
+      "redundancy": "MRPD: frame duplicati sui due lati dell'anello, senza interruzione."
+     }
+    }
+   ]
+  },
+  "profibus": {
+   "cycleMinUs": 1000,
+   "cycleNote": "≈1–10 ms in funzione di numero di slave, byte I/O e baud rate.",
+   "rt": "det",
+   "rtNote": "Ciclo calcolabile ma non isocrono in DP-V0/V1; DP-V2 offre isocronia.",
+   "maxNodes": 126,
+   "nodesNote": "126 indirizzi, 32 stazioni per segmento (ripetitori per estendere).",
+   "caps": {
+    "motion": "partial",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "partial",
+    "siemensIO": "yes",
+    "simpleOpen": "partial",
+    "powerOnBus": "partial",
+    "exArea": "partial"
+   },
+   "notes": {
+    "motion": "DP-V2 isocrono / PROFIdrive, ma con cicli dell'ordine dei ms.",
+    "redundancy": "Ridondanza di master/fibra specifica del costruttore.",
+    "powerOnBus": "Solo PROFIBUS PA (31,25 kbit/s) alimenta gli strumenti dal bus.",
+    "exArea": "Solo PROFIBUS PA (modello FISCO)."
+   },
+   "wiring": {
+    "segLenM": 200,
+    "regen": false,
+    "segNodes": 32,
+    "term": true,
+    "repMax": 4,
+    "lenNote": "200 m per segmento a 1,5 Mbit/s (100 m a 12 Mbit/s, 1200 m fino a 93,75 kbit/s); 32 stazioni per segmento; il numero di ripetitori in serie dipende dal tipo e dalla velocità."
+   },
+   "variants": [
+    {
+     "id": "dp",
+     "name": "PROFIBUS DP",
+     "caps": {
+      "powerOnBus": "no",
+      "exArea": "no"
+     },
+     "notes": {}
+    },
+    {
+     "id": "pa",
+     "name": "PROFIBUS PA",
+     "cycleMinUs": 100000,
+     "cycleNote": "PA: ≈ 10 ms per dispositivo a 31,25 kbit/s, quindi decine o centinaia di ms per segmento.",
+     "caps": {
+      "powerOnBus": "yes",
+      "exArea": "yes",
+      "motion": "no",
+      "safety": "partial"
+     },
+     "notes": {
+      "powerOnBus": "Alimentazione e dati sullo stesso doppino (MBP).",
+      "exArea": "Sicurezza intrinseca secondo il modello FISCO.",
+      "safety": "PROFIsafe su dispositivi PA che lo supportano."
+     },
+     "wiring": {
+      "segLenM": 1900,
+      "segNodes": 32,
+      "term": true,
+      "repMax": 4,
+      "lenNote": "Fino a 1900 m per segmento PA (meno in area Ex); 32 dispositivi per segmento, molti meno in area Ex secondo la corrente disponibile."
+     }
+    }
+   ]
+  },
+  "s7": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Richiesta/risposta aciclica; latenza tipica decine di ms, nessun ciclo garantito.",
+   "rt": "none",
+   "rtNote": "TCP: ritrasmissioni e carico possono variare i tempi.",
+   "maxNodes": 64,
+   "nodesNote": "Stima: numero di connessioni limitato dalle risorse della CPU.",
+   "caps": {
+    "security": "partial",
+    "safety": "no",
+    "redundancy": "partial",
+    "siemensData": "yes",
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "security": "S7CommPlus (S7-1200/1500) aggiunge integrità; S7comm classico no.",
+    "redundancy": "Delegata alla rete IP (RSTP/MRP).",
+    "notify": "Solo polling (Read Var)."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "ethercat": {
+   "cycleMinUs": 31,
+   "cycleNote": "Da ~31 µs con pochi nodi; 100 µs–1 ms tipico.",
+   "rt": "hard",
+   "rtNote": "Distributed Clocks, jitter ≪ 1 µs.",
+   "maxNodes": 65535,
+   "nodesNote": "Limite teorico; in pratica dipende da master e dati per slave.",
+   "caps": {
+    "motion": "yes",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "yes",
+    "plcBeckhoff": "yes",
+    "stdSwitch": "no"
+   },
+   "notes": {
+    "redundancy": "Cable redundancy con secondo porto del master (l'anello fisico).",
+    "plcBeckhoff": "Master EtherCAT nativo in TwinCAT.",
+    "stdSwitch": "I frame sono elaborati al volo dagli slave: tra master e slave non si usano switch standard."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "ads": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Non ciclico; dipende da task TwinCAT e rete.",
+   "rt": "none",
+   "rtNote": "TCP, non deterministico.",
+   "maxNodes": 100,
+   "nodesNote": "Stima: dipende dal router AMS e dalle route configurate.",
+   "caps": {
+    "notify": "yes",
+    "security": "partial",
+    "vendorNeutral": "partial",
+    "redundancy": "partial",
+    "plcBeckhoff": "yes",
+    "simpleOpen": "partial",
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "security": "ADS Secure (TLS) nelle versioni recenti; altrimenti solo route ADS.",
+    "vendorNeutral": "Specifica pubblicata ma ecosistema Beckhoff."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "mqtt": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Event-driven; latenze da ms a secondi, nessun ciclo.",
+   "rt": "none",
+   "rtNote": "QoS garantisce la consegna, non il tempo.",
+   "maxNodes": 100000,
+   "nodesNote": "Dipende dal broker (cluster).",
+   "caps": {
+    "pubsub": "yes",
+    "notify": "yes",
+    "wan": "yes",
+    "security": "partial",
+    "itint": "partial",
+    "vendorNeutral": "yes",
+    "redundancy": "partial",
+    "siemensData": "partial",
+    "plcBeckhoff": "partial",
+    "plcRockwell": "partial",
+    "simpleOpen": "partial",
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "security": "TLS e autenticazione sono a carico di broker e client.",
+    "itint": "Solo con convenzioni come Sparkplug B.",
+    "siemensData": "Richiede librerie/firmware o gateway.",
+    "plcBeckhoff": "Funzione opzionale TwinCAT (TF6701).",
+    "plcRockwell": "Tramite gateway o moduli opzionali."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "opcua": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Client/server: tipicamente ≥ 10–100 ms. PubSub+TSN può scendere in profili dedicati.",
+   "rt": "none",
+   "rtNote": "Il client/server non è deterministico.",
+   "maxNodes": 10000,
+   "nodesNote": "Stima: dipende dal server e dai limiti di sessione.",
+   "caps": {
+    "pubsub": "yes",
+    "notify": "yes",
+    "wan": "partial",
+    "security": "yes",
+    "itint": "yes",
+    "vendorNeutral": "yes",
+    "safety": "partial",
+    "redundancy": "partial",
+    "siemensData": "partial",
+    "plcBeckhoff": "partial",
+    "plcRockwell": "partial",
+    "simpleOpen": "partial",
+    "nativeSec": "yes",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "wan": "Possibile via HTTPS/PubSub su MQTT, ma più pesante di MQTT.",
+    "safety": "OPC UA Safety (Part 15) con adozione limitata.",
+    "siemensData": "Server OPC UA sulle CPU S7-1500 a seconda di firmware/licenza.",
+    "plcBeckhoff": "Server OPC UA opzionale in TwinCAT.",
+    "plcRockwell": "Tramite gateway (es. FactoryTalk Linx) o moduli."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "enip": {
+   "cycleMinUs": 1000,
+   "cycleNote": "RPI tipico 2–100 ms; fino a ~1 ms su dispositivi dedicati.",
+   "rt": "soft",
+   "rtNote": "Soft real-time; CIP Sync/Motion (PTP) per il motion.",
+   "maxNodes": 256,
+   "nodesNote": "Stima: limiti di connessioni del controllore/scanner.",
+   "caps": {
+    "motion": "yes",
+    "pubsub": "partial",
+    "notify": "partial",
+    "security": "partial",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "yes",
+    "plcRockwell": "yes",
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "pubsub": "Producer/consumer implicito, non un broker.",
+    "notify": "Connessioni I/O COS (change of state).",
+    "security": "CIP Security (TLS/DTLS) solo su dispositivi che la supportano.",
+    "redundancy": "DLR (Device Level Ring)."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "modbus": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Polling del client: tipicamente 10–1000 ms.",
+   "rt": "none",
+   "rtNote": "TCP: nessuna garanzia.",
+   "maxNodes": 100,
+   "nodesNote": "Stima: dipende dal client e dalle connessioni TCP dei server.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "simpleOpen": "yes",
+    "security": "partial",
+    "redundancy": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "security": "Modbus/TCP Security (TLS) esiste ma è poco diffuso.",
+    "redundancy": "Delegata alla rete IP."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "canopen": {
+   "cycleMinUs": 1000,
+   "cycleNote": "SYNC tipico 1–10 ms a 1 Mbit/s.",
+   "rt": "det",
+   "rtNote": "Latenza calcolabile per priorità; non sincronizzato come DC/IRT.",
+   "maxNodes": 127,
+   "nodesNote": "Node-ID 1–127.",
+   "caps": {
+    "motion": "partial",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "partial",
+    "mobile": "yes",
+    "simpleOpen": "partial"
+   },
+   "notes": {
+    "motion": "CiA 402 con PDO sincroni; cicli e jitter peggiori di EtherCAT/IRT.",
+    "safety": "CANopen Safety (EN 50325-5).",
+    "redundancy": "Soluzioni di bus ridondante specifiche dell'applicazione."
+   },
+   "wiring": {
+    "segLenM": 40,
+    "regen": false,
+    "term": true,
+    "repMax": 0,
+    "lenNote": "≈ 40 m a 1 Mbit/s (100 m a 500 kbit/s, 250 m a 250 kbit/s, 500 m a 125 kbit/s): i ripetitori non allungano il bus, perché il limite è il tempo di propagazione richiesto dall'arbitraggio."
+   }
+  },
+  "iolink": {
+   "cycleMinUs": 400,
+   "cycleNote": "Min cycle time dichiarato dal device: da 400 µs (COM3), tipico 2–5 ms.",
+   "rt": "det",
+   "rtNote": "Ciclo per porta fisso, dichiarato nell'IODD.",
+   "maxNodes": 8,
+   "nodesNote": "Per master (4–8 porte): si scala con più master sul fieldbus.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "safety": "partial",
+    "sensorParam": "yes"
+   },
+   "notes": {
+    "safety": "IO-Link Safety è un'estensione con dispositivi dedicati."
+   },
+   "wiring": {
+    "segLenM": 20,
+    "regen": true,
+    "term": false,
+    "repMax": 0,
+    "lenNote": "20 m al massimo tra la porta del master e il dispositivo; collegamento punto-punto, senza ripetitori."
+   }
+  },
+  "modbusrtu": {
+   "cycleMinUs": 10000,
+   "cycleNote": "Dipende da baud rate e numero di slave: tipicamente 10–1000 ms.",
+   "rt": "none",
+   "rtNote": "Il protocollo non garantisce tempi.",
+   "maxNodes": 247,
+   "nodesNote": "247 indirizzi; 32 carichi per segmento RS-485 senza ripetitori.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "simpleOpen": "yes"
+   },
+   "notes": {},
+   "wiring": {
+    "segLenM": 1000,
+    "regen": false,
+    "segNodes": 32,
+    "term": true,
+    "repMax": 3,
+    "lenNote": "≈ 1000 m per segmento RS-485 alle basse velocità (9,6–19,2 kbit/s), meno a velocità maggiori; 32 carichi per segmento senza ripetitori."
+   }
+  },
+  "asi": {
+   "cycleMinUs": 5000,
+   "cycleNote": "≈ 5 ms con 31 slave (v2.0), ≈ 10 ms con 62 slave A/B.",
+   "rt": "det",
+   "rtNote": "Ciclo fisso dipendente solo dal numero di slave.",
+   "maxNodes": 62,
+   "nodesNote": "31 slave (v2.0) o 62 slave A/B (v2.1 e successive).",
+   "caps": {
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "sensorParam": "partial",
+    "powerOnBus": "yes"
+   },
+   "notes": {
+    "safety": "ASIsafe sullo stesso cavo.",
+    "sensorParam": "Slave molto semplici (4 bit); i profili più recenti aggiungono parametri."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": false,
+    "term": false,
+    "repMax": 2,
+    "lenNote": "100 m per segmento; fino a 300 m con due ripetitori (o 200 m con una terminazione passiva di estensione)."
+   }
+  },
+  "bacnet": {
+   "cycleMinUs": 100000,
+   "cycleNote": "Event-driven; secondi o frazioni di secondo.",
+   "rt": "none",
+   "rtNote": "UDP/IP, non deterministico.",
+   "maxNodes": 1000,
+   "nodesNote": "Dipende dall'installazione (device instance e BBMD).",
+   "caps": {
+    "vendorNeutral": "yes",
+    "notify": "yes",
+    "security": "partial",
+    "itint": "partial",
+    "building": "yes",
+    "pubsub": "partial",
+    "simpleOpen": "partial",
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "security": "BACnet/SC (TLS) disponibile nelle versioni recenti.",
+    "itint": "Modello a oggetti standard ma limitato all'edificio.",
+    "pubsub": "Sottoscrizioni COV, non un broker."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "knx": {
+   "cycleMinUs": 100000,
+   "cycleNote": "Un telegramma dura ≈ 25–30 ms a 9600 bit/s; traffico a eventi.",
+   "rt": "none",
+   "rtNote": "CSMA/CA con priorità, nessuna garanzia.",
+   "maxNodes": 256,
+   "nodesNote": "64 dispositivi per segmento, 256 per linea con ripetitori; la rete cresce con aree e linee.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "notify": "yes",
+    "pubsub": "partial",
+    "building": "yes",
+    "powerOnBus": "yes",
+    "nativeSec": "partial",
+    "security": "partial"
+   },
+   "notes": {
+    "pubsub": "Group address: i dispositivi iscritti reagiscono al telegramma."
+   },
+   "wiring": {
+    "segLenM": 1000,
+    "regen": false,
+    "segNodes": 64,
+    "term": false,
+    "repMax": 3,
+    "lenNote": "1000 m di cavo per segmento di linea (700 m al massimo tra due dispositivi, 350 m dall'alimentatore); fino a 3 ripetitori di linea, 64 dispositivi per segmento."
+   }
+  },
+  "hart": {
+   "cycleMinUs": 500000,
+   "cycleNote": "≈ 2–3 transazioni al secondo.",
+   "rt": "none",
+   "rtNote": "Lento, non pensato per il tempo reale.",
+   "maxNodes": 15,
+   "nodesNote": "Fino a 63 in multidrop nelle revisioni recenti; 15 nelle precedenti.",
+   "caps": {
+    "vendorNeutral": "yes",
+    "analog420": "yes",
+    "powerOnBus": "yes",
+    "sensorParam": "partial",
+    "exArea": "yes"
+   },
+   "notes": {
+    "sensorParam": "Parametrizzazione e diagnostica di strumenti di campo, non sensori on/off.",
+    "exArea": "Con trasmettitori e barriere a sicurezza intrinseca."
+   },
+   "wiring": {
+    "segLenM": 1500,
+    "regen": false,
+    "term": false,
+    "repMax": 0,
+    "lenNote": "Da circa 1500 a 3000 m secondo cavo e capacità: il limite è la costante di tempo dell'anello, non un ripetitore."
+   }
+  },
+  "cip": {
+   "cycleMinUs": 1000,
+   "cycleNote": "RPI tipico 2–100 ms; dipende dal controllore.",
+   "rt": "soft",
+   "rtNote": "Soft real-time con RPI.",
+   "maxNodes": 256,
+   "nodesNote": "Stima: limiti di connessioni del controllore.",
+   "caps": {
+    "motion": "yes",
+    "pubsub": "yes",
+    "notify": "partial",
+    "security": "partial",
+    "vendorNeutral": "yes",
+    "safety": "yes",
+    "redundancy": "yes",
+    "plcRockwell": "yes",
+    "nativeSec": "partial",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "notify": "Produced tag ciclici o COS, non un push on-change generico.",
+    "pubsub": "Produced/consumed tag in multicast.",
+    "redundancy": "DLR."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "opcuapubsub": {
+   "cycleMinUs": 1000,
+   "cycleNote": "PublishingInterval tipico 1–1000 ms; sotto il millisecondo solo con TSN e stack dedicati.",
+   "rt": "soft",
+   "rtNote": "Best effort su UDP e broker; latenza limitata solo su Ethernet con TSN.",
+   "maxNodes": 1000,
+   "nodesNote": "Stima: il publisher non conosce i subscriber; il limite dipende dalla rete o dal broker.",
+   "caps": {
+    "pubsub": "yes",
+    "notify": "yes",
+    "wan": "partial",
+    "security": "yes",
+    "itint": "yes",
+    "vendorNeutral": "yes",
+    "safety": "partial",
+    "redundancy": "partial",
+    "motion": "partial",
+    "siemensData": "partial",
+    "plcBeckhoff": "partial",
+    "simpleOpen": "partial",
+    "nativeSec": "yes",
+    "stdSwitch": "yes"
+   },
+   "notes": {
+    "wan": "Solo con il trasporto via broker (MQTT/AMQP); UDP ed Ethernet restano nella rete locale.",
+    "safety": "OPC UA Safety su PubSub nelle versioni recenti della specifica; adozione limitata.",
+    "motion": "Solo con TSN e hardware dedicato; dipende dal prodotto.",
+    "redundancy": "Delegata alla rete o a publisher ridondati a livello applicativo.",
+    "siemensData": "Disponibile su alcune CPU e firmware; verificare il prodotto.",
+    "plcBeckhoff": "Funzione opzionale TwinCAT.",
+    "security": "Sicurezza dei messaggi con chiavi di gruppo (SKS); TLS sul trasporto via broker."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  },
+  "opcuafx": {
+   "cycleMinUs": 1000,
+   "cycleNote": "Tra controllori tipicamente 1 ms–decine di ms; cicli più brevi con TSN e hardware dedicato (dipende dai prodotti).",
+   "rt": "det",
+   "rtNote": "Deterministico solo su rete TSN (IEC/IEEE 60802); senza TSN è best effort con priorità.",
+   "maxNodes": 250,
+   "nodesNote": "Stima indicativa: dipende dalle risorse dei controllori e dalla banda riservabile.",
+   "caps": {
+    "pubsub": "yes",
+    "notify": "partial",
+    "security": "yes",
+    "itint": "yes",
+    "vendorNeutral": "yes",
+    "safety": "partial",
+    "redundancy": "partial",
+    "motion": "partial",
+    "nativeSec": "yes",
+    "stdSwitch": "partial"
+   },
+   "notes": {
+    "safety": "OPC UA Safety fa parte di FX; la disponibilità dipende dai prodotti.",
+    "motion": "Profili motion in fase di definizione; oggi il campo tipico è il controllore-controllore.",
+    "redundancy": "Affidata alla rete (anelli, meccanismi TSN).",
+    "notify": "Lo scambio è ciclico; eventi e allarmi passano dai servizi client/server.",
+    "vendorNeutral": "Obiettivo principale dello standard; il numero di prodotti è ancora limitato.",
+    "stdSwitch": "Funziona, ma per i tempi garantiti servono switch TSN."
+   },
+   "wiring": {
+    "segLenM": 100,
+    "regen": true,
+    "term": false,
+    "repMax": 6,
+    "lenNote": "100 m per tratta in rame (fibra ottica per distanze maggiori); ogni switch o dispositivo a due porte rigenera il segnale."
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "id": "sb1",
+   "level": "beginner",
+   "title": "Sensori nel mondo",
+   "text": "Hai sensori di temperatura in 20 stabilimenti in paesi diversi. I dati devono arrivare a un cloud via Internet, anche con connessioni lente o instabili.",
+   "req": {
+    "caps": [
+     "wan",
+     "pubsub"
+    ]
+   }
+  },
+  {
+   "id": "sb2",
+   "level": "beginner",
+   "title": "Robot sincronizzato",
+   "text": "Un robot ha 30 azionamenti che devono muoversi in perfetto sincronismo, aggiornati ogni millisecondo.",
+   "req": {
+    "maxCycleUs": 1000,
+    "rtMin": "hard",
+    "nodes": 30,
+    "caps": [
+     "motion"
+    ]
+   }
+  },
+  {
+   "id": "sb3",
+   "level": "beginner",
+   "title": "Vecchio impianto",
+   "text": "In un vecchio impianto c'è già un cavo a bus RS-485 posato. Servono 40 punti I/O con aggiornamento ogni 20 ms. Non si vuole ricablare.",
+   "req": {
+    "maxCycleUs": 20000,
+    "topo": "bus",
+    "nodes": 40
+   }
+  },
+  {
+   "id": "sb4",
+   "level": "beginner",
+   "title": "PC e PLC Siemens",
+   "text": "Un PC deve leggere e scrivere variabili in un DB di un PLC Siemens S7-1500. Non servono tempi garantiti, bastano 100 ms.",
+   "req": {
+    "maxCycleUs": 100000,
+    "caps": [
+     "siemensData"
+    ]
+   }
+  },
+  {
+   "id": "sb5",
+   "level": "beginner",
+   "title": "Macchine di costruttori diversi",
+   "text": "Una fabbrica ha macchine di costruttori diversi. I dati devono arrivare al sistema MES in modo standard, con significato chiaro e in sicurezza.",
+   "req": {
+    "caps": [
+     "itint",
+     "security",
+     "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sp1",
+   "level": "professional",
+   "title": "50 assi, 1 ms, linea",
+   "text": "50 assi, ciclo 1 ms con sincronizzazione sub-µs, cablaggio a linea (nessuno switch centrale).",
+   "req": {
+    "maxCycleUs": 1000,
+    "rtMin": "hard",
+    "topo": "line",
+    "nodes": 50,
+    "caps": [
+     "motion"
+    ]
+   }
+  },
+  {
+   "id": "sp2",
+   "level": "professional",
+   "title": "Periferia Siemens in anello con safety",
+   "text": "Controllore Siemens con 120 dispositivi di periferia decentrata, ciclo 2 ms, anello ridondante e sicurezza funzionale (PROFIsafe-like) sullo stesso cavo.",
+   "req": {
+    "maxCycleUs": 2000,
+    "rtMin": "soft",
+    "topo": "ring",
+    "nodes": 120,
+    "caps": [
+     "siemensIO",
+     "safety",
+     "redundancy"
+    ]
+   }
+  },
+  {
+   "id": "sp3",
+   "level": "professional",
+   "title": "TwinCAT: notifiche on-change",
+   "text": "Un supervisore PC sulla stessa rete deve ricevere variabili da un controllore TwinCAT solo quando cambiano (niente polling), con integrazione nativa Beckhoff.",
+   "req": {
+    "maxCycleUs": 100000,
+    "caps": [
+     "plcBeckhoff",
+     "notify"
+    ]
+   }
+  },
+  {
+   "id": "sp4",
+   "level": "professional",
+   "title": "2000 sensori via LTE",
+   "text": "2000 sensori a batteria via LTE, report ogni 10 s, rete instabile, topic gerarchici, consegna affidabile verso una piattaforma IIoT.",
+   "req": {
+    "maxCycleUs": 10000000,
+    "nodes": 2000,
+    "caps": [
+     "wan",
+     "pubsub",
+     "notify"
+    ]
+   }
+  },
+  {
+   "id": "sp5",
+   "level": "professional",
+   "title": "Packaging con Rockwell",
+   "text": "Linea di packaging con PLC Rockwell: I/O distribuito, motion e safety sulla stessa rete, RPI 2 ms.",
+   "req": {
+    "maxCycleUs": 2000,
+    "rtMin": "soft",
+    "caps": [
+     "plcRockwell",
+     "motion",
+     "safety"
+    ]
+   }
+  },
+  {
+   "id": "sb6",
+   "level": "beginner",
+   "title": "Sensori da sostituire in un attimo",
+   "text": "Una macchina ha molti sensori di prossimità e fotocellule. Vuoi cambiarne uno guasto senza riconfigurarlo a mano e regolarne la soglia dal PLC.",
+   "req": {
+    "caps": [
+     "sensorParam"
+    ]
+   }
+  },
+  {
+   "id": "sb7",
+   "level": "beginner",
+   "title": "Contatore e inverter",
+   "text": "Un contatore di energia e un inverter di marche diverse devono essere letti da un PC con il minimo sforzo di programmazione. I dati servono una volta al secondo.",
+   "req": {
+    "maxCycleUs": 1000000,
+    "caps": [
+     "simpleOpen",
+     "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sp6",
+   "level": "professional",
+   "title": "Escavatore su bus",
+   "text": "20 nodi su bus a 250 kbit/s, 80 m di cavo, ciclo 5 ms, vibrazioni e forti disturbi, messaggi con priorità.",
+   "req": {
+    "maxCycleUs": 5000,
+    "rtMin": "det",
+    "topo": "bus",
+    "nodes": 20,
+    "caps": [
+     "mobile"
+    ]
+   }
+  },
+  {
+   "id": "sp7",
+   "level": "professional",
+   "title": "40 dispositivi a registri",
+   "text": "40 dispositivi di 3 produttori da integrare tramite mappe di registri, polling ogni 500 ms, rete Ethernet esistente e stack open source semplice.",
+   "req": {
+    "maxCycleUs": 500000,
+    "nodes": 40,
+    "caps": [
+     "simpleOpen",
+     "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sp8",
+   "level": "professional",
+   "title": "60 sensori smart",
+   "text": "Cella con 60 sensori smart: sostituzione e parametrizzazione automatica senza tool, cavo non schermato a 3 fili fino a 15 m, master su fieldbus, ciclo 5 ms.",
+   "req": {
+    "maxCycleUs": 5000,
+    "rtMin": "det",
+    "caps": [
+     "sensorParam",
+     "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sb8",
+   "level": "beginner",
+   "title": "Edificio intelligente",
+   "text": "Un edificio ha luci, tapparelle e clima di marche diverse. Vuoi controllarli con uno standard aperto pensato per gli edifici.",
+   "req": {
+    "caps": [
+     "building",
+     "vendorNeutral"
+    ]
+   }
+  },
+  {
+   "id": "sb9",
+   "level": "beginner",
+   "title": "Strumenti 4–20 mA esistenti",
+   "text": "In un impianto ci sono già trasmettitori con cavo 4–20 mA. Vuoi leggere anche diagnostica e parametri senza cambiare i cavi.",
+   "req": {
+    "caps": [
+     "analog420"
+    ]
+   }
+  },
+  {
+   "id": "sp9",
+   "level": "professional",
+   "title": "Un cavo per tutto",
+   "text": "30 sensori e attuatori on/off su un solo cavo che porta anche l'alimentazione, ciclo 5 ms.",
+   "req": {
+    "maxCycleUs": 5000,
+    "rtMin": "det",
+    "nodes": 30,
+    "caps": [
+     "powerOnBus"
+    ]
+   }
+  },
+  {
+   "id": "sp10",
+   "level": "professional",
+   "title": "BMS multi-produttore",
+   "text": "Edificio con impianti di 3 produttori (clima, luci, accessi) da integrare in un sistema di supervisione sulla rete Ethernet esistente, cablata a stella. I valori devono arrivare a notifica, senza interrogazioni continue.",
+   "req": {
+    "maxCycleUs": 1000000,
+    "topo": "star",
+    "caps": [
+     "building",
+     "vendorNeutral",
+     "notify"
+    ]
+   }
+  },
+  {
+   "id": "sb10",
+   "level": "beginner",
+   "title": "Azienda soggetta a NIS2",
+   "text": "Un'azienda soggetta a NIS2 deve far arrivare i dati delle macchine ai sistemi informatici in modo protetto, con autenticazione e cifratura.",
+   "req": {
+    "caps": [
+     "nativeSec"
+    ]
+   }
+  },
+  {
+   "id": "sp11",
+   "level": "professional",
+   "title": "Prodotto soggetto a CRA",
+   "text": "Un fabbricante di macchine deve esporre dati a un servizio cloud con autenticazione, cifratura, integrità e gestione dei ruoli (CRA e IEC 62443-4-2), con modello dati standard.",
+   "req": {
+    "caps": [
+     "nativeSec",
+     "security",
+     "itint"
+    ]
+   }
+  },
+  {
+   "id": "sb11",
+   "level": "beginner",
+   "title": "Macchina con ingressi e uscite sparsi",
+   "text": "Una macchina con 40 moduli di ingressi e uscite collegati a un PLC Siemens, aggiornati ogni 4 ms; nessun asse da sincronizzare. Vuoi usare normali switch Ethernet.",
+   "req": {
+    "maxCycleUs": 4000,
+    "rtMin": "soft",
+    "nodes": 40,
+    "caps": [
+     "siemensIO",
+     "stdSwitch"
+    ]
+   }
+  },
+  {
+   "id": "sp12",
+   "level": "professional",
+   "title": "Trasmettitori in area Ex",
+   "text": "20 trasmettitori di pressione e portata in una zona a rischio di esplosione, alimentati dal bus e integrati come periferia di un controllore Siemens; aggiornamento entro 500 ms.",
+   "req": {
+    "maxCycleUs": 500000,
+    "nodes": 20,
+    "caps": [
+     "exArea",
+     "powerOnBus",
+     "siemensIO"
+    ]
+   }
+  }
+ ]
+}

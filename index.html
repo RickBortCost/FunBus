@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="funbus-web" content="1.26.3">
+<meta name="theme-color" content="#0b6bcb">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>FunBus</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#app">Vai al contenuto</a>
+<div id="splash" role="status" aria-live="polite">
+  <img src="logo-splash.svg" alt="FunBus" width="160" height="160">
+  <div class="sp-name">FunBus</div>
+  <div class="sp-bar"><i id="spFill"></i></div>
+  <div class="sp-txt"><span id="spPct">0</span>% · <span id="spMsg">Avvio…</span></div>
+  <div class="sp-auth">Autore: Riccardo Bortolussi</div>
+</div>
+<header class="topbar">
+  <a class="brand" href="#/"><img src="logo.svg" alt="" width="32" height="32"> <span class="bname">FunBus</span></a>
+  <nav id="nav" aria-label="Navigazione principale">
+    <div class="navg">
+      <button type="button" class="navb" aria-expanded="false" aria-controls="nav-impara">Impara</button>
+      <div class="navp" id="nav-impara" hidden>
+        <a href="#/percorso" data-r="percorso">Percorso guidato</a>
+        <a href="#/protocolli" data-r="protocolli">Protocolli</a>
+        <a href="#/topologie" data-r="topologie">Topologie</a>
+        <a href="#/glossario" data-r="glossario">Glossario</a>
+      </div>
+    </div>
+    <div class="navg">
+      <button type="button" class="navb" aria-expanded="false" aria-controls="nav-esplora">Esplora</button>
+      <div class="navp" id="nav-esplora" hidden>
+        <a href="#/confronto" data-r="confronto">Confronto</a>
+        <a href="#/strumenti" data-r="strumenti">Strumenti</a>
+        <a href="#/approfondimenti" data-r="approfondimenti">Approfondimenti</a>
+        <a href="#/normative" data-r="normative">Normative</a>
+      </div>
+    </div>
+    <div class="navg">
+      <button type="button" class="navb" aria-expanded="false" aria-controls="nav-prova">Mettiti alla prova</button>
+      <div class="navp" id="nav-prova" hidden>
+        <a href="#/test" data-r="test">Tutti i test e i giochi</a>
+        <a href="#/test/quiz" data-r="test" data-s="quiz">Quiz</a>
+        <a href="#/test/match" data-r="test" data-s="match">Collega le schede</a>
+        <a href="#/test/scenari" data-r="test" data-s="scenari">Scenari di fattibilità</a>
+        <a href="#/test/rete" data-r="test" data-s="rete">Costruisci la rete</a>
+        <a href="#/test/frame" data-r="test" data-s="frame">Decodifica il frame</a>
+        <a href="#/test/ripasso" data-r="test" data-s="ripasso">Ripasso errori</a>
+      </div>
+    </div>
+  </nav>
+  <div class="tools">
+    <a id="profBtn" class="btn icon" href="#/profilo" data-r="profilo" title="Profilo" aria-label="Profilo: punti, badge e progressi">👤</a>
+    <a id="searchBtn" class="btn icon" href="#/cerca" title="Cerca (tasto /)" aria-label="Cerca in tutta l'app">🔍</a>
+    <select id="langSel" class="lang" aria-label="Lingua"><option value="it">🇮🇹 Italiano</option><option value="en">🇬🇧 English</option></select>
+    <div class="seg" role="group" aria-label="Livello">
+      <button id="lvB" data-level="beginner">Beginner</button>
+      <button id="lvP" data-level="professional">Professional</button>
+    </div>
+    <button id="themeBtn" class="icon" title="Tema: chiaro, scuro, alto contrasto" aria-label="Cambia tema (chiaro, scuro, alto contrasto)">◐</button>
+  </div>
+</header>
+<main id="app" tabindex="-1"></main>
+<footer id="ver" class="muted" style="text-align:center;padding:1rem;font-size:.85rem"></footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+{
+ "intro": {
+  "b": "Nove lezioni in ordine, dalla più semplice alla più completa. In ognuna leggi le schede, guardi un'animazione e chiudi con un breve quiz: i passi fatti restano segnati.",
+  "p": "Un percorso in nove lezioni che attraversa tutti i protocolli dell'app: bus seriali, Ethernet industriale, protocolli IT/IIoT, edifici, sicurezza e progetto di rete. Ogni lezione combina schede, animazioni con frame e guasti, e un quiz di verifica."
+ },
+ "passPct": 60,
+ "quizCount": 5,
+ "xpLesson": 30,
+ "lessons": [
+  {
+   "id": "l1",
+   "title": "Le basi: chi parla, quando e su quale cavo",
+   "text": {
+    "b": "Prima dei protocolli servono tre idee: come sono collegati i dispositivi, chi decide quando si parla e che cosa vuol dire «tempi garantiti». Prova a rompere un cavo nelle topologie e guarda che cosa succede.",
+    "p": "Topologia, accesso al mezzo e determinismo sono le tre coordinate con cui leggere ogni bus. Le topologie interattive mostrano la propagazione dei guasti; il quiz verifica polling, notifica e classi real-time."
+   },
+   "area": [
+    "base",
+    "topologie"
+   ],
+   "steps": [
+    {
+     "type": "topo",
+     "id": "bus"
+    },
+    {
+     "type": "topo",
+     "id": "star"
+    },
+    {
+     "type": "topo",
+     "id": "ring"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l2",
+   "title": "Il primo bus: Modbus",
+   "text": {
+    "b": "Modbus è il più semplice: un master chiede, uno slave risponde. Capito questo, hai capito metà dei bus di campo. Guarda la versione su cavo seriale e poi quella su Ethernet.",
+    "p": "Modbus RTU e Modbus TCP condividono function code e modello dati e differiscono per incapsulamento, indirizzamento e controllo degli errori: nella scheda trovi la tabella delle differenze, nell'animazione il frame e i guasti."
+   },
+   "protos": [
+    "modbusrtu",
+    "modbus"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "modbusrtu"
+    },
+    {
+     "type": "anim",
+     "id": "modbusrtu"
+    },
+    {
+     "type": "card",
+     "id": "modbus"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l3",
+   "title": "I bus di campo seriali",
+   "text": {
+    "b": "PROFIBUS, CANopen e AS-Interface collegano macchine e sensori con un solo cavo. Ognuno ha il suo trucco: il token, le priorità, il cavo giallo che porta anche la corrente.",
+    "p": "Tre modi di gestire un mezzo condiviso: token e polling (PROFIBUS), arbitraggio a priorità (CAN), polling a ciclo fisso con alimentazione sul bus (AS-i). Osserva nell'animazione PROFIBUS il ciclo DP e il passaggio del token."
+   },
+   "protos": [
+    "profibus",
+    "canopen",
+    "asi"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "profibus"
+    },
+    {
+     "type": "anim",
+     "id": "profibus"
+    },
+    {
+     "type": "card",
+     "id": "canopen"
+    },
+    {
+     "type": "card",
+     "id": "asi"
+    },
+    {
+     "type": "topo",
+     "id": "line"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l4",
+   "title": "Sensori e strumenti: IO-Link e HART",
+   "text": {
+    "b": "Non sono vere reti: collegano un solo sensore o strumento al suo ingresso, aggiungendo al segnale tradizionale la possibilità di leggere dati e cambiare parametri.",
+    "p": "Due interfacce punto-punto che estendono un segnale esistente: IO-Link sul cavo a 3 fili del sensore, HART sovrapposto al 4–20 mA. Confronta velocità, lunghezze e uso della parametrizzazione."
+   },
+   "protos": [
+    "iolink",
+    "hart"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "iolink"
+    },
+    {
+     "type": "anim",
+     "id": "iolink"
+    },
+    {
+     "type": "card",
+     "id": "hart"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l5",
+   "title": "Ethernet industriale in tempo reale",
+   "text": {
+    "b": "Qui si va veloci: PROFINET, EtherCAT ed EtherNet/IP comandano macchine e robot aggiornando i dati ogni millisecondo o meno. Scopri che cosa li rende diversi da una rete d'ufficio.",
+    "p": "Tre risposte allo stesso problema: priorità e riserva di banda (PROFINET RT/IRT), elaborazione al volo con Distributed Clocks (EtherCAT), CIP su UDP con RPI (EtherNet/IP). Chiudi con uno scenario di fattibilità."
+   },
+   "protos": [
+    "profinet",
+    "ethercat",
+    "enip"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "profinet"
+    },
+    {
+     "type": "anim",
+     "id": "profinet"
+    },
+    {
+     "type": "card",
+     "id": "ethercat"
+    },
+    {
+     "type": "anim",
+     "id": "ethercat"
+    },
+    {
+     "type": "card",
+     "id": "enip"
+    },
+    {
+     "type": "scenario",
+     "n": 1
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l6",
+   "title": "Parlare con i PLC: S7, ADS e CIP",
+   "text": {
+    "b": "Quando un PC, un pannello o un altro PLC vuole leggere una variabile, usa il «dialetto» del costruttore: S7 per Siemens, ADS per Beckhoff, CIP per Rockwell.",
+    "p": "Protocolli di accesso ai dati del controllore, su TCP/IP e senza garanzie temporali: indirizzamento per area e offset (S7), per simbolo e handle con notifiche (ADS), per tag e produced/consumed (CIP)."
+   },
+   "protos": [
+    "s7",
+    "ads",
+    "cip"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "s7"
+    },
+    {
+     "type": "card",
+     "id": "ads"
+    },
+    {
+     "type": "anim",
+     "id": "ads"
+    },
+    {
+     "type": "card",
+     "id": "cip"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l7",
+   "title": "Dalla fabbrica all'IT: MQTT e OPC UA",
+   "text": {
+    "b": "I dati escono dalla macchina e arrivano a computer, gestionali e cloud. MQTT li spedisce come messaggi leggeri; OPC UA li descrive con nome e significato, anche in tempo reale con le sue varianti più recenti.",
+    "p": "Publish/subscribe con broker (MQTT) e architettura a servizi con information model (OPC UA client/server), fino a PubSub e FX per il livello di campo: nelle schede OPC UA trovi la tabella delle differenze tra le tre varianti."
+   },
+   "protos": [
+    "mqtt",
+    "opcua",
+    "opcuapubsub",
+    "opcuafx"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "mqtt"
+    },
+    {
+     "type": "anim",
+     "id": "mqtt"
+    },
+    {
+     "type": "card",
+     "id": "opcua"
+    },
+    {
+     "type": "card",
+     "id": "opcuapubsub"
+    },
+    {
+     "type": "card",
+     "id": "opcuafx"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l8",
+   "title": "Gli edifici: KNX e BACnet",
+   "text": {
+    "b": "Luci, tapparelle, riscaldamento e ventilazione parlano tra loro con protocolli pensati per gli edifici: lenti, ma semplici da estendere e indipendenti dal costruttore.",
+    "p": "KNX lavora senza controllore centrale con indirizzi di gruppo; BACnet modella l'impianto a oggetti e servizi e integra la supervisione su IP. Nell'animazione KNX osserva telegramma, ACK e ripetizioni."
+   },
+   "protos": [
+    "bacnet",
+    "knx"
+   ],
+   "steps": [
+    {
+     "type": "card",
+     "id": "knx"
+    },
+    {
+     "type": "anim",
+     "id": "knx"
+    },
+    {
+     "type": "card",
+     "id": "bacnet"
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  },
+  {
+   "id": "l9",
+   "title": "Mettere tutto insieme: sicurezza e progetto di rete",
+   "text": {
+    "b": "Ora scegli tu: quale bus per quale impianto, con quale cablaggio, e come proteggerlo. Risolvi alcuni scenari, costruisci una rete e chiudi con il quiz finale.",
+    "p": "Scelta del protocollo dai requisiti (ciclo, determinismo, nodi, capability), dimensionamento del cablaggio e misure di cybersicurezza secondo IEC 62443, NIS2 e CRA: tre scenari, una missione di «Costruisci la rete» e il quiz finale."
+   },
+   "area": [
+    "sicurezza",
+    "topologie"
+   ],
+   "steps": [
+    {
+     "type": "scenario",
+     "n": 3
+    },
+    {
+     "type": "build",
+     "n": 1
+    },
+    {
+     "type": "quiz"
+    }
+   ]
+  }
+ ]
+}

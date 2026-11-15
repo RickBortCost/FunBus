@@ -1,0 +1,13 @@
+Loghi ufficiali dei bus di campo
+================================
+FunBus usa un file per ogni protocollo, se presente, al posto del pittogramma generico.
+Nome file (SVG consigliato, oppure PNG con sfondo trasparente):
+
+  profinet.svg   profibus.svg   s7.svg    ethercat.svg  ads.svg      mqtt.svg
+  opcua.svg      enip.svg       modbus.svg canopen.svg   iolink.svg
+
+Copiali in questa cartella (wwwroot/logos) prima di compilare, oppure, senza ricompilare,
+nella cartella "content/logos" accanto a FunBus.exe (creata con: FunBus.exe --export-content).
+
+I loghi sono marchi dei rispettivi titolari (PI, ETG, Siemens, Beckhoff, Eclipse/OASIS, OPC Foundation,
+ODVA, Modbus Organization, CiA, IO-Link Community): verifica le condizioni d'uso prima di distribuirli.

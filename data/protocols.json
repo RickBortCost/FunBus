@@ -1,0 +1,3285 @@
+{
+ "fields": [
+  {
+   "key": "purpose",
+   "label": "Scopo"
+  },
+  {
+   "key": "osi",
+   "label": "Livello OSI"
+  },
+  {
+   "key": "medium",
+   "label": "Mezzo fisico"
+  },
+  {
+   "key": "speed",
+   "label": "Velocità"
+  },
+  {
+   "key": "topology",
+   "label": "Topologia"
+  },
+  {
+   "key": "model",
+   "label": "Modello di comunicazione"
+  },
+  {
+   "key": "determinism",
+   "label": "Determinismo"
+  },
+  {
+   "key": "cycle",
+   "label": "Tempi di ciclo"
+  }
+ ],
+ "protocols": [
+  {
+   "id": "profinet",
+   "name": "PROFINET IO",
+   "color": "#00a0a0",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "Lo standard Ethernet di Siemens e PI per collegare PLC, I/O e azionamenti.",
+    "p": "Ethernet industriale PI (IEC 61158 / 61784-2 CPF 3) con classi RT e IRT per tempi ciclo da ms a sub-ms."
+   },
+   "analogy": "Come un capo reparto (il PLC) che ogni pochi millisecondi chiede a ogni operaio (i dispositivi) il suo stato e gli dà nuovi ordini, usando la normale rete Ethernet ma con corsia preferenziale.",
+   "card": {
+    "purpose": {
+     "b": "Far dialogare un PLC con sensori, attuatori e azionamenti sulla rete Ethernet di fabbrica.",
+     "p": "Scambio ciclico di dati di processo tra IO-Controller e IO-Device, più servizi aciclici (parametri, allarmi, diagnostica) e configurazione tramite GSDML."
+    },
+    "osi": {
+     "b": "Usa Ethernet come 'strada' e aggiunge sopra le sue regole applicative.",
+     "p": "L1/L2 per RT e IRT (EtherType 0x8892, senza IP); L3/L4/L7 (UDP/RPC) per connessione, parametrizzazione e servizi aciclici."
+    },
+    "medium": {
+     "b": "Cavo Ethernet (rame o fibra).",
+     "p": "100BASE-TX (Cat5e, 100 m), fibra ottica (POF/HCS/vetro), 1 Gbit/s dove supportato; Ethernet-APL in sviluppo/introduzione per aree Ex."
+    },
+    "speed": "100 Mbit/s tipico (1 Gbit/s su alcuni dispositivi)",
+    "topology": {
+     "b": "A linea, a stella, ad anello o ad albero.",
+     "p": "Linea (switch integrato nei dispositivi), stella, albero; anello ridondante con MRP (recupero tipico ≤ 200 ms, valore configurabile) o MRPD in IRT (senza perdita di frame)."
+    },
+    "model": {
+     "b": "Un controllore comanda molti dispositivi.",
+     "p": "IO-Controller / IO-Device / IO-Supervisor; comunicazione provider–consumer con Application Relation (AR) e Communication Relation (CR) per I/O, allarmi e record."
+    },
+    "determinism": {
+     "b": "Buono; con la versione IRT è garantito.",
+     "p": "RT: priorità 802.1Q (PCP 6), determinismo 'soft'. IRT: TDMA con banda riservata e sincronizzazione di clock (PTCP), jitter < 1 µs. Su TSN: PROFINET over TSN in standardizzazione/adozione."
+    },
+    "cycle": {
+     "b": "Da pochi millisecondi fino a frazioni di millisecondo.",
+     "p": "RT tipico 1–512 ms (send clock 31,25 µs × reduction ratio; ≥ 1 ms comune). IRT da 31,25 µs di send clock (valori pratici ≥ 250 µs, dipendono da ERTEC/ASIC e dal controllore)."
+    }
+   },
+   "pros": [
+    "Standard aperto PI, ampio parco prodotti",
+    "Coesiste con TCP/IP sulla stessa rete",
+    "Diagnostica ricca, ridondanza MRP",
+    "IRT per motion sincrono",
+    "PROFIsafe per la sicurezza funzionale"
+   ],
+   "cons": [
+    "Configurazione più complessa (nomi, GSDML, topologia per IRT)",
+    "IRT richiede hardware dedicato e ingegnerizzazione della topologia",
+    "Limiti di rete: switch non gestibili o VLAN errate degradano RT"
+   ],
+   "usecases": [
+    "Linee di assemblaggio automotive",
+    "Automazione di macchine con PLC Siemens",
+    "Impianti con motion sincrono (IRT)"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 61158 / IEC 61784-2 (CPF 3); PI (PROFIBUS & PROFINET International)"
+    ],
+    [
+     "EtherType RT/DCP",
+     "0x8892"
+    ],
+    [
+     "Acicliche",
+     "DCE/RPC su UDP porta 34964 (CM); SNMP; LLDP per topologia"
+    ],
+    [
+     "Descrizione",
+     "GSDML (XML)"
+    ],
+    [
+     "Conformance Class",
+     "A, B, C, D (Rete, funzioni, IRT, TSN) — dipende dalla versione della specifica"
+    ]
+   ],
+   "notes": [
+    "Classi di conformità, TSN e Security Class dipendono dalla versione della specifica (V2.3/V2.4) e dai dispositivi: verificare la documentazione del costruttore.",
+    "Nei confronti e nei grafici PROFINET è classificato «hard real-time»: vale per IRT (e per i profili con TSN); PROFINET RT è soft real-time, con tempi tipici ma non garantiti."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "hard",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "Pensa a PROFINET come alla normale rete Ethernet dell'ufficio, ma con una corsia riservata per i dati della macchina. Il PLC (IO-Controller) conosce ogni dispositivo per nome e, a intervalli regolari, manda i comandi e riceve lo stato.",
+     "Per i compiti normali (leggere sensori, comandare valvole) basta la modalità RT. Quando servono movimenti sincronizzati, come in un robot con più assi, si passa a IRT, che riserva delle 'finestre di tempo' e garantisce la puntualità."
+    ],
+    "p": [
+     "PROFINET in pratica: il controller stabilisce con ogni device una Application Relation (AR) via RPC su UDP; poi i dati ciclici viaggiano in frame RT diretti sul livello 2 (EtherType 0x8892) con priorità VLAN 6. Il watchdog (DataHoldFactor × ciclo) segnala la perdita di un provider.",
+     "Per il motion si usa IRT con scheduling TDMA e clock sincronizzato (PTCP): la finestra riservata evita che il traffico TCP/IP interferisca con i frame cyclici. Diagnosi tramite allarmi, LLDP/SNMP per la topologia, DCP per assegnare nomi e IP."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una linea di assemblaggio auto con un PLC Siemens, 80 moduli I/O in armadio e 12 azionamenti. Si collegano a stella e a linea con normali cavi Ethernet; la rete si configura in TIA Portal assegnando a ogni modulo un nome (es. 'ingresso-nastro-1'). Se il cavo si rompe, un anello MRP fa ripartire la comunicazione in pochi centinaia di millisecondi.",
+    "p": "Esempio: 12 azionamenti in IRT a 1 ms con topologia a linea. L'ingegnerizzazione definisce l'ordine dei nodi e la finestra IRT; sostituendo un device, il controller lo riconosce dal nome e dai vicini (LLDP) senza programmarlo di nuovo."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dispositivi inviano i dati da soli a ritmo fisso e avvisano con allarmi; si può anche chiedere un parametro.",
+    "p": "Ciclico provider→consumer autonomo (non sollecitato) + allarmi spontanei; record aciclici in lettura/scrittura su richiesta."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": [
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "io",
+    "conn": "rj45",
+    "cable": "#2e9e4f",
+    "text": "Cavo Ethernet industriale verde a 2 coppie (4 fili), con connettori RJ45 o M12 D-coded; fino a 100 m per tratta in rame."
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 / IEC 61784-2 (CPF 3)",
+     "d": "Servizi, protocolli e profili di PROFINET IO (RT e IRT)."
+    },
+    {
+     "n": "PROFIBUS & PROFINET International (PI)",
+     "d": "Linee guida di progetto, installazione e messa in servizio; classi di conformità."
+    },
+    {
+     "n": "IEC 62439-2",
+     "d": "Media Redundancy Protocol (MRP) per le topologie ad anello."
+    }
+   ]
+  },
+  {
+   "id": "profibus",
+   "name": "PROFIBUS",
+   "color": "#c0392b",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Il classico bus di campo a due fili, ancora diffusissimo negli impianti esistenti.",
+    "p": "Fieldbus RS-485 (DP) e MBP (PA) secondo IEC 61158 type 3 / IEC 61784-1 CPF 3, con accesso ibrido token + master/slave."
+   },
+   "analogy": "Una riunione con un microfono (token): solo chi ha il microfono può interrogare i dispositivi, che rispondono uno alla volta quando vengono chiamati.",
+   "card": {
+    "purpose": {
+     "b": "Collegare PLC e dispositivi di campo con un solo cavo a bus.",
+     "p": "DP: scambio ciclico I/O decentralizzato (V0), servizi aciclici e allarmi (V1), isocronia e slave-to-slave (V2). PA: strumenti di processo con alimentazione via bus."
+    },
+    "osi": {
+     "b": "Definisce cavo, regole di accesso e dati: non usa IP.",
+     "p": "L1 (RS-485 / MBP), L2 (FDL: accesso al mezzo, frame), L7 (DP/FMS user layer). Livelli 3–6 assenti."
+    },
+    "medium": {
+     "b": "Cavo schermato a due fili (rame) o fibra.",
+     "p": "RS-485 (cavo tipo A, 150 Ω, terminazione 220 Ω + pull-up/down) per DP; MBP 31,25 kbit/s (IEC 61158-2) per PA; fibra con convertitori."
+    },
+    "speed": "9,6 kbit/s … 12 Mbit/s (DP); 31,25 kbit/s (PA)",
+    "topology": {
+     "b": "Un bus: tutti i dispositivi sullo stesso cavo.",
+     "p": "Bus lineare con terminazioni a inizio e fine; max 32 stazioni per segmento, 126 indirizzi (0–125); estensioni con ripetitori. Lunghezza segmento: 1200 m (≤ 93,75 kbit/s) … 100 m (≥ 3 Mbit/s)."
+    },
+    "model": {
+     "b": "Master che interroga gli slave.",
+     "p": "Multi-master con passaggio del token tra master (classe 1/2) e polling master→slave. Gli slave rispondono solo se interrogati."
+    },
+    "determinism": {
+     "b": "Sì: il tempo di ciclo è prevedibile.",
+     "p": "Deterministico: il ciclo è calcolabile dal baud rate, numero di slave e lunghezza dati. DP-V2 offre isocronia (Isochronous Mode)."
+    },
+    "cycle": {
+     "b": "Pochi millisecondi.",
+     "p": "≈ 1–10 ms tipico a 12 Mbit/s; dipende da numero di slave, byte I/O e baud rate (calcolo con tool PI)."
+    }
+   },
+   "pros": [
+    "Robusto e maturo",
+    "Cablaggio semplice a bus",
+    "Ciclo prevedibile",
+    "Enorme base installata",
+    "PA per aree a rischio di esplosione"
+   ],
+   "cons": [
+    "Velocità massima 12 Mbit/s",
+    "Max 126 indirizzi, 32 stazioni per segmento",
+    "Sensibile a terminazioni e cablaggio errati",
+    "Tecnologia in progressiva sostituzione da PROFINET"
+   ],
+   "usecases": [
+    "Impianti esistenti da mantenere",
+    "Industria di processo (PA)",
+    "Macchine con I/O decentralizzato semplice"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 61158 type 3, IEC 61784-1 CPF 3, EN 50170"
+    ],
+    [
+     "Carattere UART",
+     "11 bit: start, 8 dati, parità pari, stop"
+    ],
+    [
+     "Delimitatori frame",
+     "SD1 0x10, SD2 0x68, SD3 0xA2, SD4 0xDC, SC 0xE5, ED 0x16"
+    ],
+    [
+     "Descrizione",
+     "GSD (testo)"
+    ],
+    [
+     "Profili",
+     "PROFIdrive, PROFIsafe, PA Devices"
+    ]
+   ],
+   "notes": [
+    "I limiti di lunghezza dipendono dal tipo di cavo e dal baud rate; i valori citati valgono per cavo tipo A."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 12
+   },
+   "story": {
+    "b": [
+     "PROFIBUS è un bus 'vecchia scuola' ma affidabile: un solo cavo a due fili percorre l'impianto e tutti i dispositivi sono collegati in parallelo, come le lampadine di una fila di presine.",
+     "Funziona a turni: il master chiede a ogni slave 'dammi i tuoi ingressi e prendi le tue uscite' e passa al successivo. Poiché i turni sono ordinati, il tempo di un giro completo è prevedibile."
+    ],
+    "p": [
+     "PROFIBUS DP usa RS-485 con caratteri UART a 11 bit (start, 8 dati, parità pari, stop). L'accesso al mezzo è ibrido: token tra master e polling master→slave. Il ciclo è circa Σ(Tframe request + TSDR + Tframe response + Tidle) su tutti gli slave.",
+     "Setup tipico: Set_Prm, Chk_Cfg, Slave_Diag fino a 'ready', poi Data_Exchange ciclico; DP-V1 aggiunge servizi aciclici e allarmi, DP-V2 isocronia e slave-to-slave. Nei problemi di campo contano terminazioni, schermatura, lunghezza e baud rate."
+    ]
+   },
+   "example": {
+    "b": "Esempio: in un vecchio impianto di imballaggio con 30 moduli I/O lungo 200 m, il cavo viola di PROFIBUS è già posato. Se si sostituisce il PLC, spesso conviene tenere il bus: costa meno di ricablare. Attenzione: serve la terminazione ai due estremi, altrimenti compaiono errori casuali.",
+    "p": "Esempio: 12 Mbit/s con 10 slave da 4 byte di I/O: il ciclo è dell'ordine di 1–2 ms. A 500 kbit/s con 30 slave sale a oltre 10 ms; per questo, con molti slave, si abbassa la velocità solo se la lunghezza lo impone (≈ 400 m a 500 kbit/s)."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga ogni slave a turno.",
+    "p": "Polling ciclico master→slave (Data_Exchange) con ciclo calcolabile; DP-V1 aggiunge allarmi ma sempre dentro il ciclo."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
+   },
+   "illus": {
+    "left": "plc",
+    "right": "drive",
+    "conn": "dsub9",
+    "cable": "#7d3c98",
+    "text": "Cavo viola schermato a due fili (tipo A) e connettore D-sub a 9 poli con terminazione inseribile; PROFIBUS PA usa invece cavo e morsetti per l'area di processo."
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 (Type 3) / IEC 61784-1 (CPF 3)",
+     "d": "PROFIBUS DP e PA: livello fisico, FDL e livello applicativo."
+    },
+    {
+     "n": "PROFIBUS & PROFINET International (PI)",
+     "d": "Linee guida di installazione: cavi, terminazioni, lunghezze e velocità."
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "name": "S7 (S7comm)",
+   "color": "#009999",
+   "family": "Protocollo applicativo su TCP/IP",
+   "tagline": {
+    "b": "Il 'linguaggio' con cui i PLC Siemens scambiano dati con PC e altri PLC.",
+    "p": "S7comm / S7CommPlus su ISO-on-TCP (RFC 1006, porta 102): servizi Read/Write Var, upload/download, diagnostica."
+   },
+   "analogy": "Come chiedere per telefono a un collega 'quanto vale la variabile X?' e ricevere la risposta: domanda e risposta, senza orari garantiti.",
+   "card": {
+    "purpose": {
+     "b": "Leggere e scrivere dati e programmi dei PLC Siemens da PC, HMI o altri PLC.",
+     "p": "Accesso a DB, merker, I/O e servizi di sistema (SZL, stop/run, download). Usato da TIA Portal, HMI, SCADA, librerie di terze parti (es. Snap7)."
+    },
+    "osi": {
+     "b": "Sta sopra TCP/IP, a livello applicativo.",
+     "p": "L7 (S7comm) su TPKT/COTP (RFC 1006) che emula L4/L5 ISO su TCP/102. In origine anche su MPI/PROFIBUS."
+    },
+    "medium": {
+     "b": "Normale rete Ethernet.",
+     "p": "Ethernet (rame/fibra) via TCP/IP; storicamente MPI (RS-485) e PROFIBUS."
+    },
+    "speed": "10/100/1000 Mbit/s (Ethernet)",
+    "topology": {
+     "b": "Qualsiasi rete Ethernet.",
+     "p": "Dipende dall'infrastruttura IP: stella con switch, linea con switch integrati, anello con RSTP/MRP a livello di rete."
+    },
+    "model": {
+     "b": "Client che chiede, server (PLC) che risponde.",
+     "p": "Client/server con PDU Job / Ack_Data; connessione COTP con TSAP; numero di connessioni limitato dalla CPU."
+    },
+    "determinism": {
+     "b": "No: i tempi dipendono dalla rete.",
+     "p": "Non deterministico (TCP, ritrasmissioni). Nessuna garanzia di latenza; adatto ad accesso aciclico."
+    },
+    "cycle": {
+     "b": "Non è un protocollo a ciclo: tipicamente decine di ms.",
+     "p": "Latenza tipica 5–50 ms per richiesta, dipende da CPU, PDU size negoziata (es. 240/480/960 B) e carico."
+    }
+   },
+   "pros": [
+    "Diffusissimo sui PLC Siemens",
+    "Semplice per lettura/scrittura dati",
+    "Librerie open source disponibili"
+   ],
+   "cons": [
+    "Proprietario, specifica non pubblica ufficialmente",
+    "Nessun determinismo",
+    "Sicurezza limitata nel S7comm classico; S7CommPlus (S7-1200/1500) aggiunge integrità",
+    "S7-1200/1500 richiedono 'PUT/GET' abilitato per S7comm classico"
+   ],
+   "usecases": [
+    "Supervisione e HMI",
+    "Diagnostica e programmazione",
+    "Raccolta dati da PC verso PLC S7"
+   ],
+   "tech": [
+    [
+     "Porta",
+     "TCP 102"
+    ],
+    [
+     "Incapsulamento",
+     "TPKT (RFC 1006) + COTP (ISO 8073) + S7 header"
+    ],
+    [
+     "Protocol ID",
+     "0x32 (S7comm); 0x72 (S7CommPlus)"
+    ],
+    [
+     "ROSCTR",
+     "1 Job, 2 Ack, 3 Ack_Data, 7 Userdata"
+    ],
+    [
+     "Funzioni",
+     "0xF0 Setup communication, 0x04 Read Var, 0x05 Write Var"
+    ]
+   ],
+   "notes": [
+    "Il comportamento di S7-1200/1500 dipende da firmware e impostazioni di protezione (accesso PUT/GET, password, S7CommPlus). Specifica ricavata da reverse engineering, non ufficiale."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "S7comm è come telefonare al PLC Siemens per fargli una domanda: 'quanto vale il contatore dei pezzi?' e il PLC risponde. Non c'è un orario fisso di scambio: si chiede quando serve.",
+     "Per questo è perfetto per supervisione, diagnostica e strumenti di programmazione, ma non per comandare un motore in tempo reale."
+    ],
+    "p": [
+     "S7comm viaggia su TCP/102 con TPKT e COTP (RFC 1006). Dopo l'handshake TCP e COTP CR/CC si negozia la PDU con Setup Communication (0xF0), poi si usano Read Var (0x04) e Write Var (0x05) con item S7ANY (area, DB, offset).",
+     "La specifica è nota da reverse engineering (librerie come Snap7). Sui S7-1200/1500 moderni conviene S7CommPlus o OPC UA, perché il S7comm classico è privo di autenticazione robusta."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un PC in sala controllo legge ogni secondo il numero di pezzi prodotti da un DB di un S7-1500 e lo mostra su una dashboard. Per far funzionare l'accesso bisogna abilitare 'PUT/GET' nella CPU, il che riduce la protezione: va fatto solo in reti protette.",
+    "p": "Esempio: lettura di DB1.DBD0 (REAL): item con area 0x84, DB=1, indirizzo in bit 0, lunghezza 4 B. Con PDU negoziata a 480 byte si possono leggere più item per richiesta, riducendo il numero di round-trip."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il client chiede e il PLC risponde; nessun avviso spontaneo.",
+    "p": "Read Var/Write Var su richiesta; nessuna notifica on-change del client (solo polling). Su TCP/IP il polling non è deterministico."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "plc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Viaggia sulla rete Ethernet dell'impianto (RJ45), tra PC, HMI e PLC; storicamente anche su MPI e PROFIBUS."
+   },
+   "sources": [
+    {
+     "n": "RFC 1006, ISO/IEC 8073 (COTP)",
+     "d": "Trasporto ISO-on-TCP usato da S7comm sulla porta 102."
+    },
+    {
+     "n": "Siemens (documentazione di prodotto); Wireshark (dissector S7comm)",
+     "d": "Il protocollo S7 è proprietario e non pubblicato ufficialmente: i dettagli dei PDU vengono dalla documentazione dei prodotti e da analisi di terzi."
+    }
+   ]
+  },
+  {
+   "id": "ethercat",
+   "name": "EtherCAT",
+   "color": "#e67e22",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "Un 'treno' di dati che attraversa tutti i dispositivi molto velocemente.",
+    "p": "Ethernet real-time con elaborazione on-the-fly (ETG, IEC 61158 type 12), un solo frame per ciclo che attraversa l'anello logico."
+   },
+   "analogy": "Un treno che passa in ogni stazione senza fermarsi: ogni stazione carica e scarica i suoi pacchi mentre il treno scorre.",
+   "card": {
+    "purpose": {
+     "b": "Controllare molti I/O e assi con cicli velocissimi e sincronizzati.",
+     "p": "Scambio di dati di processo ad alte prestazioni, sincronizzazione con Distributed Clocks, mailbox (CoE, FoE, EoE) per servizi aciclici."
+    },
+    "osi": {
+     "b": "Usa Ethernet ma gestisce i dati con hardware dedicato.",
+     "p": "L1/L2 (EtherType 0x88A4) con elaborazione hardware negli ESC; opzionale incapsulamento UDP (porta 34980). Mailbox protocols a L7."
+    },
+    "medium": {
+     "b": "Cavo Ethernet o speciale bus interno per i moduli.",
+     "p": "100BASE-TX/FX, E-Bus (LVDS) nei morsetti Beckhoff; EtherCAT G/G10 per 1 e 10 Gbit/s (introdotti in anni recenti)."
+    },
+    "speed": "100 Mbit/s (G: 1 e 10 Gbit/s)",
+    "topology": {
+     "b": "Linea (ma anche ad albero e stella).",
+     "p": "Fisicamente linea, albero o stella (con junction); logicamente un anello: il frame torna al master. Ridondanza a cavo con secondo porto del master."
+    },
+    "model": {
+     "b": "Un master comanda molti slave.",
+     "p": "Master/slave: solo il master genera frame; gli slave con ESC leggono/scrivono 'al volo' (ritardo per nodo ~ centinaia di ns). Working Counter (WKC) per la validazione."
+    },
+    "determinism": {
+     "b": "Molto alto, con sincronizzazione precisa.",
+     "p": "Hard real-time: ciclo fisso, Distributed Clocks con jitter ≪ 1 µs (tipico < 100 ns)."
+    },
+    "cycle": {
+     "b": "Da frazioni di millisecondo.",
+     "p": "Da ~31,25 µs (pochi nodi) a 1 ms e oltre; es. 1000 I/O digitali in ~30 µs. Dipende da dati per slave e master."
+    }
+   },
+   "pros": [
+    "Altissima efficienza di banda",
+    "Sincronizzazione precisa (DC)",
+    "Nessuno switch richiesto",
+    "Fino a 65535 slave (teorici)",
+    "Safety over EtherCAT (FSoE)"
+   ],
+   "cons": [
+    "Master dedicato/real-time necessario",
+    "Slave con ESC (hardware specifico)",
+    "Cicli estremi richiedono un master ottimizzato",
+    "Non è instradabile oltre il segmento L2 senza gateway"
+   ],
+   "usecases": [
+    "Robotica e CNC multi-asse",
+    "Macchine per packaging",
+    "Controllo di movimento ad alta velocità"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 61158 type 12, IEC 61784-2 CPF 12, ETG.1000"
+    ],
+    [
+     "EtherType",
+     "0x88A4"
+    ],
+    [
+     "Comandi",
+     "APRD/APWR, FPRD/FPWR, BRD/BWR, LRD/LWR/LRW"
+    ],
+    [
+     "Stati",
+     "INIT → PRE-OP → SAFE-OP → OP (BOOT)"
+    ],
+    [
+     "Descrizione",
+     "ESI (XML)"
+    ]
+   ],
+   "notes": [
+    "Tempi ciclo minimi realistici dipendono dalla CPU del master, dal driver (kernel/real-time) e dal numero di dati."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "hard",
+    "topo": [
+     "line",
+     "ring",
+     "star",
+     "tree"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "Immagina un treno che parte dal PLC e passa in ogni stazione senza fermarsi: in ogni stazione un operatore scarica il pacco di sua competenza e carica quello che vuole spedire mentre il treno scorre. Alla fine il treno torna indietro con tutto. È EtherCAT.",
+     "Poiché il treno è uno solo per tutti, la rete usa pochissimo tempo e permette cicli da frazioni di millisecondo, con assi perfettamente sincronizzati."
+    ],
+    "p": [
+     "Il master trasmette un frame con uno o più datagram (EtherType 0x88A4). Ogni ESC (slave controller) legge e scrive i dati al volo con ritardo di centinaia di ns e incrementa il Working Counter. L'ultimo slave rileva la porta libera e fa ripartire il frame verso il master.",
+     "La sincronizzazione usa Distributed Clocks: il primo slave con DC è il riferimento; il master misura i ritardi di propagazione e compensa gli offset, ottenendo jitter ≪ 1 µs. Il ciclo è limitato da dati per slave, CPU del master e driver."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una macchina CNC con 8 assi, 2 mandrini e 200 I/O digitali. Un solo cavo a catena parte dal PC industriale e attraversa tutti i moduli; il ciclo è 250 µs. I moduli non hanno bisogno di switch: ogni modulo ha due porte e passa il frame al successivo.",
+    "p": "Esempio: 3 slave da 8 byte: il frame resta al minimo Ethernet (64 byte) e occupa il mezzo circa 7 µs a 100 Mbit/s, più i ritardi dei nodi; per questo cicli da 50–100 µs sono realistici con un master ottimizzato."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master manda un 'treno' di dati a ogni ciclo e raccoglie le risposte.",
+    "p": "Ciclico guidato dal master (LRW su frame passante); eventi (EMCY, AL) via mailbox o interrupt, di fatto eccezioni."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
+   },
+   "illus": {
+    "left": "ipc",
+    "right": "drive",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Cavo Ethernet standard (100BASE-TX) con RJ45 o M8/M12: ogni slave ha una porta di ingresso e una di uscita. EtherCAT P porta sullo stesso cavo anche l'alimentazione."
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 (Type 12) / IEC 61784-2 (CPF 12)",
+     "d": "Protocollo EtherCAT."
+    },
+    {
+     "n": "ETG.1000 – EtherCAT Specification",
+     "d": "Specifica dell'EtherCAT Technology Group: livello fisico, data link e applicazione (registri ESC, Distributed Clocks, mailbox)."
+    }
+   ]
+  },
+  {
+   "id": "ads",
+   "name": "ADS / AMS",
+   "color": "#7f8c8d",
+   "family": "Protocollo applicativo su TCP/IP",
+   "tagline": {
+    "b": "Il protocollo con cui Beckhoff/TwinCAT scambia dati tra programmi e PLC.",
+    "p": "Automation Device Specification su AMS (Automation Message Specification), trasporto TCP 48898, indirizzamento per NetId e porta."
+   },
+   "analogy": "Un centralino interno: ogni programma ha un 'interno' (porta) e un 'prefisso' (NetId); si può chiedere di essere avvisati quando un valore cambia.",
+   "card": {
+    "purpose": {
+     "b": "Leggere/scrivere variabili e ricevere avvisi dal PLC TwinCAT.",
+     "p": "Comunicazione tra moduli TwinCAT (PLC, NC, I/O) e client esterni via ADS router; Read/Write per index group/offset o simbolo, notifiche."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra TCP/IP.",
+     "p": "L7 su AMS/TCP (porta 48898); UDP 48899 per discovery e aggiunta route. Messaggi anche locali (inter-process) sullo stesso PC."
+    },
+    "medium": {
+     "b": "Normale rete Ethernet.",
+     "p": "Ethernet via TCP/IP; anche ADS over MQTT in versioni recenti di TwinCAT."
+    },
+    "speed": "10/100/1000 Mbit/s",
+    "topology": {
+     "b": "Qualsiasi rete Ethernet.",
+     "p": "Dipende dall'infrastruttura IP; richiede route ADS configurate tra i router AMS."
+    },
+    "model": {
+     "b": "Client che chiede, server che risponde (con avvisi).",
+     "p": "Client/server con command ID (Read, Write, ReadWrite, Notification…), Invoke ID per correlare risposte; le notifiche sono push dal server."
+    },
+    "determinism": {
+     "b": "No: non è pensato per il tempo reale.",
+     "p": "Non deterministico (TCP). Le notifiche riducono il polling ma non garantiscono latenza."
+    },
+    "cycle": {
+     "b": "Nessun ciclo garantito.",
+     "p": "Dipende dal task TwinCAT e dalla rete; tipicamente ms–decine di ms."
+    }
+   },
+   "pros": [
+    "Semplice e potente per TwinCAT",
+    "Notifiche on-change e cicliche",
+    "Specifica pubblicata da Beckhoff, librerie ufficiali multilinguaggio"
+   ],
+   "cons": [
+    "Legato all'ecosistema Beckhoff",
+    "Sicurezza: route ADS e, nelle versioni recenti, ADS Secure (TLS)",
+    "Nessun determinismo"
+   ],
+   "usecases": [
+    "Supervisione e SCADA su TwinCAT",
+    "Integrazione di software PC con PLC",
+    "Diagnostica e logging"
+   ],
+   "tech": [
+    [
+     "Porta TCP/UDP",
+     "TCP 48898 (0xBF02); UDP 48899; ADS Secure: TCP 8016"
+    ],
+    [
+     "Command ID",
+     "1 Read Device Info, 2 Read, 3 Write, 4 Read State, 5 Write Control, 6 Add Notification, 7 Del Notification, 8 Notification, 9 ReadWrite"
+    ],
+    [
+     "Indirizzo",
+     "AMS NetId (6 byte) + porta (es. 851 PLC TC3, 801 PLC TC2)"
+    ],
+    [
+     "Indirizzamento dati",
+     "Index Group / Index Offset"
+    ]
+   ],
+   "notes": [
+    "Numeri di porta del runtime (801/851) e funzioni di sicurezza dipendono dalla versione di TwinCAT (2/3)."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "ADS è il modo in cui programmi e PLC Beckhoff si parlano. Ogni programma ha un 'interno' (porta) e un 'prefisso' (NetId), come un centralino aziendale.",
+     "La particolarità è la notifica: invece di chiedere ogni secondo 'è cambiato qualcosa?', dici al PLC 'avvisami quando la temperatura cambia' e lui ti manda un messaggio solo in quel caso."
+    ],
+    "p": [
+     "ADS incapsula i comandi in AMS (TCP 48898): AMS header con Target/Source NetId e porta, Command ID, Invoke ID per correlare le risposte. Per un simbolo si fa un ReadWrite su IndexGroup 0xF003 (GetSymHandleByName) e poi Read/Write o Add Device Notification sull'handle.",
+     "Le route ADS vanno configurate nei router AMS; in ambienti esposti si preferisce ADS Secure (TLS) o ADS-over-MQTT. Errori tipici: 0x6 (target port not found), 0x7 (target machine not found) per route mancanti."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una dashboard su PC mostra lo stato di una pressa TwinCAT. Con le notifiche ADS la dashboard si aggiorna solo quando il valore cambia, riducendo il traffico di rete e il carico del PLC rispetto al polling continuo.",
+    "p": "Esempio: Add Device Notification in modalità OnChange con MaxDelay 100 ms: se la variabile cambia dieci volte in 100 ms, il PLC invia un solo frame di notifica raggruppato, con tutti i campioni e i timestamp."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Può chiedere il valore oppure farsi avvisare quando cambia.",
+    "p": "Read/ReadWrite su richiesta oppure Add Device Notification (OnChange o Cyclic, MaxDelay) con push dal server."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "ipc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Normale rete Ethernet/TCP-IP tra PC e controllori TwinCAT; sulla stessa macchina i messaggi passano dal router AMS, senza cavo."
+   },
+   "sources": [
+    {
+     "n": "Beckhoff Information System – ADS/AMS Specification",
+     "d": "Intestazioni AMS/TCP e AMS, comandi ADS e codici di ritorno."
+    }
+   ]
+  },
+  {
+   "id": "mqtt",
+   "name": "MQTT",
+   "color": "#8e44ad",
+   "family": "Protocollo IT/IIoT",
+   "tagline": {
+    "b": "Un servizio di 'messaggistica' leggero: i dispositivi pubblicano, altri si iscrivono.",
+    "p": "Protocollo publish/subscribe OASIS (ISO/IEC 20922) su TCP con broker centrale, QoS 0/1/2."
+   },
+   "analogy": "Come un gruppo di notizie: il sensore pubblica un messaggio su un argomento, il 'postino' (broker) lo recapita a tutti gli iscritti.",
+   "card": {
+    "purpose": {
+     "b": "Portare dati da molti sensori a molte applicazioni, anche via Internet.",
+     "p": "Telemetria e IIoT con disaccoppiamento tra produttori e consumatori; con Sparkplug B si definiscono topic e payload per l'industria."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra TCP/IP.",
+     "p": "L7 su TCP (1883) o TLS (8883), anche WebSocket. Header fisso minimo di 2 byte."
+    },
+    "medium": {
+     "b": "Qualsiasi rete IP: Ethernet, Wi-Fi, 4G/5G.",
+     "p": "Indipendente dal mezzo: tutto ciò che trasporta TCP/IP (Ethernet, Wi-Fi, cellulare, satellite)."
+    },
+    "speed": "Dipende dalla rete IP sottostante",
+    "topology": {
+     "b": "A stella attorno a un broker.",
+     "p": "Logicamente a stella con broker; broker multipli con bridge/cluster. La topologia fisica è quella della rete IP."
+    },
+    "model": {
+     "b": "Publish/Subscribe tramite broker.",
+     "p": "Pub/sub con topic gerarchici (wildcard + e #), retained message, Last Will, sessioni persistenti (v3.1.1 e v5)."
+    },
+    "determinism": {
+     "b": "No: consegna affidabile ma senza tempi garantiti.",
+     "p": "Non deterministico; QoS 0 (al più una volta), 1 (almeno una), 2 (esattamente una) agiscono sulla consegna, non sulla latenza."
+    },
+    "cycle": {
+     "b": "Non a ciclo: i messaggi partono quando serve.",
+     "p": "Event-driven; latenze tipiche da pochi ms a secondi in funzione di rete e broker; keep-alive configurabile."
+    }
+   },
+   "pros": [
+    "Leggerissimo",
+    "Ideale per reti instabili e collegamenti lenti",
+    "Scalabile, standard aperto",
+    "Perfetto per cloud/IIoT"
+   ],
+   "cons": [
+    "Nessun tempo reale",
+    "Il broker è punto centrale (da rendere ridondante)",
+    "Il formato dei dati non è standardizzato (serve Sparkplug o simili)",
+    "Sicurezza affidata a TLS e al broker"
+   ],
+   "usecases": [
+    "Telemetria verso cloud",
+    "Monitoraggio di flotte di macchine",
+    "Integrazione OT↔IT"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "OASIS MQTT v3.1.1 (ISO/IEC 20922), v5.0"
+    ],
+    [
+     "Porte",
+     "TCP 1883, TLS 8883, WebSocket 80/443"
+    ],
+    [
+     "Pacchetti",
+     "CONNECT, CONNACK, PUBLISH, PUBACK, PUBREC, PUBREL, PUBCOMP, SUBSCRIBE, SUBACK, PINGREQ…"
+    ],
+    [
+     "Header fisso",
+     "tipo pacchetto (4 bit) + flag (4 bit) + Remaining Length (1–4 byte)"
+    ],
+    [
+     "Industriale",
+     "Sparkplug B (Eclipse): topic spBv1.0/…"
+    ]
+   ],
+   "notes": [
+    "MQTT v5 aggiunge reason code, user properties, shared subscription; non tutti i broker/client le supportano."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "MQTT è come un gruppo di notizie: il sensore scrive 'temperatura = 23,4' su un argomento (topic) e il broker lo recapita a tutti quelli iscritti a quell'argomento. Chi scrive non sa chi legge, e viceversa.",
+     "È leggerissimo e tollera le connessioni lente o instabili, quindi è ideale per portare dati dalla fabbrica al cloud."
+    ],
+    "p": [
+     "MQTT usa pacchetti con header fisso di 2–5 byte (tipo+flag, Remaining Length a lunghezza variabile). I livelli QoS sono: 0 (al più una volta), 1 (almeno una, PUBACK), 2 (esattamente una, PUBREC/PUBREL/PUBCOMP). Con retain il broker memorizza l'ultimo valore per i nuovi iscritti.",
+     "In ambito industriale si usa Sparkplug B (topic spBv1.0/…, payload Protobuf): definisce nascita/morte dei nodi (NBIRTH/NDEATH) e metriche. Il broker va dimensionato e reso ridondante: è il punto centrale."
+    ]
+   },
+   "example": {
+    "b": "Esempio: 200 sensori di umidità in una serra pubblicano su 'serra1/zona3/umidita'. Una dashboard si iscrive a 'serra1/#' per vedere tutto, mentre un allarme si iscrive solo a 'serra1/+/umidita'. Se un sensore si spegne di colpo, il broker pubblica il suo messaggio 'Last Will' e l'allarme scatta.",
+    "p": "Esempio: un gateway con QoS 1 invia 'plant/line1/temp' ogni 5 s. Se la rete cade, il client mantiene la sessione e ritrasmette i messaggi non confermati; con QoS 0 quei messaggi andrebbero persi."
+   },
+   "comm": {
+    "mode": "notify",
+    "b": "Chi pubblica invia solo quando c'è una novità; gli iscritti la ricevono.",
+    "p": "Event-driven pub/sub tramite broker; retained message per lo stato iniziale; nessun polling (solo keep-alive)."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "sensor",
+    "right": "cloud",
+    "conn": "net",
+    "cable": "#7f8c8d",
+    "wire": "any",
+    "text": "Qualsiasi rete IP: Ethernet, Wi-Fi o rete cellulare, verso un broker in locale o nel cloud."
+   },
+   "sources": [
+    {
+     "n": "OASIS MQTT 3.1.1 (ISO/IEC 20922:2016)",
+     "d": "La versione più diffusa del protocollo."
+    },
+    {
+     "n": "OASIS MQTT 5.0",
+     "d": "Reason code, proprietà, scadenza della sessione."
+    }
+   ]
+  },
+  {
+   "id": "opcua",
+   "name": "OPC UA",
+   "color": "#2980b9",
+   "family": "Protocollo IT/IIoT",
+   "tagline": {
+    "b": "Il 'linguaggio universale' dell'industria: dati con significato, sicuri e indipendenti dal costruttore.",
+    "p": "IEC 62541: architettura service-oriented con information model, sicurezza integrata, client/server e PubSub (Part 14)."
+   },
+   "analogy": "Come un catalogo ordinato con etichette: non solo il valore, ma anche cos'è, in che unità è e chi può leggerlo.",
+   "card": {
+    "purpose": {
+     "b": "Scambiare dati industriali in modo standard e sicuro tra macchine, PLC e software IT.",
+     "p": "Interoperabilità semantica tramite address space, nodi, tipi e companion specification (PackML, Euromap, umati, PROFINET, …)."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra TCP/IP.",
+     "p": "L7 con Secure Channel (L5/6 funzionale) su opc.tcp (4840), HTTPS, WebSocket; PubSub su UDP, MQTT, AMQP o Ethernet L2 (UADP)."
+    },
+    "medium": {
+     "b": "Qualsiasi rete IP.",
+     "p": "Ethernet, Wi-Fi, cellulare; con PubSub+TSN su Ethernet L2 per applicazioni real-time."
+    },
+    "speed": "Dipende dalla rete sottostante",
+    "topology": {
+     "b": "Dipende dalla rete; client verso server.",
+     "p": "Client/server su qualunque topologia IP; server aggregatori e gateway; PubSub con broker o multicast."
+    },
+    "model": {
+     "b": "Client/Server oppure Publish/Subscribe.",
+     "p": "Client/server (sessioni, subscription, monitored item, method call) e PubSub (publisher/subscriber, DataSetWriter/Reader)."
+    },
+    "determinism": {
+     "b": "Normalmente no; esiste una variante tempo reale.",
+     "p": "Client/server non deterministico. PubSub su UADP/Ethernet con TSN può raggiungere latenza limitata (dipende da hardware e profilo)."
+    },
+    "cycle": {
+     "b": "Dipende: tipicamente millisecondi o più.",
+     "p": "Subscription con publishing interval e sampling interval configurabili (es. 100 ms); PubSub+TSN con cicli sub-ms in profili dedicati."
+    }
+   },
+   "pros": [
+    "Indipendente da costruttore e SO",
+    "Sicurezza integrata (certificati, firma/cifratura)",
+    "Modello dati ricco",
+    "Ponte OT–IT"
+   ],
+   "cons": [
+    "Più pesante di MQTT/S7",
+    "Configurazione di certificati e trust",
+    "Non adatto, nel client/server, a I/O in tempo reale"
+   ],
+   "usecases": [
+    "Integrazione MES/SCADA multi-vendor",
+    "Interfacce macchina standardizzate",
+    "Gateway verso il cloud"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 62541 (OPC Foundation), Part 1–14"
+    ],
+    [
+     "Porta",
+     "opc.tcp 4840 (convenzione)"
+    ],
+    [
+     "Header UA TCP",
+     "MessageType (3 char: HEL, ACK, OPN, MSG, CLO, ERR) + ChunkType + MessageSize"
+    ],
+    [
+     "Security policy",
+     "Basic256Sha256, Aes128_Sha256_RsaOaep, Aes256_Sha256_RsaPss; None sconsigliata. Le policy Basic128Rsa15/Basic256 sono deprecate"
+    ],
+    [
+     "Servizi",
+     "Browse, Read, Write, Call, CreateSubscription, Publish…"
+    ]
+   ],
+   "notes": [
+    "Le security policy supportate e le funzioni (PubSub, TSN, Safety) dipendono da stack, versione della specifica e profilo del dispositivo."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server",
+     "pub-sub"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "OPC UA non trasporta solo numeri: descrive cosa sono. Invece di 'DB10.DBD4 = 23,4' vedi 'Temperatura caldaia, 23,4 °C, ultimo aggiornamento alle 10:02'. È un catalogo ordinato che qualsiasi software capisce.",
+     "Inoltre è sicuro per costruzione: client e server si scambiano certificati e possono cifrare tutto. È lo standard pensato per far dialogare macchine di costruttori diversi con i sistemi informatici."
+    ],
+    "p": [
+     "Sessione client/server tipica: HEL/ACK, OpenSecureChannel (security policy e mode), CreateSession, ActivateSession (identità utente), CreateSubscription con MonitoredItem e Publish. I dati sono nodi (NodeId) con attributi (Value, DataType, timestamp, StatusCode).",
+     "Oltre al client/server esiste PubSub (Part 14) con trasporto UDP, MQTT, AMQP o Ethernet UADP. Le Companion Specification (es. PackML, Euromap, umati) standardizzano i modelli per tipo di macchina. Verifica sempre le security policy supportate e i certificati."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una fabbrica ha macchine di tre marche. Il sistema MES si collega a tutte con un unico client OPC UA e naviga l'albero dei dati: Macchina > Stato > Contatore pezzi, senza conoscere i registri interni di ognuna.",
+    "p": "Esempio: subscription con publishing interval 1000 ms e sampling interval 250 ms con deadband assoluto 0,1: il server campiona ogni 250 ms ma notifica solo i valori che cambiano oltre 0,1, riducendo il traffico."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Si può leggere a richiesta oppure iscriversi ai cambiamenti.",
+    "p": "Read/Browse su richiesta; Subscription con MonitoredItem (sampling e publishing interval, deadband); PubSub non sollecitato."
+   },
+   "osi": {
+    "own": [
+     5,
+     6,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "server",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Rete Ethernet/TCP-IP (porta 4840 per il protocollo binario): dal PLC ai sistemi di supervisione e IT."
+   },
+   "sources": [
+    {
+     "n": "IEC 62541 (OPC 10000), Part 3–6",
+     "d": "Address space, servizi, information model e mapping (UA TCP, sicurezza)."
+    },
+    {
+     "n": "OPC Foundation – OPC UA Online Reference",
+     "d": "Testo delle specifiche consultabile in linea."
+    }
+   ]
+  },
+  {
+   "id": "opcuapubsub",
+   "name": "OPC UA PubSub",
+   "color": "#1f6f8b",
+   "family": "Protocollo IT/IIoT",
+   "tagline": {
+    "b": "OPC UA senza sessioni: chi ha i dati li pubblica, chi è interessato li riceve.",
+    "p": "IEC 62541-14: publisher e subscriber disaccoppiati, messaggi UADP o JSON su UDP, Ethernet, MQTT o AMQP, con sicurezza a chiavi di gruppo."
+   },
+   "analogy": "Come una radio: chi trasmette non sa chi ascolta, e chi ascolta si sintonizza sul canale che gli interessa.",
+   "card": {
+    "purpose": {
+     "b": "Distribuire gli stessi dati a molti destinatari, in locale o verso il cloud, senza aprire un collegamento con ciascuno.",
+     "p": "Distribuzione 1:N di DataSet OPC UA senza sessioni: scambio ciclico tra controllori (UADP su UDP o Ethernet) e telemetria verso IT e cloud (JSON o UADP su broker MQTT/AMQP)."
+    },
+    "osi": {
+     "b": "Livello applicativo, sopra la rete IP o direttamente su Ethernet.",
+     "p": "L7: NetworkMessage UADP (binario) o JSON. Trasporti senza broker: UDP unicast/multicast (opc.udp) ed Ethernet L2 (EtherType 0xB62C); con broker: MQTT e AMQP su TCP/TLS."
+    },
+    "medium": {
+     "b": "Rete Ethernet o qualsiasi rete IP.",
+     "p": "Ethernet (anche con TSN per i flussi deterministici), Wi-Fi e reti cellulari per il trasporto via broker."
+    },
+    "speed": "Dipende dalla rete sottostante (tipicamente Ethernet 100 Mbit/s o 1 Gbit/s)",
+    "topology": {
+     "b": "Quella della rete: molti ascoltano lo stesso publisher.",
+     "p": "Qualsiasi topologia Ethernet/IP: multicast in rete locale, oppure stella logica verso un broker."
+    },
+    "model": {
+     "b": "Publish/Subscribe: nessuna richiesta e nessuna risposta.",
+     "p": "Publisher (WriterGroup, DataSetWriter) e Subscriber (ReaderGroup, DataSetReader) configurati in modo indipendente; nessuna sessione né conferma."
+    },
+    "determinism": {
+     "b": "Dipende dalla rete: garantito solo con Ethernet speciale (TSN).",
+     "p": "Best effort su UDP e broker. Latenza limitata solo con UADP su Ethernet/UDP insieme a TSN, layout a dimensione fissa e hardware adatto."
+    },
+    "cycle": {
+     "b": "Da pochi millisecondi a secondi, come si configura.",
+     "p": "PublishingInterval per WriterGroup: tipicamente 1–1000 ms; sotto il millisecondo solo con TSN e stack dedicati (dipende dal prodotto)."
+    }
+   },
+   "pros": [
+    "Un messaggio per molti destinatari, senza sessioni",
+    "Stesso modello dati di OPC UA",
+    "Dal campo al cloud cambiando solo il trasporto",
+    "Sicurezza dei messaggi con chiavi di gruppo"
+   ],
+   "cons": [
+    "Nessuna conferma di consegna: sorveglia il subscriber",
+    "Publisher e subscriber vanno configurati in modo coerente",
+    "Determinismo solo con TSN",
+    "Gestione delle chiavi (SKS) da progettare"
+   ],
+   "usecases": [
+    "Scambio ciclico tra controllori di costruttori diversi",
+    "Telemetria verso cloud e piattaforme IT (JSON su MQTT)",
+    "Base di trasporto di OPC UA FX"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 62541-14 (OPC 10000-14), dalla versione 1.04 della specifica"
+    ],
+    [
+     "Codifica dei messaggi",
+     "UADP (binario, anche a layout fisso) oppure JSON"
+    ],
+    [
+     "Trasporti",
+     "UDP (opc.udp, porta 4840 predefinita), Ethernet (opc.eth, EtherType 0xB62C), MQTT, AMQP"
+    ],
+    [
+     "Struttura",
+     "PubSubConnection → WriterGroup → DataSetWriter; ReaderGroup → DataSetReader"
+    ],
+    [
+     "Sicurezza",
+     "SecurityGroup con chiavi simmetriche distribuite dal Security Key Service (SKS); policy PubSub-Aes128-CTR e PubSub-Aes256-CTR"
+    ],
+    [
+     "Sorveglianza",
+     "KeepAliveTime sul publisher, MessageReceiveTimeout sul DataSetReader"
+    ]
+   ],
+   "notes": [
+    "Trasporti, codifiche e sicurezza supportati dipendono dallo stack, dalla versione della specifica e dal profilo del dispositivo: publisher e subscriber devono avere almeno un profilo in comune.",
+    "Le prestazioni in tempo reale richiedono TSN e hardware adatto; su reti Ethernet ordinarie il PubSub resta best effort."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "soft",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "Nell'OPC UA tradizionale ogni client apre un collegamento con il server e chiede i dati. Con PubSub è il contrario: chi ha i dati li trasmette a intervalli regolari, come una radio, e chiunque sia sintonizzato li riceve. Chi trasmette non sa nemmeno quanti stanno ascoltando.",
+     "I messaggi possono viaggiare in due modi: direttamente sulla rete dell'impianto, veloci, per far parlare due macchine; oppure attraverso un broker (lo stesso di MQTT) per portare i dati al cloud. Il contenuto resta quello di OPC UA: dati con nome, tipo e significato."
+    ],
+    "p": [
+     "Il publisher raggruppa le variabili in PublishedDataSet; ogni DataSetWriter produce un DataSetMessage e il WriterGroup li impacchetta in un NetworkMessage inviato a ogni PublishingInterval. Il subscriber configura DataSetReader che filtrano per PublisherId, WriterGroupId e DataSetWriterId e mappano i campi sulle proprie variabili. I DataSetMetaData descrivono campi e ConfigurationVersion.",
+     "Non esistono sessione, richiesta o conferma: la sorveglianza è del subscriber (MessageReceiveTimeout) e l'integrità è affidata a numeri di sequenza, key frame periodici e, con la sicurezza attiva, a firma e cifratura con le chiavi del SecurityGroup ottenute dall'SKS. Su Ethernet con TSN e layout fisso il PubSub è la base della comunicazione deterministica di OPC UA FX."
+    ]
+   },
+   "example": {
+    "b": "Esempio: il PLC di una linea pubblica ogni 100 ms velocità e contapezzi. Li ricevono, senza chiedere nulla, il PLC della linea a valle, il pannello operatore e un gateway che li inoltra al cloud.",
+    "p": "Esempio: WriterGroup con PublishingInterval 10 ms e KeepAliveTime 100 ms su opc.udp multicast; due DataSetReader con MessageReceiveTimeout 30 ms. Un terzo subscriber si aggiunge senza toccare il publisher: basta configurarne il reader e autorizzarlo sull'SKS."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dati partono da soli: a ritmo fisso oppure solo quando cambiano. Nessuno li chiede.",
+    "p": "Pubblicazione non sollecitata a ogni PublishingInterval (key frame ciclici) oppure delta frame ed eventi solo al cambiamento; nessun request/response."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "cloud",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Sulla rete Ethernet/IP dell'impianto: UDP multicast tra controllori, direttamente su Ethernet con TSN, oppure verso un broker MQTT/AMQP per IT e cloud."
+   },
+   "sources": [
+    {
+     "n": "IEC 62541-14 (OPC 10000-14)",
+     "d": "PubSub: modello, messaggi UADP e JSON, trasporti e sicurezza."
+    },
+    {
+     "n": "IEEE 802.1Q",
+     "d": "VLAN, priorità e funzioni TSN usate dal trasporto su Ethernet."
+    }
+   ]
+  },
+  {
+   "id": "opcuafx",
+   "name": "OPC UA FX",
+   "color": "#5b4fcf",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "OPC UA che scende al livello di campo: controllori di marche diverse che si scambiano dati direttamente.",
+    "p": "OPC UA Field eXchange (OPC 10000-80…84): connessioni sorvegliate tra FunctionalEntity, stabilite in client/server e servite da PubSub, su Ethernet con TSN opzionale."
+   },
+   "analogy": "Come due reparti che firmano un accordo («tu mi mandi questo, io ti mando quello, ogni tot millisecondi») e poi si scambiano la merce da soli, controllando che arrivi puntuale.",
+   "card": {
+    "purpose": {
+     "b": "Far dialogare in tempo reale macchine e controllori di costruttori diversi con un unico standard, dal campo al cloud.",
+     "p": "Comunicazione a livello di campo indipendente dal costruttore: oggi controllore-controllore (C2C), con controllore-dispositivo (C2D) e dispositivo-dispositivo (D2D) nelle estensioni successive; include safety e ingegneria offline."
+    },
+    "osi": {
+     "b": "Livello applicativo OPC UA, su Ethernet.",
+     "p": "L7: information model FX (AutomationComponent, FunctionalEntity, Asset) e Connection Manager. Dati in PubSub UADP su UDP/IP o direttamente su Ethernet L2; connessione e diagnostica in client/server su TCP. L2 opzionale con TSN (IEC/IEEE 60802)."
+    },
+    "medium": {
+     "b": "Cavo Ethernet standard.",
+     "p": "Ethernet standard, con switch TSN per i flussi deterministici; Ethernet-APL (due fili) per l'area di processo."
+    },
+    "speed": "100 Mbit/s o 1 Gbit/s (10 Mbit/s con Ethernet-APL)",
+    "topology": {
+     "b": "Quella della rete Ethernet: linea, stella, albero o anello.",
+     "p": "Topologie Ethernet con switch (esterni o integrati); ridondanza e riserva di banda affidate ai meccanismi di rete e a TSN."
+    },
+    "model": {
+     "b": "Prima ci si accorda, poi ci si scambia dati a ritmo fisso.",
+     "p": "Connessioni logiche tra FunctionalEntity, create da un Connection Manager con il metodo EstablishConnections (client/server); scambio dati in PubSub, unidirezionale (con o senza heartbeat) o bidirezionale."
+    },
+    "determinism": {
+     "b": "Sì, se la rete usa TSN; altrimenti solo «di solito puntuale».",
+     "p": "Deterministico su rete TSN con flussi riservati (IEC/IEEE 60802); senza TSN lavora in best effort con priorità (QoS) e la latenza non è garantita."
+    },
+    "cycle": {
+     "b": "Pochi millisecondi tra controllori.",
+     "p": "Tra controllori tipicamente da 1 ms a decine di ms; cicli più brevi con TSN e hardware dedicato. I valori effettivi dipendono dai prodotti: la tecnologia è recente."
+    }
+   },
+   "pros": [
+    "Un solo standard dal campo al cloud",
+    "Controllori di costruttori diversi collegati senza gateway",
+    "Sicurezza informatica e safety previste dallo standard",
+    "Convive con altro traffico sulla stessa rete (TSN)"
+   ],
+   "cons": [
+    "Tecnologia recente: pochi prodotti e specifiche in evoluzione",
+    "Per ora centrata sul controllore-controllore",
+    "Il determinismo richiede switch e dispositivi TSN",
+    "Più complessa di un fieldbus tradizionale"
+   ],
+   "usecases": [
+    "Linee con macchine e PLC di costruttori diversi",
+    "Sincronizzazione tra celle e moduli di macchina",
+    "Reti convergenti IT/OT con TSN"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "OPC 10000-80…84 (OPC UA FX), iniziativa Field Level Communications della OPC Foundation"
+    ],
+    [
+     "Modello",
+     "AutomationComponent con Asset (parte fisica) e FunctionalEntity (funzione, con variabili di ingresso e uscita)"
+    ],
+    [
+     "Connessione",
+     "Connection Manager → EstablishConnections: verifica asset, riserva la comunicazione, crea e abilita i ConnectionEndpoint"
+    ],
+    [
+     "Scambio dati",
+     "OPC UA PubSub (UADP) su UDP/IP o Ethernet (EtherType 0xB62C)"
+    ],
+    [
+     "Rete",
+     "Ethernet con QoS; TSN secondo il profilo IEC/IEEE 60802; Ethernet-APL"
+    ],
+    [
+     "Safety",
+     "OPC UA Safety (IEC 62541-15), principio «black channel»"
+    ]
+   ],
+   "notes": [
+    "OPC UA FX è una tecnologia recente: le prime specifiche riguardano la comunicazione controllore-controllore; controllore-dispositivo, motion e altre parti sono estensioni successive. Verificare versione delle specifiche e funzioni realmente supportate dai prodotti.",
+    "Tempi di ciclo e determinismo indicati sono orientativi: dipendono dall'uso di TSN, dall'hardware e dall'implementazione."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "det",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub",
+     "client-server"
+    ],
+    "mbps": 1000
+   },
+   "story": {
+    "b": [
+     "Finora OPC UA serviva soprattutto «in alto»: tra le macchine e i computer che le sorvegliano. Per comandare motori e leggere sensori in tempo reale ogni costruttore usava il proprio bus di campo. OPC UA FX porta lo stesso linguaggio fino al livello delle macchine, così controllori di marche diverse possono scambiarsi dati direttamente.",
+     "Funziona in due tempi. Prima un «gestore delle connessioni» mette d'accordo le due parti: quali dati, ogni quanto, con quali controlli. Poi le due parti si scambiano i dati da sole, a ritmo fisso, e ciascuna controlla che l'altra sia puntuale. Se la rete è di tipo TSN, la puntualità è garantita."
+    ],
+    "p": [
+     "Ogni dispositivo espone un AutomationComponent con Asset (identità fisica) e FunctionalEntity (funzioni logiche con InputData e OutputData). Un Connection Manager, client OPC UA che può risiedere in un controllore o in uno strumento, chiama EstablishConnections sui due lati: verifica degli asset, riserva della comunicazione (configurazione PubSub), creazione e abilitazione dei ConnectionEndpoint.",
+     "Da quel momento i dati viaggiano in PubSub UADP, su UDP/IP o direttamente su Ethernet, con layout fisso; ogni endpoint sorveglia i messaggi in arrivo e applica valori sostitutivi in caso di timeout. Le connessioni possono essere persistenti e ripartire senza Connection Manager. Per il determinismo si usa TSN (IEC/IEEE 60802); per la safety OPC UA Safety; l'ingegneria offline scambia descrittori dei prodotti prima della messa in servizio."
+    ]
+   },
+   "example": {
+    "b": "Esempio: la riempitrice (PLC di una marca) e la tappatrice (PLC di un'altra) si scambiano ogni 4 ms velocità e stato. Senza OPC UA FX servirebbe un gateway tra i due bus di campo; con FX i due PLC si collegano direttamente sulla stessa rete Ethernet.",
+    "p": "Esempio: connessione bidirezionale tra due FunctionalEntity con PublishingInterval 2 ms e timeout di ricezione 6 ms; il Connection Manager nel controllore A chiama EstablishConnections con verifica degli asset e rende la connessione persistente. Su switch TSN i due flussi hanno banda riservata e latenza limitata."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dati di processo arrivano da soli a ritmo fisso; connessione e diagnostica si fanno a richiesta.",
+    "p": "Scambio ciclico non sollecitato in PubSub (PublishingInterval, heartbeat); servizi client/server a richiesta per EstablishConnections, parametri e diagnostica."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "plc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Ethernet standard tra controllori di costruttori diversi; switch TSN per i flussi deterministici ed Ethernet-APL per l'area di processo."
+   },
+   "sources": [
+    {
+     "n": "OPC 10000-80, -81, -82, -83, -84 (OPC UA FX)",
+     "d": "Concetti, information model e connessioni, rete, ingegneria offline, profili."
+    },
+    {
+     "n": "IEC/IEEE 60802",
+     "d": "Profilo TSN per l'automazione industriale."
+    },
+    {
+     "n": "IEC 62541-15 (OPC 10000-15)",
+     "d": "OPC UA Safety."
+    }
+   ]
+  },
+  {
+   "id": "enip",
+   "name": "EtherNet/IP",
+   "color": "#d35400",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "Lo standard Ethernet industriale ODVA, tipico di Rockwell/Allen-Bradley.",
+    "p": "CIP (Common Industrial Protocol) su Ethernet/TCP/UDP: messaggistica esplicita (TCP 44818) e implicita I/O (UDP 2222)."
+   },
+   "analogy": "Come un'agenzia di corrieri: ogni dispositivo 'produce' dati e chi serve li 'consuma', con corrieri veloci (UDP) per i dati urgenti e raccomandate (TCP) per le richieste speciali.",
+   "card": {
+    "purpose": {
+     "b": "Collegare PLC, I/O, azionamenti e robot su rete Ethernet standard.",
+     "p": "Scambio I/O ciclico (implicit, class 1) e servizi espliciti (class 3/UCMM) basati su oggetti CIP; profili per motion, safety e sync."
+    },
+    "osi": {
+     "b": "Usa la rete IP standard e aggiunge CIP sopra.",
+     "p": "L5–L7 (CIP + Encapsulation) su TCP/UDP/IP; CIP Sync con IEEE 1588 PTP."
+    },
+    "medium": {
+     "b": "Cavo Ethernet (rame o fibra).",
+     "p": "Ethernet 10/100/1000, fibra; EtherNet/IP over APL in definizione."
+    },
+    "speed": "100 Mbit/s tipico, 1 Gbit/s",
+    "topology": {
+     "b": "Stella, linea o anello.",
+     "p": "Stella con switch (IGMP snooping per il multicast), linea (switch integrato), anello DLR (Device Level Ring) con recupero ordine di ms–decine di ms in base a implementazione."
+    },
+    "model": {
+     "b": "Produttore e consumatore di dati.",
+     "p": "Originator/Target con connessioni stabilite via Forward_Open; modello producer/consumer (multicast o unicast); anche client/server per messaggi espliciti."
+    },
+    "determinism": {
+     "b": "Buono, ma non garantito come EtherCAT.",
+     "p": "Soft real-time con QoS/DSCP e RPI; CIP Sync/CIP Motion portano la sincronizzazione (PTP) per il motion."
+    },
+    "cycle": {
+     "b": "Da pochi millisecondi.",
+     "p": "RPI tipico 2–100 ms; fino a ~1 ms o meno per I/O e motion su dispositivi e controllori dedicati (dipende dal prodotto)."
+    }
+   },
+   "pros": [
+    "Standard aperto ODVA, ampia base di prodotti",
+    "Usa Ethernet e IP standard",
+    "CIP Safety, CIP Motion, CIP Security",
+    "Integrazione IT semplice"
+   ],
+   "cons": [
+    "Determinismo dipendente dalla qualità della rete",
+    "Multicast richiede IGMP snooping",
+    "Ciclo minimo più alto di EtherCAT/IRT"
+   ],
+   "usecases": [
+    "Industria nordamericana, PLC Rockwell",
+    "Linee di produzione con I/O distribuito",
+    "Applicazioni miste I/O + motion"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ODVA: CIP (Vol. 1) + EtherNet/IP adaptation (Vol. 2); IEC 61158 type 2, IEC 61784-2 CPF 2"
+    ],
+    [
+     "Porte",
+     "TCP 44818 (esplicito), UDP 44818 (List Identity), UDP 2222 (I/O implicito)"
+    ],
+    [
+     "Encapsulation header",
+     "24 byte: Command, Length, Session Handle, Status, Sender Context, Options"
+    ],
+    [
+     "Servizi",
+     "RegisterSession 0x0065, SendRRData 0x006F, SendUnitData 0x0070, ListIdentity 0x0063"
+    ],
+    [
+     "Descrizione",
+     "EDS (testo)"
+    ]
+   ],
+   "notes": [
+    "Tempi ciclo, numero massimo di connessioni e prestazioni DLR dipendono dal prodotto; riferirsi ai dati del costruttore."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "soft",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "EtherNet/IP è come un'agenzia di corrieri: ogni dispositivo 'produce' dati con un ritmo concordato (RPI) e chi li serve li 'consuma'. Per le richieste speciali (configurazioni, diagnosi) si usa invece una 'raccomandata' (TCP).",
+     "È molto diffuso con i PLC Rockwell/Allen-Bradley, soprattutto in Nord America."
+    ],
+    "p": [
+     "EtherNet/IP usa l'encapsulation (TCP/UDP 44818) per sessioni e messaggi espliciti, e UDP 2222 per l'I/O implicito. La connessione si crea con Forward_Open (RPI O→T e T→O, dimensioni, trigger). I dati I/O portano Connection ID e Sequence Number.",
+     "Il multicast richiede IGMP snooping per non inondare la rete. CIP Sync usa IEEE 1588 per la sincronizzazione; CIP Motion, CIP Safety e CIP Security estendono il profilo. DLR permette il recupero ad anello con tempi che dipendono dai dispositivi."
+    ]
+   },
+   "example": {
+    "b": "Esempio: in uno stabilimento con PLC Logix, 40 moduli I/O e un azionamento, lo scanner apre una connessione con ognuno specificando un RPI di 10 ms (e 2 ms per l'azionamento). Per anelli ridondanti si usa un anello DLR con switch compatibili.",
+    "p": "Esempio: un adapter con RPI 5 ms e timeout multiplier ×4: se non arrivano frame per 20 ms la connessione cade e il PLC segnala la perdita del modulo; con un RPI più basso la rilevazione è più rapida ma il carico di rete cresce."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dati di I/O arrivano da soli a ritmo fisso; i messaggi speciali si chiedono a richiesta.",
+    "p": "Implicit: producer/consumer ciclico o COS non sollecitato (RPI); Explicit: request/response (Get_Attribute…)."
+   },
+   "osi": {
+    "own": [
+     5,
+     6,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "io",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Ethernet standard con connettori RJ45 o M12 D-coded; i dispositivi a due porte permettono linea e anello DLR."
+   },
+   "sources": [
+    {
+     "n": "ODVA – The CIP Networks Library, Vol. 1 e Vol. 2",
+     "d": "Common Industrial Protocol e suo adattamento a Ethernet (EtherNet/IP), compresi DLR e CIP Security."
+    },
+    {
+     "n": "IEC 61158 (Type 2) / IEC 61784-1, -2 (CPF 2)",
+     "d": "Versione normativa IEC della famiglia CIP."
+    }
+   ]
+  },
+  {
+   "id": "modbus",
+   "name": "Modbus TCP",
+   "color": "#16a085",
+   "family": "Protocollo applicativo su TCP/IP",
+   "tagline": {
+    "b": "Il protocollo più semplice e diffuso per leggere e scrivere valori in strumenti e PLC.",
+    "p": "Modbus Application Protocol su TCP/IP (porta 502) con header MBAP: function code e registri a 16 bit in modello client/server."
+   },
+   "analogy": "Come un armadietto con cassetti numerati: chiedi 'dammi il contenuto dei cassetti da 100 a 103' oppure 'metti 25 nel cassetto 200'. Il significato dei cassetti lo spiega il manuale del dispositivo.",
+   "card": {
+    "purpose": {
+     "b": "Leggere e scrivere valori (registri) di contatori, inverter, regolatori e PLC in modo semplicissimo.",
+     "p": "Accesso a coil e discrete input (1 bit) e input/holding register (16 bit) tramite function code; molto usato per contatori, inverter, sensori e gateway verso reti Modbus RTU."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra TCP/IP.",
+     "p": "L7 (Modbus Application Protocol) su TCP porta 502 con header MBAP; la variante seriale (RTU/ASCII) usa RS-232/RS-485."
+    },
+    "medium": {
+     "b": "Normale rete Ethernet.",
+     "p": "Ethernet 10/100/1000; la stessa semantica viaggia su RS-485 (Modbus RTU) tramite gateway."
+    },
+    "speed": "10/100/1000 Mbit/s (Ethernet); RTU tipico 9,6–115,2 kbit/s",
+    "topology": {
+     "b": "Qualsiasi rete Ethernet.",
+     "p": "Dipende dall'infrastruttura IP; i gateway usano l'Unit ID per instradare verso linee RTU (indirizzi 1–247, tipicamente 32 stazioni per segmento RS-485)."
+    },
+    "model": {
+     "b": "Un client chiede, il server risponde.",
+     "p": "Client/server (storicamente master/slave): una richiesta, una risposta; il Transaction ID permette più richieste in volo; PDU massimo 253 byte."
+    },
+    "determinism": {
+     "b": "No: nessuna garanzia sui tempi.",
+     "p": "Non deterministico (TCP); su reti dedicate è prevedibile in pratica ma senza garanzie."
+    },
+    "cycle": {
+     "b": "Nessun ciclo: il client interroga quando serve (polling).",
+     "p": "Polling del client; tipicamente 10–1000 ms per scansione, in funzione del numero di richieste e dispositivi."
+    }
+   },
+   "pros": [
+    "Semplicissimo e supportato da quasi ogni dispositivo",
+    "Specifica aperta, senza licenze",
+    "Facile da implementare e da diagnosticare",
+    "Gateway verso reti Modbus RTU esistenti"
+   ],
+   "cons": [
+    "Nessuna sicurezza nativa (Modbus/TCP Security con TLS è poco diffuso)",
+    "Solo polling: niente notifiche né sincronizzazione",
+    "Registri senza significato: la mappa dipende dal dispositivo",
+    "Nessun determinismo"
+   ],
+   "usecases": [
+    "Contatori di energia e analizzatori di rete",
+    "Inverter e regolatori di temperatura",
+    "Integrazione in SCADA e building automation"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "Modbus Application Protocol V1.1b3 e Modbus Messaging on TCP/IP Implementation Guide (Modbus Organization)"
+    ],
+    [
+     "Porta",
+     "TCP 502 (Modbus/TCP Security: 802)"
+    ],
+    [
+     "Header MBAP",
+     "Transaction ID 2 B, Protocol ID 2 B (=0), Length 2 B, Unit ID 1 B"
+    ],
+    [
+     "Function code",
+     "0x01 Read Coils, 0x02 Read Discrete Inputs, 0x03 Read Holding Registers, 0x04 Read Input Registers, 0x05/0x06 Write Single, 0x0F/0x10 Write Multiple"
+    ],
+    [
+     "Eccezioni",
+     "function code + 0x80 con codice 01 illegal function, 02 illegal data address, 03 illegal data value, 04 server failure"
+    ]
+   ],
+   "notes": [
+    "Numerazione dei registri (base 0 o base 1, es. 40001) e ordine di byte/word nei valori a 32 bit variano tra costruttori: verificare la mappa del dispositivo."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "Modbus TCP è il 'linguaggio di base' degli strumenti: quasi ogni contatore, inverter o regolatore lo parla. Il dispositivo ha una tabella di registri numerati e il client può leggerli o scriverli.",
+     "Non dice cosa rappresenta un registro: lo spiega solo il manuale. Per questo è facilissimo da usare ma poco 'intelligente'."
+    ],
+    "p": [
+     "Il modello dati è piatto: coil e discrete input a 1 bit, input e holding register a 16 bit. Ogni richiesta porta un function code e l'indirizzo di partenza; la risposta ripete il function code o, in caso di errore, lo restituisce con il bit alto (0x80 + FC) più un exception code.",
+     "Sul TCP l'header MBAP sostituisce l'indirizzo e il CRC del Modbus RTU: Transaction ID per accoppiare le risposte, Protocol ID a 0, Length e Unit ID, utile quando un gateway inoltra su RS-485."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un PC legge ogni secondo la potenza di un contatore di energia: 'dammi 2 registri a partire dal 3000'. I due registri formano un numero con la virgola, come spiegato nel manuale del contatore.",
+    "p": "Esempio: lettura di 2 holding register dall'indirizzo 3000 (FC 0x03) da un analizzatore di rete: i due registri a 16 bit formano un float a 32 bit; l'ordine delle word (big/little endian) va verificato sul manuale, altrimenti il valore risulta sbagliato."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il client chiede, il dispositivo risponde.",
+    "p": "Solo polling client→server; nessuna notifica. Su TCP i tempi non sono garantiti."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "meter",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Ethernet standard con RJ45 (porta TCP 502); un gateway collega le linee seriali Modbus RTU."
+   },
+   "sources": [
+    {
+     "n": "Modbus Organization – MODBUS Application Protocol Specification V1.1b3",
+     "d": "Function code, modello dati ed eccezioni."
+    },
+    {
+     "n": "Modbus Organization – MODBUS Messaging on TCP/IP Implementation Guide V1.0b",
+     "d": "Intestazione MBAP e uso di TCP."
+    }
+   ]
+  },
+  {
+   "id": "canopen",
+   "name": "CANopen",
+   "color": "#b7950b",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Il bus a due fili robusto di macchine, veicoli e dispositivi medicali.",
+    "p": "Livello applicativo CiA 301 su CAN (ISO 11898): Object Dictionary, PDO, SDO, NMT, SYNC, heartbeat e profili di dispositivo."
+   },
+   "analogy": "Una riunione dove tutti possono parlare ma, se due iniziano insieme, parla chi ha la voce più 'prioritaria' senza interrompere nessuno. Il bus è sempre in ascolto e i messaggi urgenti passano per primi.",
+   "card": {
+    "purpose": {
+     "b": "Collegare sensori, azionamenti e controllori su un bus semplice e molto robusto.",
+     "p": "Applicazione standard (CiA 301) sopra CAN: Object Dictionary, PDO per i dati di processo, SDO per i parametri, NMT per gli stati, SYNC/EMCY/heartbeat; profili CiA 401 (I/O) e 402 (azionamenti)."
+    },
+    "osi": {
+     "b": "Usa il bus CAN e aggiunge le regole applicative.",
+     "p": "L1/L2 da ISO 11898 (CAN), L7 CANopen (CiA 301); i livelli 3–6 non esistono."
+    },
+    "medium": {
+     "b": "Cavo a due fili intrecciati con resistenze ai due estremi.",
+     "p": "CAN differenziale CAN_H/CAN_L (ISO 11898-2), terminazione 120 Ω ai due estremi; connettori D-Sub 9, M12 e altri."
+    },
+    "speed": "10 kbit/s … 1 Mbit/s (CAN FD con CANopen FD: fase dati oltre 1 Mbit/s)",
+    "topology": {
+     "b": "Un bus a linea con terminatori.",
+     "p": "Bus lineare con derivazioni corte; lunghezza legata al bitrate (≈ 25 m a 1 Mbit/s, ≈ 500 m a 125 kbit/s, ≈ 5 km a 10 kbit/s); fino a 127 nodi (Node-ID 1–127)."
+    },
+    "model": {
+     "b": "Tutti possono parlare: vince il messaggio più importante.",
+     "p": "Multi-master con arbitraggio CSMA/CR sull'identificatore (ID più basso = priorità più alta). Producer/consumer per i PDO, client/server per gli SDO, master NMT per la gestione degli stati."
+    },
+    "determinism": {
+     "b": "Buono per i messaggi con priorità alta.",
+     "p": "Latenza limitata e calcolabile per ogni priorità (analisi di schedulabilità CAN); SYNC per i PDO sincroni. Non offre la sincronizzazione di EtherCAT o IRT."
+    },
+    "cycle": {
+     "b": "Da 1 a pochi millisecondi.",
+     "p": "SYNC tipico 1–10 ms; un frame da 8 byte a 1 Mbit/s dura ≈ 110–135 µs (con bit stuffing); il carico del bus limita il numero di PDO per ciclo."
+    }
+   },
+   "pros": [
+    "Molto robusto ai disturbi, ideale per macchine mobili",
+    "Cablaggio a bus semplice e componenti economici",
+    "Priorità dei messaggi e rilevazione errori integrata",
+    "Profili standard (CiA 402 per azionamenti)",
+    "Safety con CANopen Safety (EN 50325-5)"
+   ],
+   "cons": [
+    "Banda limitata e frame da 8 byte",
+    "Massimo 127 nodi, lunghezza ridotta alle alte velocità",
+    "Sincronizzazione meno precisa di EtherCAT o IRT",
+    "Object Dictionary e file EDS/DCF richiedono competenza"
+   ],
+   "usecases": [
+    "Macchine mobili e veicoli (agricoli, movimento terra)",
+    "Dispositivi medicali",
+    "Ascensori, imballaggio, robotica leggera"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "CiA 301 (CANopen), ISO 11898-1/-2 (CAN)"
+    ],
+    [
+     "COB-ID",
+     "11 bit: 4 bit function code + 7 bit Node-ID"
+    ],
+    [
+     "COB-ID principali",
+     "NMT 0x000, SYNC 0x080, EMCY 0x080+ID, TPDO1 0x180+ID, RPDO1 0x200+ID, SDO tx 0x580+ID, SDO rx 0x600+ID, Heartbeat 0x700+ID"
+    ],
+    [
+     "Object Dictionary",
+     "Indice 16 bit + sub-indice 8 bit (es. 0x1000 Device Type)"
+    ],
+    [
+     "Descrizione",
+     "EDS/DCF (testo)"
+    ]
+   ],
+   "notes": [
+    "Bitrate, lunghezze massime e supporto a CAN FD (CiA 1301) dipendono da cavo, transceiver e implementazione."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave",
+     "pub-sub"
+    ],
+    "mbps": 1
+   },
+   "story": {
+    "b": [
+     "CANopen nasce nelle automobili e nelle macchine mobili: ambienti con vibrazioni e disturbi dove il cavo deve funzionare sempre. Sullo stesso doppino tutti i nodi ascoltano tutto e prendono solo ciò che li riguarda.",
+     "Il 'direttore' (master NMT) accende i dispositivi e, se serve, scandisce il ritmo con un messaggio SYNC. Poi ogni nodo trasmette i suoi dati nei suoi messaggi (PDO)."
+    ],
+    "p": [
+     "Ogni nodo espone un Object Dictionary: gli SDO leggono e scrivono i parametri (client/server, lenti), i PDO trasportano i dati di processo in frame da max 8 byte (producer/consumer, veloci), l'NMT governa gli stati (pre-operational, operational, stopped).",
+     "L'identificatore a 11 bit combina function code e Node-ID: determina chi vince l'arbitraggio. Con SYNC, i PDO sincroni si campionano insieme; heartbeat o node guarding rilevano i nodi persi."
+    ]
+   },
+   "example": {
+    "b": "Esempio: su un escavatore, la pompa, il joystick e i sensori di posizione condividono un solo cavo a due fili. Il joystick manda i comandi con un messaggio prioritario e la pompa risponde con la pressione, anche in mezzo a polvere e vibrazioni.",
+    "p": "Esempio: 20 nodi a 250 kbit/s con SYNC a 5 ms: un frame da 8 byte dura ≈ 0,5 ms, quindi nel ciclo entrano al massimo una decina di PDO; il carico del bus (≈ 50 %) va calcolato per garantire le latenze dei messaggi a priorità più bassa."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I nodi inviano da soli i dati quando cambiano o al segnale SYNC; i parametri si chiedono a richiesta.",
+    "p": "PDO a evento/SYNC/cicli (non sollecitati) + heartbeat; SDO su richiesta; si sceglie il tipo di trasmissione per PDO."
+   },
+   "osi": {
+    "own": [
+     7
+    ],
+    "via": [
+     1,
+     2
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "drive",
+    "conn": "dsub9",
+    "cable": "#7d3c98",
+    "text": "Doppino schermato CAN_H/CAN_L con terminazioni da 120 Ω alle due estremità; connettore D-sub a 9 poli o M12 a 5 poli."
+   },
+   "sources": [
+    {
+     "n": "ISO 11898-1, ISO 11898-2",
+     "d": "CAN: data link e livello fisico ad alta velocità."
+    },
+    {
+     "n": "CiA 301 (EN 50325-4)",
+     "d": "Livello applicativo e profilo di comunicazione CANopen."
+    },
+    {
+     "n": "CiA 303-1",
+     "d": "Cablaggio e connettori."
+    }
+   ]
+  },
+  {
+   "id": "iolink",
+   "name": "IO-Link",
+   "color": "#27ae60",
+   "family": "Interfaccia sensori punto-punto",
+   "tagline": {
+    "b": "Il collegamento 'intelligente' per sensori e attuatori semplici, con parametri da remoto.",
+    "p": "Interfaccia punto-punto IEC 61131-9 (SDCI) tra IO-Link Master e Device, con dati di processo ciclici e parametri/diagnostica aciclici."
+   },
+   "analogy": "Come un cavetto USB per sensori: colleghi il sensore, il master lo riconosce, ne legge la 'scheda' e può regolarlo o sostituirlo con le stesse impostazioni.",
+   "card": {
+    "purpose": {
+     "b": "Collegare sensori e attuatori semplici all'automazione e configurarli da remoto.",
+     "p": "Interfaccia punto-punto (IEC 61131-9, SDCI): dati di processo ciclici, parametri e diagnostica aciclici (ISDU), eventi; il master si integra in un fieldbus superiore."
+    },
+    "osi": {
+     "b": "Definisce cavo, segnali e dati tra master e dispositivo.",
+     "p": "L1 (24 V, linea C/Q, COM1/2/3), L2 (M-sequence), L7 (process data, ISDU, eventi). Non usa IP; il master è il gateway verso PROFINET, EtherCAT e altri."
+    },
+    "medium": {
+     "b": "Cavo a 3 o 5 fili non schermato con connettore M12 o M8.",
+     "p": "3 fili (L+, L−, C/Q), fino a 20 m, non schermato, connettori M12/M8; port class A (3 pin) e B (alimentazione ausiliaria)."
+    },
+    "speed": "COM1 4,8 kbit/s; COM2 38,4 kbit/s; COM3 230,4 kbit/s",
+    "topology": {
+     "b": "Punto-punto: un cavo per ogni dispositivo, a stella dal master.",
+     "p": "Un solo device per porta del master (tipicamente 4–8 porte); i master si collegano al fieldbus con la sua topologia (linea, stella, anello)."
+    },
+    "model": {
+     "b": "Il master interroga il dispositivo.",
+     "p": "Master/device: il master apre ogni scambio e il device risponde nella stessa M-sequence."
+    },
+    "determinism": {
+     "b": "Sì: il ciclo è fisso per ogni porta.",
+     "p": "Ciclo per porta deterministico (min cycle time dichiarato dal device nell'IODD); la latenza complessiva dipende dal fieldbus e dal ciclo del master."
+    },
+    "cycle": {
+     "b": "Da frazioni di millisecondo a qualche ms.",
+     "p": "Min cycle time da 400 µs (COM3) a 132,8 ms; tipico 2–5 ms secondo device e quantità di dati."
+    }
+   },
+   "pros": [
+    "Parametrizzazione e sostituzione automatica del sensore (Data Storage)",
+    "Cablaggio standard economico, non schermato",
+    "Diagnostica fino all'ultimo sensore",
+    "Descrizione dei dispositivi con file IODD",
+    "Indipendente dal fieldbus a monte"
+   ],
+   "cons": [
+    "Solo punto-punto: serve un master ogni 4–8 dispositivi",
+    "Lunghezza massima 20 m",
+    "Dati di processo limitati (fino a 32 byte per direzione)",
+    "Non è un bus a sé: richiede un fieldbus superiore"
+   ],
+   "usecases": [
+    "Sensori di prossimità, fotocellule, sensori di pressione smart",
+    "Isole di valvole e attuatori semplici",
+    "Cambio formato e riconfigurazione da remoto"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 61131-9 (SDCI), IO-Link Community"
+    ],
+    [
+     "Velocità",
+     "COM1 4,8 / COM2 38,4 / COM3 230,4 kbit/s"
+    ],
+    [
+     "Messaggio",
+     "M-sequence: master (MC, CKT, PDout, OD) → device (PDin, OD, CKS)"
+    ],
+    [
+     "Descrizione",
+     "IODD (XML)"
+    ],
+    [
+     "Avvio",
+     "Wake-up del master → Startup → Preoperate → Operate"
+    ]
+   ],
+   "notes": [
+    "Le versioni V1.0 e V1.1 differiscono (Data Storage, ISDU estesi): verificare la compatibilità master/device. IO-Link Safety e IO-Link Wireless sono estensioni con requisiti propri."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "star"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 0.2304
+   },
+   "story": {
+    "b": [
+     "IO-Link porta l'intelligenza fino all'ultimo sensore: ogni sensore ha un cavo dedicato verso un modulo (il master) e può comunicare non solo 'acceso/spento', ma anche valore, stato e parametri.",
+     "Quando un sensore si rompe, lo sostituisci e il master gli riscrive le impostazioni del vecchio: niente più tarature a mano."
+    ],
+    "p": [
+     "Il master avvia la comunicazione con un impulso di wake-up, legge identificazione e parametri (ISDU) in Preoperate e poi passa in Operate: da lì scambia process data a ciclo fisso con ogni device, con on-request data in coda alla stessa M-sequence.",
+     "Il master è un gateway: raccoglie i process data delle sue porte e li espone al PLC tramite PROFINET, EtherCAT, EtherNet/IP o altri fieldbus. I device si descrivono con file IODD."
+    ]
+   },
+   "example": {
+    "b": "Esempio: una macchina ha 8 sensori di prossimità su un modulo IO-Link collegato in rete al PLC. Dal PLC cambi la distanza di intervento di un sensore e, se uno si guasta, il nuovo sensore riceve subito le stesse impostazioni.",
+    "p": "Esempio: a COM2 (38,4 kbit/s) con 2 byte di process data in e out, il ciclo minimo è dell'ordine di 2–3 ms; i parametri ISDU (es. soglia di commutazione) viaggiano a richiesta, senza fermare lo scambio ciclico."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga il sensore a ciclo fisso.",
+    "p": "Ciclo del master per porta (M-sequence); gli eventi del device sono segnalati con un flag e letti dal master."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
+   },
+   "illus": {
+    "left": "io",
+    "right": "sensor",
+    "conn": "m12",
+    "cable": "#2c3e50",
+    "text": "Cavo standard non schermato a 3 fili con connettore M12 (o M8); fino a 20 m tra master e dispositivo."
+   },
+   "sources": [
+    {
+     "n": "IEC 61131-9",
+     "d": "Interfaccia SDCI (IO-Link)."
+    },
+    {
+     "n": "IO-Link Community – IO-Link Interface and System Specification V1.1.x",
+     "d": "Specifica completa di master e device."
+    }
+   ]
+  },
+  {
+   "id": "modbusrtu",
+   "name": "Modbus RTU",
+   "color": "#138d75",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Il Modbus 'classico' su cavo RS-485: un master interroga fino a decine di slave.",
+    "p": "Modbus seriale (RTU) su RS-485/RS-232: master/slave con frame delimitati dal silenzio di 3,5 caratteri e CRC-16."
+   },
+   "analogy": "Come un insegnante che chiama gli studenti per numero di registro: uno alla volta risponde, gli altri ascoltano in silenzio.",
+   "card": {
+    "purpose": {
+     "b": "Leggere e scrivere registri di strumenti, inverter e contatori su un semplice bus seriale.",
+     "p": "Stesso modello dati di Modbus TCP (coil, discrete input, registri a 16 bit) su linea seriale, con indirizzo di slave 1–247."
+    },
+    "osi": {
+     "b": "Definisce dati e regole di dialogo; il cavo è RS-485.",
+     "p": "L7 (Modbus Application Protocol) + L2 (framing RTU/CRC); L1 RS-485 o RS-232. Nessun L3–L6."
+    },
+    "medium": {
+     "b": "Cavo a due fili (RS-485) o RS-232.",
+     "p": "RS-485 a 2 fili half-duplex (o 4 fili), terminazione 120 Ω ai due estremi; RS-232 solo punto-punto."
+    },
+    "speed": "9,6 … 115,2 kbit/s tipico (19,2 kbit/s è il valore di default richiesto dalla specifica)",
+    "topology": {
+     "b": "Un bus: tutti gli strumenti sullo stesso cavo.",
+     "p": "Bus lineare; fino a 32 carichi per segmento RS-485 senza ripetitori; indirizzi 1–247 (0 = broadcast); lunghezza tipica fino a 1200 m."
+    },
+    "model": {
+     "b": "Un master chiede, uno slave risponde.",
+     "p": "Master/slave: solo il master inizia lo scambio; il broadcast (indirizzo 0) non ha risposta; timeout di risposta gestito dal master."
+    },
+    "determinism": {
+     "b": "Prevedibile in pratica, ma non garantito.",
+     "p": "Il protocollo non garantisce tempi; il ciclo di polling è calcolabile da baud rate, numero di slave e lunghezza dei dati."
+    },
+    "cycle": {
+     "b": "Da decine a centinaia di millisecondi.",
+     "p": "Un frame da 8 byte a 19,2 kbit/s richiede ≈ 5–6 ms (11 bit per carattere); un polling di 20 slave supera facilmente i 100 ms."
+    }
+   },
+   "pros": [
+    "Semplicissimo ed economico",
+    "Cablaggio RS-485 su lunghe distanze",
+    "Supportato da moltissimi strumenti",
+    "Specifica aperta"
+   ],
+   "cons": [
+    "Lento, solo polling",
+    "Nessuna sicurezza",
+    "Un solo master",
+    "Massimo 247 indirizzi, 32 stazioni per segmento"
+   ],
+   "usecases": [
+    "Contatori di energia e analizzatori",
+    "Inverter e regolatori",
+    "Retrofit di impianti con cablaggio RS-485"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "Modbus over Serial Line V1.02 (Modbus Organization)"
+    ],
+    [
+     "Frame RTU",
+     "Address 1 B | Function 1 B | Data n B | CRC-16 2 B (low byte first)"
+    ],
+    [
+     "Delimitazione",
+     "Silenzio ≥ 3,5 tempi di carattere tra i frame, max 1,5 tra i caratteri"
+    ],
+    [
+     "Carattere",
+     "11 bit: start, 8 dati, parità pari (o 2 stop senza parità), stop"
+    ],
+    [
+     "Dimensione",
+     "ADU massima 256 byte"
+    ]
+   ],
+   "notes": [
+    "Parità, bit di stop e baud rate vanno impostati identici su tutti i dispositivi; molti strumenti accettano impostazioni non standard."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "none",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 0.1152
+   },
+   "story": {
+    "b": [
+     "Modbus RTU è il Modbus di una volta: un doppino RS-485 percorre il quadro e il master chiede a ogni strumento (numerato da 1) i suoi registri.",
+     "Per sapere dove finisce un messaggio non c'è un carattere di fine: basta un breve silenzio sul cavo. Per questo i tempi tra i caratteri contano."
+    ],
+    "p": [
+     "Il frame RTU è compatto: indirizzo, function code, dati e CRC-16 (polinomio 0xA001, byte basso per primo). La fine del frame si riconosce dal silenzio di almeno 3,5 caratteri.",
+     "La stessa PDU di Modbus TCP viaggia dentro: per questo i gateway TCP↔RTU sono comuni, usando l'Unit ID come indirizzo di slave."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un quadro con 12 contatori d'energia collegati con un cavo a due fili. Il PC li interroga uno per volta ogni minuto e salva i consumi.",
+    "p": "Esempio: 12 slave, richiesta 8 byte + risposta 9 byte a 19,2 kbit/s: ≈ (8+9)×11/19200 ≈ 9,7 ms più il tempo di risposta di ogni slave: un giro completo supera i 150 ms."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga gli strumenti uno per uno.",
+    "p": "Polling master→slave su RS-485; nessun messaggio spontaneo dello slave."
+   },
+   "osi": {
+    "own": [
+     2,
+     7
+    ],
+    "via": [
+     1
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "meter",
+    "conn": "terminal",
+    "cable": "#7f8c8d",
+    "wire": "pair",
+    "text": "Doppino schermato RS-485 su morsetti a vite (o D-sub), con terminazione da 120 Ω alle due estremità della linea."
+   },
+   "sources": [
+    {
+     "n": "Modbus Organization – MODBUS Application Protocol Specification V1.1b3",
+     "d": "Function code, modello dati ed eccezioni."
+    },
+    {
+     "n": "Modbus Organization – MODBUS over Serial Line V1.02",
+     "d": "Framing RTU e ASCII, CRC, tempi di silenzio, cablaggio RS-485."
+    },
+    {
+     "n": "TIA/EIA-485-A",
+     "d": "Livello fisico RS-485."
+    }
+   ]
+  },
+  {
+   "id": "asi",
+   "name": "AS-Interface",
+   "color": "#d4ac0d",
+   "family": "Bus di campo seriale",
+   "tagline": {
+    "b": "Un solo cavo giallo che porta alimentazione e dati a sensori e attuatori semplici.",
+    "p": "AS-i (IEC 62026-2): bus a due fili non schermato con alimentazione e dati, master/slave ciclico con slave da 4 bit."
+   },
+   "analogy": "Come una prolunga con le prese: il cavo giallo porta energia e informazioni, e basta 'pungere' il cavo per attaccare un sensore.",
+   "card": {
+    "purpose": {
+     "b": "Collegare sensori e attuatori semplici (finecorsa, pulsanti, elettrovalvole) con un solo cavo.",
+     "p": "Livello sensori/attuatori: ogni slave scambia pochi bit (4 bit in/out nelle versioni classiche); il gateway lo porta a PROFINET, PROFIBUS e altri."
+    },
+    "osi": {
+     "b": "Definisce cavo, segnali e dati.",
+     "p": "L1/L2 (modulazione APM, polling ciclico), applicazione minimale; nessun IP."
+    },
+    "medium": {
+     "b": "Cavo giallo piatto a due fili, non schermato, che porta anche l'alimentazione.",
+     "p": "Cavo a profilo piatto con connessione a perforazione; 24–31 V (circa 30 V) su dati e alimentazione; lunghezza 100 m, estendibile con repeater/extender."
+    },
+    "speed": "≈ 167 kbit/s (AS-i 2/3); ASi-5 offre velocità superiori",
+    "topology": {
+     "b": "Libera: linea, stella o albero.",
+     "p": "Topologia libera senza terminazioni: linea, stella, albero; fino a 31 slave (v2.0) o 62 slave A/B (v2.1 e successive) per master."
+    },
+    "model": {
+     "b": "Un master interroga gli slave a turno.",
+     "p": "Master/slave con polling ciclico: master call a 14 bit, slave response a 7 bit."
+    },
+    "determinism": {
+     "b": "Sì: il ciclo è fisso.",
+     "p": "Deterministico: il ciclo dipende solo dal numero di slave."
+    },
+    "cycle": {
+     "b": "Pochi millisecondi.",
+     "p": "≈ 5 ms con 31 slave (v2.0), ≈ 10 ms con 62 slave A/B (v2.1); le versioni più recenti variano."
+    }
+   },
+   "pros": [
+    "Un solo cavo per alimentazione e dati",
+    "Installazione rapidissima (perforazione)",
+    "Topologia libera",
+    "Ciclo deterministico",
+    "Sicurezza ASIsafe"
+   ],
+   "cons": [
+    "Pochi dati per slave (4 bit nelle versioni classiche)",
+    "Un solo master per rete, 100 m di cavo",
+    "Potenza di alimentazione limitata"
+   ],
+   "usecases": [
+    "Nastri trasportatori e logistica",
+    "Sensori e valvole in quadri e macchine",
+    "Interfaccia verso PLC tramite gateway"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "IEC 62026-2 / EN 50295; AS-International Association"
+    ],
+    [
+     "Master call",
+     "14 bit: ST, SB, A4–A0, I4–I0, PB, EB"
+    ],
+    [
+     "Slave response",
+     "7 bit: ST, I3–I0, PB, EB"
+    ],
+    [
+     "Cavo",
+     "Giallo (dati + potenza); nero per potenza ausiliaria a 24 V"
+    ],
+    [
+     "Slave",
+     "Indirizzi 1–31, versione A/B per 62 slave"
+    ]
+   ],
+   "notes": [
+    "Capacità (numero di slave, dati per slave, ciclo) dipendono dalla specifica (v2.0, v2.1, v3.0, ASi-5) e dal master."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "det",
+    "topo": [
+     "bus",
+     "line",
+     "star",
+     "tree"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 0.167
+   },
+   "story": {
+    "b": [
+     "AS-Interface è il bus più semplice per i sensori sulle macchine: un cavo giallo piatto porta insieme energia e dati e i moduli si agganciano ovunque, perforando il cavo.",
+     "Ogni slave dà pochi bit (acceso/spento, quattro ingressi o uscite). Il master li interroga uno dopo l'altro: il giro completo è sempre uguale."
+    ],
+    "p": [
+     "Il master invia una call a 14 bit con indirizzo e dati; lo slave risponde con 7 bit. La codifica APM garantisce l'alimentazione continua sul cavo, e il ciclo è fisso: 5 ms per 31 slave.",
+     "Il gateway AS-i verso PROFINET o PROFIBUS espone i bit degli slave nell'immagine di processo del PLC. Sicurezza funzionale con ASIsafe sullo stesso cavo."
+    ]
+   },
+   "example": {
+    "b": "Esempio: su un nastro trasportatore, 20 sensori di presenza e 10 elettrovalvole sono agganciati allo stesso cavo giallo: niente quadri intermedi né cablaggio punto-punto.",
+    "p": "Esempio: 31 slave con ciclo di 5 ms: ogni master call dura ≈ 14 bit a 167 kbit/s ≈ 84 µs più pausa e risposta, quindi ≈ 150 µs per slave, circa 5 ms per l'intero giro."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "Il master interroga ogni slave a turno.",
+    "p": "Polling ciclico con master call a 14 bit; ciclo fisso (5 ms con 31 slave)."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
+   },
+   "illus": {
+    "left": "plc",
+    "right": "sensor",
+    "conn": "asi",
+    "cable": "#f1c40f",
+    "wire": "flat",
+    "text": "Cavo piatto giallo a due fili per dati e alimentazione (≈ 30 V): i moduli si collegano a perforazione d'isolante, senza tagliare il cavo."
+   },
+   "sources": [
+    {
+     "n": "IEC 62026-2",
+     "d": "Actuator Sensor Interface (AS-i)."
+    },
+    {
+     "n": "EN 50295",
+     "d": "Norma europea corrispondente."
+    }
+   ]
+  },
+  {
+   "id": "bacnet",
+   "name": "BACnet/IP",
+   "color": "#34495e",
+   "family": "Automazione edifici",
+   "tagline": {
+    "b": "Il protocollo standard per riscaldamento, condizionamento e impianti degli edifici.",
+    "p": "BACnet (ISO 16484-5 / ASHRAE 135) su UDP/IP porta 47808 (0xBAC0): oggetti e proprietà, servizi come ReadProperty e SubscribeCOV."
+   },
+   "analogy": "Come un registro dei dispositivi dell'edificio: ognuno ha una scheda con il suo valore, e puoi chiedergli di avvisarti quando cambia.",
+   "card": {
+    "purpose": {
+     "b": "Far dialogare termostati, centraline, sensori e sistemi di supervisione di un edificio.",
+     "p": "Modello a oggetti (Analog Input, Binary Output, Schedule…) con proprietà (Present_Value, Status_Flags) e servizi di lettura, scrittura, allarmi e sottoscrizione COV."
+    },
+    "osi": {
+     "b": "Livello applicativo su rete IP.",
+     "p": "L7 (BACnet APDU) con NPDU di rete e BVLC su UDP/IP; esistono anche BACnet MS/TP (RS-485) e BACnet/SC."
+    },
+    "medium": {
+     "b": "Rete Ethernet normale.",
+     "p": "Ethernet/IP; MS/TP su RS-485 per i dispositivi di campo; BACnet/SC su TLS e WebSocket."
+    },
+    "speed": "10/100/1000 Mbit/s (IP); MS/TP 9,6–115,2 kbit/s",
+    "topology": {
+     "b": "Qualsiasi rete IP.",
+     "p": "Reti IP con router e BBMD (BACnet Broadcast Management Device) per il broadcast tra sottoreti."
+    },
+    "model": {
+     "b": "Dispositivi paritari che si interrogano e si avvisano.",
+     "p": "Peer-to-peer con client/server; sottoscrizioni COV per gli aggiornamenti on-change; Who-Is/I-Am per il discovery."
+    },
+    "determinism": {
+     "b": "No: pensato per l'edificio, non per il tempo reale.",
+     "p": "Non deterministico (UDP/IP)."
+    },
+    "cycle": {
+     "b": "Secondi o frazioni di secondo.",
+     "p": "Tipicamente 100 ms–secondi; COV riduce il polling."
+    }
+   },
+   "pros": [
+    "Standard internazionale per l'automazione di edifici",
+    "Modello dati con oggetti standard",
+    "Discovery automatico (Who-Is)",
+    "Sicurezza con BACnet/SC"
+   ],
+   "cons": [
+    "Non adatto al tempo reale",
+    "Il broadcast richiede BBMD tra sottoreti",
+    "Implementazioni con funzioni (BIBB) diverse tra costruttori"
+   ],
+   "usecases": [
+    "HVAC e climatizzazione",
+    "Illuminazione e controllo accessi",
+    "Supervisione di edifici (BMS)"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ISO 16484-5, ASHRAE 135"
+    ],
+    [
+     "Porta",
+     "UDP 47808 (0xBAC0)"
+    ],
+    [
+     "Header BVLC",
+     "Type 0x81 | Function (0x0A unicast, 0x0B broadcast) | Length"
+    ],
+    [
+     "Servizi",
+     "Who-Is, I-Am, ReadProperty (12), WriteProperty (15), SubscribeCOV (5)"
+    ],
+    [
+     "Proprietà tipica",
+     "Present_Value (85)"
+    ]
+   ],
+   "notes": [
+    "Le funzioni supportate da ogni dispositivo sono dichiarate nel PICS (Protocol Implementation Conformance Statement) e nei BIBB."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "none",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "client-server",
+     "pub-sub"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "BACnet è il linguaggio degli impianti degli edifici. Ogni dispositivo si presenta come un insieme di oggetti: 'Temperatura sala 1', 'Valvola riscaldamento'.",
+     "Un sistema di supervisione chiede il valore corrente oppure si iscrive per ricevere un avviso quando cambia."
+    ],
+    "p": [
+     "I dispositivi sono identificati da Device Instance; gli oggetti da tipo + istanza. ReadProperty usa il Present_Value (property 85); SubscribeCOV invia notifiche quando il valore cambia oltre un incremento.",
+     "Su reti IP il discovery usa Who-Is in broadcast, spesso inoltrato da un BBMD. BACnet/SC sostituisce UDP con connessioni TLS sicure."
+    ]
+   },
+   "example": {
+    "b": "Esempio: il sistema dell'edificio chiede a una centralina 'quanto vale la temperatura sala riunioni?' e si iscrive per essere avvisato se supera 26 °C.",
+    "p": "Esempio: SubscribeCOV per AnalogInput 3 con COV increment 0,5 °C e lifetime 300 s: il dispositivo notifica solo variazioni significative e la sottoscrizione va rinnovata."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Si può leggere a richiesta oppure chiedere di essere avvisati se cambia.",
+    "p": "ReadProperty su richiesta o SubscribeCOV (notifiche on-change con incremento)."
+   },
+   "osi": {
+    "own": [
+     3,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     4
+    ]
+   },
+   "illus": {
+    "left": "pc",
+    "right": "hvac",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "Rete Ethernet/IP dell'edificio (porta UDP 47808); BACnet MS/TP usa invece un doppino RS-485."
+   },
+   "sources": [
+    {
+     "n": "ANSI/ASHRAE Standard 135 (ISO 16484-5)",
+     "d": "BACnet: oggetti e servizi; Annex J per BACnet/IP, Annex AB per BACnet/SC."
+    }
+   ]
+  },
+  {
+   "id": "knx",
+   "name": "KNX",
+   "color": "#1a5276",
+   "family": "Automazione edifici",
+   "tagline": {
+    "b": "Il bus per luci, tapparelle e clima negli edifici, anche su un semplice doppino.",
+    "p": "KNX (ISO/IEC 14543-3, EN 50090): bus di campo per l'edificio su doppino TP1 a 9600 bit/s, anche su IP, RF e powerline."
+   },
+   "analogy": "Un citofono condominiale: premi un tasto e il messaggio arriva a tutti quelli iscritti a quel 'gruppo', senza bisogno di un capo.",
+   "card": {
+    "purpose": {
+     "b": "Controllare luci, tapparelle, riscaldamento e accessi in un edificio.",
+     "p": "Telegrammi event-driven indirizzati a group address; configurazione con ETS; profili funzionali (Datapoint Types)."
+    },
+    "osi": {
+     "b": "Definisce cavo, accesso e comandi.",
+     "p": "L1/L2 (TP1 CSMA/CA, telegramma), L3 (routing), L7 (APCI): stack completo KNX; KNX IP su UDP 3671."
+    },
+    "medium": {
+     "b": "Doppino intrecciato che porta anche alimentazione (29 V).",
+     "p": "TP1 (twisted pair a 9600 bit/s con alimentazione bus), PL110 (powerline), RF, KNX IP."
+    },
+    "speed": "9,6 kbit/s (TP1); IP 10/100 Mbit/s",
+    "topology": {
+     "b": "Linee collegate a gerarchia (aree e linee).",
+     "p": "Linea fino a 64 dispositivi per segmento, accoppiatori di linea/area; topologia ad albero senza anelli."
+    },
+    "model": {
+     "b": "I dispositivi scrivono su 'gruppi' e chi è iscritto riceve.",
+     "p": "Group addressing: ogni telegramma ha un group address (es. 1/1/1); i dispositivi con quell'indirizzo reagiscono (publish/subscribe)."
+    },
+    "determinism": {
+     "b": "No: accesso al bus a priorità.",
+     "p": "CSMA/CA non distruttivo con priorità; latenza non garantita."
+    },
+    "cycle": {
+     "b": "Decine di millisecondi per telegramma.",
+     "p": "Un telegramma da 14 byte a 9600 bit/s dura ≈ 25–30 ms; il traffico è guidato dagli eventi, non ciclico."
+    }
+   },
+   "pros": [
+    "Standard mondiale per edifici",
+    "Cavo unico con alimentazione",
+    "Interoperabilità certificata tra costruttori",
+    "Configurazione ETS"
+   ],
+   "cons": [
+    "Banda molto bassa",
+    "Non adatto a processi veloci",
+    "Topologia ad albero con limiti"
+   ],
+   "usecases": [
+    "Domotica e smart building",
+    "Illuminazione e tapparelle",
+    "Clima e sicurezza degli edifici"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ISO/IEC 14543-3, EN 50090, EN 13321-1"
+    ],
+    [
+     "Telegramma TP1",
+     "Control 1 B | Source 2 B | Destination 2 B | Address type + hop + length 1 B | TPCI/APCI 2 B | Dati 0–14 B | Checksum 1 B"
+    ],
+    [
+     "Indirizzi",
+     "Individuale (area.linea.dispositivo) e di gruppo (es. 1/1/1)"
+    ],
+    [
+     "Servizi",
+     "GroupValue_Read, GroupValue_Response (0x40), GroupValue_Write (0x80)"
+    ],
+    [
+     "KNX IP",
+     "UDP 3671, multicast 224.0.23.12"
+    ]
+   ],
+   "notes": [
+    "Le prestazioni dipendono dal mezzo (TP, PL, RF, IP); i limiti di dispositivi per linea dipendono da alimentatori e repeater."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "none",
+    "topo": [
+     "bus",
+     "line",
+     "tree"
+    ],
+    "model": [
+     "pub-sub"
+    ],
+    "mbps": 0.0096
+   },
+   "story": {
+    "b": [
+     "In KNX non c'è un capo: l'interruttore manda un messaggio a un 'gruppo' e tutte le lampade iscritte a quel gruppo si accendono. È come un annuncio in un auditorium.",
+     "Il cavo verde del bus porta anche l'alimentazione ai moduli. Non serve configurarli uno per uno a mano: lo fa ETS."
+    ],
+    "p": [
+     "Il telegramma TP1 contiene indirizzo individuale sorgente, group address di destinazione, APCI (GroupValue_Write 0x80) e dati fino a 14 byte, con checksum. L'accesso è CSMA/CA con priorità non distruttiva.",
+     "La topologia è gerarchica: dispositivi in linee, linee in aree, collegate da accoppiatori che filtrano i telegrammi per group address."
+    ]
+   },
+   "example": {
+    "b": "Esempio: premi l'interruttore del corridoio: invia 'ON' al gruppo 1/1/1; le due lampade e il sensore di presenza iscritti a quel gruppo reagiscono insieme.",
+    "p": "Esempio: GroupValue_Write ON (1 bit) su 1/1/1 da 1.1.5: l'attuatore 1.1.12 conferma con ACK L2; se serve, GroupValue_Read riceve una GroupValue_Response con lo stato."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "I dispositivi inviano da soli quando succede qualcosa; si può chiedere lo stato.",
+    "p": "Telegrammi event-driven a group address (non sollecitati) + GroupValue_Read/Response su richiesta."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     3,
+     4,
+     7
+    ],
+    "via": []
+   },
+   "illus": {
+    "left": "button",
+    "right": "lamp",
+    "conn": "knx",
+    "cable": "#27ae60",
+    "wire": "pair",
+    "text": "Cavo bus verde a doppino (TP1) con morsetto rosso/nero: porta dati e alimentazione a circa 30 V."
+   },
+   "sources": [
+    {
+     "n": "ISO/IEC 14543-3, EN 50090",
+     "d": "Norme internazionali ed europee su KNX."
+    },
+    {
+     "n": "KNX Association – KNX Standard",
+     "d": "Specifica completa: mezzi trasmissivi, telegrammi, interworking."
+    }
+   ]
+  },
+  {
+   "id": "hart",
+   "name": "HART",
+   "color": "#a04000",
+   "family": "Interfaccia strumenti di processo",
+   "tagline": {
+    "b": "Il segnale digitale che viaggia sopra il classico anello analogico 4–20 mA.",
+    "p": "HART (IEC 61158 type 20): FSK a 1200 bit/s sovrapposto al segnale 4–20 mA, master/slave; HART-IP e WirelessHART nelle versioni recenti."
+   },
+   "analogy": "Una conversazione sussurrata sopra la musica: la musica (4–20 mA) continua, e a bassa voce (HART) due strumenti si scambiano informazioni.",
+   "card": {
+    "purpose": {
+     "b": "Leggere variabili, diagnostica e parametri di strumenti di campo sullo stesso cavo del segnale analogico.",
+     "p": "Configurazione e diagnostica di trasmettitori e valvole; comandi universali (0–3), di pratica comune e specifici del dispositivo."
+    },
+    "osi": {
+     "b": "Definisce segnali e messaggi.",
+     "p": "L1 (FSK Bell 202), L2 (frame con preambolo e checksum), L7 (comandi); HART-IP su TCP/UDP 5094."
+    },
+    "medium": {
+     "b": "Il normale cavo a due fili dell'anello 4–20 mA.",
+     "p": "Doppino 4–20 mA con modulazione FSK ±0,5 mA a 1200/2200 Hz; WirelessHART su IEEE 802.15.4."
+    },
+    "speed": "1200 bit/s (FSK); WirelessHART 250 kbit/s",
+    "topology": {
+     "b": "Punto-punto o multidrop sullo stesso cavo.",
+     "p": "Point-to-point (con 4–20 mA) o multidrop (corrente fissa a 4 mA, fino a 63 strumenti nelle versioni recenti)."
+    },
+    "model": {
+     "b": "Un master chiede, lo strumento risponde.",
+     "p": "Master/slave con fino a 2 master (primario e secondario)."
+    },
+    "determinism": {
+     "b": "No: è lento e non pensato per il tempo reale.",
+     "p": "Non deterministico; il segnale analogico 4–20 mA resta però continuo."
+    },
+    "cycle": {
+     "b": "Circa due-tre risposte al secondo.",
+     "p": "≈ 2–3 transazioni al secondo in point-to-point; molto più lento in multidrop."
+    }
+   },
+   "pros": [
+    "Riusa i cavi 4–20 mA esistenti",
+    "Diagnostica e parametri senza cambiare il cablaggio",
+    "Standard universale degli strumenti di processo",
+    "Ibrido analogico/digitale"
+   ],
+   "cons": [
+    "Molto lento",
+    "Larghezza di banda minima",
+    "Nessuna sicurezza nativa",
+    "Compatibilità tra versioni HART 5/6/7"
+   ],
+   "usecases": [
+    "Trasmettitori di pressione, temperatura, portata",
+    "Posizionatori per valvole",
+    "Gestione degli asset in impianti di processo"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "HART Communication Foundation (FieldComm Group); IEC 61158 type 20"
+    ],
+    [
+     "Modulazione",
+     "FSK Bell 202: 1200 Hz = 1, 2200 Hz = 0"
+    ],
+    [
+     "Frame",
+     "Preambolo 5–20 × 0xFF | Delimitatore (0x02 master→slave, 0x06 slave→master) | Indirizzo | Comando | Byte count | [Response code] | Dati | Checksum"
+    ],
+    [
+     "Comandi universali",
+     "0 identità, 1 variabile primaria, 2 corrente e % del range, 3 variabili dinamiche"
+    ],
+    [
+     "HART-IP",
+     "TCP/UDP 5094"
+    ]
+   ],
+   "notes": [
+    "Numero massimo di dispositivi in multidrop e funzioni disponibili dipendono dalla revisione HART (5, 6, 7) e dal dispositivo."
+   ],
+   "attrs": {
+    "ethernet": false,
+    "rt": "none",
+    "topo": [
+     "bus",
+     "line"
+    ],
+    "model": [
+     "master-slave"
+    ],
+    "mbps": 0.0012
+   },
+   "story": {
+    "b": [
+     "In molti impianti i trasmettitori comunicano con un segnale analogico 4–20 mA. HART aggiunge, sullo stesso cavo, una conversazione digitale: puoi leggere il tag dello strumento, la diagnostica e cambiare il campo di misura.",
+     "Il vantaggio principale è non cambiare il cablaggio esistente."
+    ],
+    "p": [
+     "La modulazione FSK ±0,5 mA ha media nulla, quindi non disturba il valore analogico. Il master invia un comando (es. 0 per l'identità) e lo strumento risponde con response code e dati.",
+     "In multidrop la corrente è fissa a 4 mA e gli strumenti si distinguono per l'indirizzo di polling (0–63)."
+    ]
+   },
+   "example": {
+    "b": "Esempio: un trasmettitore di pressione in un impianto chimico: il PLC legge il 4–20 mA, mentre il tecnico da una cassetta di campo legge con HART la sua diagnostica.",
+    "p": "Esempio: Command 3 (Read Dynamic Variables) restituisce corrente di loop e fino a 4 variabili (PV, SV, TV, QV) con le loro unità; il ciclo di una transazione dura ≈ 400–500 ms."
+   },
+   "comm": {
+    "mode": "polling",
+    "b": "L'host chiede i dati allo strumento.",
+    "p": "Master/slave: comandi periodici (es. Command 3); lo strumento non invia spontaneamente."
+   },
+   "osi": {
+    "own": [
+     1,
+     2,
+     7
+    ],
+    "via": []
+   },
+   "illus": {
+    "left": "plc",
+    "right": "transmitter",
+    "conn": "terminal",
+    "cable": "#7f8c8d",
+    "wire": "pair",
+    "text": "Lo stesso doppino del segnale 4–20 mA: il segnale digitale è sovrapposto alla corrente. Serve una resistenza di anello, tipicamente 250 Ω."
+   },
+   "sources": [
+    {
+     "n": "IEC 61158 (Type 20) / IEC 61784-1 (CPF 9)",
+     "d": "HART su filo."
+    },
+    {
+     "n": "FieldComm Group – HART Communication Protocol Specifications",
+     "d": "Specifiche complete, comandi universali e common practice."
+    },
+    {
+     "n": "NAMUR NE 43",
+     "d": "Livelli del segnale 4–20 mA per l'informazione di guasto."
+    },
+    {
+     "n": "IEC 62591",
+     "d": "WirelessHART."
+    }
+   ]
+  },
+  {
+   "id": "cip",
+   "name": "CIP / Logix (Rockwell)",
+   "color": "#c0392b",
+   "family": "Ethernet industriale",
+   "tagline": {
+    "b": "Il modello a oggetti CIP dei PLC Rockwell: tag leggibili a richiesta e variabili 'pubblicate' (produced/consumed) tra controllori.",
+    "p": "Common Industrial Protocol (ODVA) su EtherNet/IP: servizi espliciti (Read/Write Tag), I/O implicito e produced/consumed tag tra controllori Logix."
+   },
+   "analogy": "Come una bacheca: un PLC 'appende' una variabile (produced tag) e gli altri PLC iscritti la leggono a ogni aggiornamento; per le domande puntuali invece si chiede a voce (Read Tag).",
+   "card": {
+    "purpose": {
+     "b": "Far scambiare variabili tra PLC Rockwell e con HMI/SCADA, e collegare I/O e azionamenti.",
+     "p": "Accesso ai tag Logix per nome (servizi 0x4C/0x4D), connessioni I/O implicite e produced/consumed tag con RPI tra controllori; stesso modello CIP anche su DeviceNet, ControlNet e CompoNet."
+    },
+    "osi": {
+     "b": "Livello applicativo sopra la rete EtherNet/IP.",
+     "p": "CIP è L5–L7 (oggetti, servizi, percorsi) trasportato da EtherNet/IP su TCP/UDP/IP (L3–L4); su ControlNet/DeviceNet con altri livelli 1–2."
+    },
+    "medium": {
+     "b": "Cavo Ethernet.",
+     "p": "Ethernet 100/1000 Mbit/s rame e fibra."
+    },
+    "speed": "100 Mbit/s tipico, 1 Gbit/s",
+    "topology": {
+     "b": "Stella, linea o anello.",
+     "p": "Stella con switch, linea con switch integrato, anello DLR; il multicast dei produced tag richiede IGMP snooping."
+    },
+    "model": {
+     "b": "Una variabile 'pubblicata' da un PLC è ricevuta da molti altri.",
+     "p": "Producer/consumer per produced/consumed tag (connessioni con RPI, multicast o unicast); client/server per Read/Write Tag e messaggi MSG."
+    },
+    "determinism": {
+     "b": "Buono ma non garantito come EtherCAT.",
+     "p": "Soft real-time: l'RPI fissa la cadenza di produzione, la puntualità dipende da rete e carico del controllore."
+    },
+    "cycle": {
+     "b": "Da pochi ms a decine di ms.",
+     "p": "RPI tipico 2–100 ms per produced/consumed tag; i messaggi espliciti (MSG, Read Tag) non hanno cadenza garantita."
+    }
+   },
+   "pros": [
+    "Variabili condivise tra PLC senza programmare lo scambio",
+    "Un solo modello CIP per I/O, motion, safety e dati",
+    "Accesso ai tag per nome (symbolic)",
+    "Multicast: un produttore, molti consumatori"
+   ],
+   "cons": [
+    "Dimensione dei tag prodotti e numero di connessioni limitati dal controllore",
+    "Multicast richiede switch configurati (IGMP snooping)",
+    "Non è un protocollo a notifica 'on-change' generico: dipende dall'RPI/COS",
+    "Prestazioni dipendono da modello e firmware del controllore"
+   ],
+   "usecases": [
+    "Scambio di stati tra PLC di linee diverse",
+    "HMI e SCADA che leggono i tag Logix",
+    "Impianti Rockwell con I/O, motion e safety su una rete unica"
+   ],
+   "tech": [
+    [
+     "Standard",
+     "ODVA CIP (Vol. 1) + EtherNet/IP adaptation (Vol. 2)"
+    ],
+    [
+     "Read Tag / Write Tag",
+     "Servizi 0x4C / 0x4D con percorso simbolico (segmento 0x91 + nome del tag)"
+    ],
+    [
+     "Tipi dati",
+     "BOOL 0xC1, SINT 0xC2, INT 0xC3, DINT 0xC4, REAL 0xCA"
+    ],
+    [
+     "Produced/consumed tag",
+     "Connessione CIP con RPI; produttore in multicast o unicast"
+    ],
+    [
+     "Porte",
+     "TCP 44818 (esplicito), UDP 2222 (implicito)"
+    ]
+   ],
+   "notes": [
+    "Dimensione massima dei produced tag, numero di consumatori e tempi dipendono dal modello (ControlLogix/CompactLogix) e dal firmware. Con 'variabili published' si intendono qui i produced tag."
+   ],
+   "attrs": {
+    "ethernet": true,
+    "rt": "soft",
+    "topo": [
+     "line",
+     "star",
+     "ring",
+     "tree"
+    ],
+    "model": [
+     "pub-sub",
+     "client-server"
+    ],
+    "mbps": 100
+   },
+   "story": {
+    "b": [
+     "In un sistema Rockwell, il PLC può 'pubblicare' una variabile: la marca come produced tag. Gli altri PLC la marcano come consumed e la ricevono da soli, a intervalli regolari, senza dover fare richieste.",
+     "Quando serve un dato una volta sola, invece, l'HMI chiede 'dammi il valore del tag Contatore_Pezzi' e il PLC risponde."
+    ],
+    "p": [
+     "Il produced tag è una connessione CIP unidirezionale: il produttore invia il blocco di tag a ogni RPI (in multicast se più consumatori); ogni consumatore stabilisce la propria connessione verso il produttore con Forward_Open. Se i dati non arrivano entro RPI × timeout multiplier, la connessione cade e il consumatore segnala il guasto.",
+     "L'accesso esplicito usa i servizi Read Tag (0x4C) e Write Tag (0x4D) con percorso simbolico: il client riceve tipo e valore e il PLC lo elabora quando può, senza garanzia di cadenza."
+    ]
+   },
+   "example": {
+    "b": "Esempio: il PLC della linea A pubblica 'Stato_Linea' (produced tag). I PLC delle linee B e C lo consumano e fermano le loro macchine se la linea A va in allarme.",
+    "p": "Esempio: produced tag da 100 byte con RPI 20 ms verso 3 consumatori in multicast: 5 kB/s sulla rete; con unicast sarebbero 3 connessioni separate e 15 kB/s. Read Tag dall'HMI avviene invece solo su richiesta."
+   },
+   "comm": {
+    "mode": "both",
+    "b": "Le variabili 'pubblicate' arrivano da sole a ogni aggiornamento; gli altri dati si chiedono a richiesta.",
+    "p": "Produced/consumed tag a RPI (non sollecitati) + Read/Write Tag e MSG su richiesta."
+   },
+   "osi": {
+    "own": [
+     5,
+     6,
+     7
+    ],
+    "via": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "illus": {
+    "left": "plc",
+    "right": "plc",
+    "conn": "rj45",
+    "cable": "#7f8c8d",
+    "text": "La stessa rete EtherNet/IP dei dispositivi di campo: Ethernet con RJ45 tra i controllori."
+   },
+   "sources": [
+    {
+     "n": "ODVA – The CIP Networks Library, Vol. 1",
+     "d": "Modello a oggetti, servizi e connessioni CIP."
+    },
+    {
+     "n": "Rockwell Automation – Logix 5000 Controllers: 1756-PM011, 1756-PM020",
+     "d": "Manuali su produced/consumed tag e accesso ai dati dei controllori Logix."
+    }
+   ]
+  }
+ ],
+ "intro": {
+  "title": "Cos'è un bus di campo e perché esiste",
+  "b": [
+   "Immagina una fabbrica con un PLC (il 'cervello') e centinaia di sensori e motori. Senza un bus, ogni sensore avrebbe il suo cavo fino al quadro elettrico: chilometri di rame, ore di cablaggio e una gran confusione quando qualcosa si guasta.",
+   "Un bus di campo (o protocollo industriale) è come una strada condivisa: un solo cavo passa vicino a tutte le macchine e ognuna sale e scende dove serve. Il protocollo sono le regole del traffico: chi può parlare, quando, e come si scrive l'indirizzo sul pacco.",
+   "Esempio pratico: in una linea di imbottigliamento, un sensore ottico conta le bottiglie e una valvola riempie. Con un bus bastano pochi cavi: il PLC chiede 'quante bottiglie?' e ordina 'apri la valvola' sulla stessa linea. Ogni protocollo di questa app risolve lo stesso problema in modo diverso: alcuni sono velocissimi, altri più flessibili, altri pensati per il cloud."
+  ],
+  "p": [
+   "Un bus di campo sostituisce il cablaggio punto-punto (un cavo per ogni I/O) con un mezzo condiviso su cui il master scambia dati di processo con i nodi. Le scelte di progetto fondamentali sono: mezzo e livello fisico, metodo di accesso (polling, token, TDMA, frame passante), ciclo e determinismo, topologia e diagnostica.",
+   "Esempio pratico: una macchina con 40 I/O e 6 azionamenti. Con PROFIBUS DP a 1,5 Mbit/s il ciclo si calcola sommando request, TSDR e response per ogni slave (qualche ms). Con EtherCAT lo stesso impianto sta in un solo frame e il ciclo scende a poche centinaia di µs; con MQTT/OPC UA invece non c'è ciclo garantito ma si guadagna integrazione IT.",
+   "Il confronto utile non è 'quale è il migliore' ma 'quale requisito domina': tempo ciclo/sincronismo, cablaggio esistente, interoperabilità, sicurezza o collegamento al cloud."
+  ]
+ },
+ "commText": {
+  "polling": {
+   "title": "A polling (ciclico): qualcuno chiede",
+   "b": "Come chiedere «ci sono novità?» a intervalli regolari. Si chiede anche quando non cambia nulla; i tempi sono prevedibili solo se la rete li garantisce.",
+   "p": "Il richiedente interroga a cadenza fissa: carico costante N/ciclo, latenza massima ≈ un ciclo + elaborazione. È deterministico solo se anche il mezzo lo è (bus seriali, EtherCAT, ciclo calcolabile); su TCP/IP no. Spreca banda se i dati cambiano di rado."
+  },
+  "notify": {
+   "title": "A notifica (non sollecitati)",
+   "b": "Come un campanello: il dato arriva da solo solo quando serve. Poco traffico e reazione immediata, ma i tempi non sono garantiti.",
+   "p": "Il produttore invia in base a eventi (on-change, pub/sub): carico proporzionale al tasso di eventi, latenza minima in condizioni normali, ma con burst (tutti cambiano insieme) il carico e le code sono imprevedibili: meno deterministico."
+  },
+  "both": {
+   "title": "Entrambi: si sceglie",
+   "b": "Questi protocolli possono fare le due cose: ciclico per avere tempi certi, notifica per risparmiare traffico e reagire subito.",
+   "p": "Qui la scelta del trasferimento decide il compromesso: ciclico (RPI, sampling interval, cicli PDO) → determinismo e carico costante; on-change/COV/subscription → performance ed efficienza di banda, con carico e latenza variabili. Spesso si combinano (ciclico di sicurezza + on-change per gli eventi)."
+  }
+ },
+ "commIntro": {
+  "b": "Un dato può raggiungere chi lo vuole in due modi: qualcuno lo chiede (polling) oppure arriva da solo quando cambia (notifica). Il polling dà tempi prevedibili solo se anche la rete li garantisce; la notifica risparmia traffico, ma il carico dipende dagli eventi.",
+  "p": "Il polling non è deterministico di per sé: lo diventa solo se il ciclo è limitato dal mezzo e dal protocollo (PROFIBUS, AS-i, IO-Link, EtherCAT: ciclo calcolabile). Su TCP/IP (Modbus TCP, S7) il polling non è deterministico: ritrasmissioni e carico variano i tempi. La notifica on-change ha carico proporzionale agli eventi e, con burst, latenza non limitata."
+ },
+ "variants": [
+  {
+   "id": "opcua",
+   "show": [
+    "opcua",
+    "opcuapubsub",
+    "opcuafx"
+   ],
+   "compare": [
+    "opcua",
+    "opcuapubsub",
+    "opcuafx"
+   ],
+   "title": "OPC UA tradizionale, PubSub e FX: le differenze",
+   "intro": {
+    "b": "Sono tre modi di usare lo stesso «linguaggio». Quello tradizionale è una conversazione a due; PubSub è una trasmissione verso molti; FX usa entrambi per far lavorare insieme i controllori in tempo reale.",
+    "p": "Stesso information model e stessa codifica dei dati; cambiano modello di comunicazione, trasporto, sicurezza e garanzie temporali. FX non è un quarto protocollo: è un profilo che combina client/server (connessione) e PubSub (dati) con un proprio modello a FunctionalEntity."
+   },
+   "cols": [
+    {
+     "key": "opcua",
+     "head": "OPC UA tradizionale (client/server)",
+     "proto": "opcua"
+    },
+    {
+     "key": "opcuapubsub",
+     "head": "OPC UA PubSub",
+     "proto": "opcuapubsub"
+    },
+    {
+     "key": "opcuafx",
+     "head": "OPC UA FX",
+     "proto": "opcuafx"
+    }
+   ],
+   "rows": [
+    {
+     "label": "A cosa serve",
+     "values": {
+      "opcua": "Accedere ai dati e ai servizi di un server: leggere, scrivere, chiamare metodi, ricevere eventi",
+      "opcuapubsub": "Distribuire gli stessi dati a molti destinatari, senza sessioni",
+      "opcuafx": "Scambio in tempo reale tra controllori (e dispositivi), con connessioni sorvegliate"
+     }
+    },
+    {
+     "label": "Chi parla con chi",
+     "values": {
+      "opcua": "Un client apre una sessione con un server (1:1)",
+      "opcuapubsub": "Un publisher verso molti subscriber che non si conoscono (1:N)",
+      "opcuafx": "Coppie di FunctionalEntity collegate da un Connection Manager"
+     }
+    },
+    {
+     "label": "Come parte lo scambio",
+     "values": {
+      "opcua": "Il client crea canale sicuro, sessione e subscription",
+      "opcuapubsub": "Nessun handshake: publisher e subscriber sono configurati separatamente",
+      "opcuafx": "Il Connection Manager chiama EstablishConnections (client/server), poi i dati viaggiano in PubSub"
+     }
+    },
+    {
+     "label": "Trasporto",
+     "values": {
+      "opcua": "TCP (opc.tcp, porta 4840), HTTPS, WebSocket",
+      "opcuapubsub": "UDP unicast/multicast, Ethernet (EtherType 0xB62C), broker MQTT o AMQP",
+      "opcuafx": "PubSub UADP su UDP/IP o Ethernet, TSN opzionale; client/server su TCP per connessione e diagnostica"
+     }
+    },
+    {
+     "label": "Tempi e determinismo",
+     "values": {
+      "opcua": "Decine o centinaia di ms; non deterministico",
+      "opcuapubsub": "Dal millisecondo ai secondi; deterministico solo su Ethernet con TSN",
+      "opcuafx": "Millisecondi tra controllori, meno con TSN e hardware adatto; dipende dai prodotti"
+     }
+    },
+    {
+     "label": "Sicurezza",
+     "values": {
+      "opcua": "Canale sicuro per ogni sessione: certificati X.509, utenti e ruoli",
+      "opcuapubsub": "Firma e cifratura dei messaggi con chiavi di gruppo distribuite dall'SKS",
+      "opcuafx": "Entrambe: canale sicuro per le connessioni, sicurezza PubSub per i dati; OPC UA Safety per la sicurezza funzionale"
+     }
+    },
+    {
+     "label": "Se un messaggio si perde",
+     "values": {
+      "opcua": "TCP ritrasmette; il client recupera le notifiche con Republish",
+      "opcuapubsub": "Nessuna ritrasmissione su UDP/Ethernet: numeri di sequenza e key frame periodici",
+      "opcuafx": "Nessuna ritrasmissione: timeout sulla connessione e valori sostitutivi"
+     }
+    },
+    {
+     "label": "Chi sorveglia",
+     "values": {
+      "opcua": "Entrambi: timeout di sessione e keep-alive della subscription",
+      "opcuapubsub": "Solo il subscriber (MessageReceiveTimeout); il publisher non ha riscontri",
+      "opcuafx": "Entrambi i lati della connessione, anche con heartbeat"
+     }
+    },
+    {
+     "label": "Riferimento",
+     "values": {
+      "opcua": "IEC 62541, in particolare Part 4 e 6",
+      "opcuapubsub": "IEC 62541-14, dalla versione 1.04",
+      "opcuafx": "OPC 10000-80…84; specifiche recenti e in evoluzione"
+     }
+    },
+    {
+     "label": "Uso tipico",
+     "values": {
+      "opcua": "SCADA, MES, HMI, diagnostica e configurazione",
+      "opcuapubsub": "Dati verso cloud e IT, scambio ciclico tra controllori",
+      "opcuafx": "Controllore-controllore multi-costruttore; controllore-dispositivo nelle estensioni successive"
+     }
+    }
+   ]
+  },
+  {
+   "id": "profinet",
+   "show": [
+    "profinet"
+   ],
+   "title": "PROFINET RT e IRT: le differenze",
+   "intro": {
+    "b": "PROFINET ha due «marce». RT va bene per quasi tutte le macchine e usa una rete normale; IRT serve quando molti assi devono muoversi in perfetta sincronia e richiede hardware dedicato.",
+    "p": "Stesso protocollo applicativo e stessi servizi aciclici: cambia il trasporto del traffico ciclico. Nei confronti e nei grafici dell'app PROFINET compare con le prestazioni di IRT; qui le due classi sono distinte."
+   },
+   "cols": [
+    {
+     "key": "rt",
+     "head": "PROFINET RT"
+    },
+    {
+     "key": "irt",
+     "head": "PROFINET IRT"
+    }
+   ],
+   "rows": [
+    {
+     "label": "A cosa serve",
+     "values": {
+      "rt": "I/O distribuito e la maggior parte delle macchine",
+      "irt": "Motion control e applicazioni sincrone ad alte prestazioni"
+     }
+    },
+    {
+     "label": "Come ottiene i tempi",
+     "values": {
+      "rt": "Priorità dei frame (VLAN, PCP 6) su Ethernet standard, senza riserva di banda",
+      "irt": "Intervallo riservato in ogni ciclo, pianificato in anticipo, e orologi sincronizzati (PTCP)"
+     }
+    },
+    {
+     "label": "Determinismo",
+     "values": {
+      "rt": "Soft real-time: tempi tipici ma non garantiti, dipendono dal carico della rete",
+      "irt": "Hard real-time: jitter inferiore a 1 µs"
+     }
+    },
+    {
+     "label": "Tempo di ciclo",
+     "values": {
+      "rt": "Da 1 a 512 ms (comuni 1–4 ms)",
+      "irt": "Da 31,25 µs a 4 ms (comuni 250 µs–1 ms); dipende dai dispositivi"
+     }
+    },
+    {
+     "label": "Hardware di rete",
+     "values": {
+      "rt": "Switch Ethernet standard, meglio se gestiti e con priorità",
+      "irt": "Switch e dispositivi con hardware IRT su tutto il percorso"
+     }
+    },
+    {
+     "label": "Topologia",
+     "values": {
+      "rt": "Libera: non serve dichiararla per comunicare",
+      "irt": "Va progettata nello strumento di ingegneria: i percorsi dei frame sono calcolati su di essa"
+     }
+    },
+    {
+     "label": "Ridondanza ad anello",
+     "values": {
+      "rt": "MRP: ripristino tipico entro 200 ms",
+      "irt": "MRPD: frame duplicati sui due lati dell'anello, senza interruzione"
+     }
+    },
+    {
+     "label": "FrameID dei dati ciclici",
+     "values": {
+      "rt": "0x8000–0xBFFF (RT_Class_1)",
+      "irt": "0x0100–0x7FFF (RT_Class_3); l'intervallo dipende dalla versione"
+     }
+    }
+   ]
+  },
+  {
+   "id": "profibus",
+   "show": [
+    "profibus"
+   ],
+   "title": "PROFIBUS DP e PA: le differenze",
+   "intro": {
+    "b": "Sono lo stesso bus in due «abiti»: DP è veloce e sta nel quadro e sulle macchine; PA è lento ma porta anche l'alimentazione agli strumenti e può entrare nelle zone a rischio di esplosione.",
+    "p": "Stesso protocollo (DP-V1) e stessi servizi: cambia il livello fisico. Un segmento PA si collega a un segmento DP tramite accoppiatore o link; per il master i dispositivi PA sono slave DP."
+   },
+   "cols": [
+    {
+     "key": "dp",
+     "head": "PROFIBUS DP"
+    },
+    {
+     "key": "pa",
+     "head": "PROFIBUS PA"
+    }
+   ],
+   "rows": [
+    {
+     "label": "A cosa serve",
+     "values": {
+      "dp": "Automazione di fabbrica: I/O remoti, azionamenti, isole di valvole",
+      "pa": "Automazione di processo: trasmettitori e attuatori, anche in area a rischio di esplosione"
+     }
+    },
+    {
+     "label": "Livello fisico",
+     "values": {
+      "dp": "RS-485 (o fibra ottica)",
+      "pa": "MBP, Manchester Bus Powered (IEC 61158-2)"
+     }
+    },
+    {
+     "label": "Velocità",
+     "values": {
+      "dp": "Da 9,6 kbit/s a 12 Mbit/s",
+      "pa": "31,25 kbit/s, fissa"
+     }
+    },
+    {
+     "label": "Alimentazione",
+     "values": {
+      "dp": "Separata: il bus porta solo i dati",
+      "pa": "Sullo stesso doppino dei dati; possibile la sicurezza intrinseca (modello FISCO)"
+     }
+    },
+    {
+     "label": "Dispositivi per segmento",
+     "values": {
+      "dp": "32 stazioni; 126 indirizzi con i ripetitori",
+      "pa": "Fino a 32; in area Ex molti meno (circa 10), secondo la corrente disponibile"
+     }
+    },
+    {
+     "label": "Lunghezza del segmento",
+     "values": {
+      "dp": "Da 100 m a 12 Mbit/s fino a 1200 m a 93,75 kbit/s",
+      "pa": "Fino a 1900 m (meno in area Ex)"
+     }
+    },
+    {
+     "label": "Topologia",
+     "values": {
+      "dp": "Linea con terminazioni alle estremità; derivazioni da evitare alle alte velocità",
+      "pa": "Linea, albero o stella con derivazioni; terminatori alle estremità della dorsale"
+     }
+    },
+    {
+     "label": "Collegamento al master",
+     "values": {
+      "dp": "Diretto",
+      "pa": "Tramite accoppiatore o link DP/PA"
+     }
+    }
+   ]
+  },
+  {
+   "id": "modbus",
+   "show": [
+    "modbus",
+    "modbusrtu"
+   ],
+   "compare": [
+    "modbus",
+    "modbusrtu"
+   ],
+   "title": "Modbus TCP e Modbus RTU: le differenze",
+   "intro": {
+    "b": "Parlano la stessa lingua (stesse domande e risposte), ma viaggiano su strade diverse: Modbus TCP sulla rete Ethernet, Modbus RTU su un semplice cavo seriale.",
+    "p": "Stessa PDU (function code e dati), incapsulata in modo diverso: intestazione MBAP su TCP oppure indirizzo e CRC-16 su linea seriale. Un gateway converte tra i due senza toccare la PDU."
+   },
+   "cols": [
+    {
+     "key": "modbus",
+     "head": "Modbus TCP",
+     "proto": "modbus"
+    },
+    {
+     "key": "modbusrtu",
+     "head": "Modbus RTU",
+     "proto": "modbusrtu"
+    }
+   ],
+   "rows": [
+    {
+     "label": "Mezzo",
+     "values": {
+      "modbus": "Ethernet e rete IP (porta TCP 502)",
+      "modbusrtu": "Linea seriale RS-485 (o RS-232)"
+     }
+    },
+    {
+     "label": "Chi parla",
+     "values": {
+      "modbus": "Più client verso più server, anche contemporaneamente",
+      "modbusrtu": "Un solo master interroga gli slave, uno alla volta"
+     }
+    },
+    {
+     "label": "Indirizzamento",
+     "values": {
+      "modbus": "Indirizzo IP; lo Unit ID serve per i dispositivi dietro un gateway",
+      "modbusrtu": "Indirizzo di slave da 1 a 247 (0 = broadcast)"
+     }
+    },
+    {
+     "label": "Frame",
+     "values": {
+      "modbus": "Intestazione MBAP (7 byte) + PDU, senza CRC proprio",
+      "modbusrtu": "Indirizzo + PDU + CRC-16, tra silenzi di almeno 3,5 caratteri"
+     }
+    },
+    {
+     "label": "Controllo degli errori",
+     "values": {
+      "modbus": "Affidato a TCP ed Ethernet, con ritrasmissione automatica",
+      "modbusrtu": "CRC-16 e parità; il master ripete dopo il timeout"
+     }
+    },
+    {
+     "label": "Velocità tipica",
+     "values": {
+      "modbus": "10/100/1000 Mbit/s",
+      "modbusrtu": "Da 9,6 a 115,2 kbit/s"
+     }
+    },
+    {
+     "label": "Quanti dispositivi",
+     "values": {
+      "modbus": "Limitati da rete e connessioni TCP",
+      "modbusrtu": "247 indirizzi; 32 carichi per segmento senza ripetitori"
+     }
+    },
+    {
+     "label": "Distanza",
+     "values": {
+      "modbus": "100 m per tratta in rame, estendibile con switch e fibra",
+      "modbusrtu": "Fino a circa 1000 m alle basse velocità"
+     }
+    },
+    {
+     "label": "Che cosa resta uguale",
+     "values": {
+      "modbus": "Function code, modello dati (coil e registri) ed eccezioni",
+      "modbusrtu": "Function code, modello dati (coil e registri) ed eccezioni"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cip",
+   "show": [
+    "enip",
+    "cip"
+   ],
+   "compare": [
+    "enip",
+    "cip"
+   ],
+   "title": "CIP ed EtherNet/IP: le differenze",
+   "intro": {
+    "b": "CIP è il «linguaggio» con cui i dispositivi si descrivono e si parlano; EtherNet/IP è la «strada» Ethernet su cui quel linguaggio viaggia. Uno non esiste senza l'altro, ma non sono la stessa cosa.",
+    "p": "CIP definisce oggetti, servizi e connessioni indipendentemente dalla rete; EtherNet/IP ne è l'adattamento a Ethernet, TCP e UDP (come DeviceNet lo è per CAN). Le due schede dell'app guardano lo stesso stack da due lati: I/O di campo e scambio tra controllori."
+   },
+   "cols": [
+    {
+     "key": "cip",
+     "head": "CIP (protocollo applicativo)",
+     "proto": "cip"
+    },
+    {
+     "key": "enip",
+     "head": "EtherNet/IP (CIP su Ethernet)",
+     "proto": "enip"
+    }
+   ],
+   "rows": [
+    {
+     "label": "Che cos'è",
+     "values": {
+      "cip": "Modello a oggetti, servizi e tipi di connessione, indipendenti dalla rete",
+      "enip": "L'adattamento di CIP a Ethernet, TCP e UDP"
+     }
+    },
+    {
+     "label": "Dove gira",
+     "values": {
+      "cip": "Su EtherNet/IP, DeviceNet (CAN), ControlNet, CompoNet",
+      "enip": "Su Ethernet standard: TCP 44818, UDP 2222 e 44818"
+     }
+    },
+    {
+     "label": "Messaggi espliciti",
+     "values": {
+      "cip": "Servizi su oggetti (Get_Attribute_Single, Read Tag…) con richiesta e risposta",
+      "enip": "Incapsulati in SendRRData o SendUnitData su TCP"
+     }
+    },
+    {
+     "label": "I/O implicito",
+     "values": {
+      "cip": "Connessioni con RPI, cicliche o a cambio di stato",
+      "enip": "Dati su UDP 2222, unicast o multicast"
+     }
+    },
+    {
+     "label": "Apertura della connessione",
+     "values": {
+      "cip": "Forward_Open al Connection Manager",
+      "enip": "RegisterSession, poi Forward_Open incapsulato"
+     }
+    },
+    {
+     "label": "Estensioni",
+     "values": {
+      "cip": "CIP Safety, CIP Sync, CIP Motion, CIP Security",
+      "enip": "DLR per l'anello, QoS, rilevamento dei conflitti di indirizzo (ACD)"
+     }
+    },
+    {
+     "label": "In questa app",
+     "values": {
+      "cip": "Scheda «CIP / Logix»: produced/consumed tag e lettura dei tag tra controllori Rockwell",
+      "enip": "Scheda «EtherNet/IP»: scanner e adapter, I/O implicito"
+     }
+    }
+   ]
+  }
+ ],
+ "sourcesNote": {
+  "b": "Questi sono i documenti ufficiali di riferimento. I testi dell'app sono riassunti a scopo didattico: per progettare un impianto o certificare un prodotto vale sempre il documento ufficiale nella versione in vigore.",
+  "p": "Le descrizioni dell'app sono sintesi didattiche basate su norme, specifiche dei consorzi e documentazione pubblica dei costruttori. Valori tipici, tempi e codici possono cambiare con versione, profilo e implementazione: per progetto, conformità e certificazione fa fede il documento ufficiale nella versione in vigore."
+ }
+}
