@@ -24,7 +24,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then echo "ok=1" >> "$GITHUB_OUTPUT"
+          # se Pages è spento prova ad accenderlo (Source: GitHub Actions); se il token non basta, avvisa e si ferma senza errore
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1 \
+             || gh api -X POST "repos/${{ github.repository }}/pages" -f build_type=workflow; then echo "ok=1" >> "$GITHUB_OUTPUT"
           else echo "::notice::GitHub Pages non è attivo: Settings → Pages → Source: GitHub Actions"; fi
       - uses: actions/checkout@v4
         if: steps.on.outputs.ok
