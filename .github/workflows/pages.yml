@@ -1,30 +1,30 @@
 name: pages
-# Pubblica la versione web a ogni modifica di main: costruisce il sito e lo scrive sul branch gh-pages,
-# da cui GitHub Pages lo serve (Settings → Pages → Source: «Deploy from a branch», branch gh-pages, cartella /).
+# Pubblica la versione web su GitHub Pages a ogni modifica di main (Settings → Pages → Source: «GitHub Actions»).
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node web/build.mjs "$RUNNER_TEMP/site"
-      - name: Aggiorna il branch gh-pages
-        run: |
-          cd "$RUNNER_TEMP/site"
-          git init -q -b gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Versione web da ${GITHUB_SHA::7}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
+      - run: node web/build.mjs _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deploy
