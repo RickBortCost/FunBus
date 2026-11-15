@@ -431,6 +431,8 @@ for (const [label, vp] of [
     await fp.goto(base + '#/');
     await fp.waitForSelector('#splash', { state: 'detached', timeout: 8000 });
     await fp.selectOption('#langSel', 'en');
+    // il dizionario inglese si carica in modo asincrono: si attende che il menu sia tradotto prima di controllare
+    await fp.waitForFunction(() => document.querySelector('#nav .navb')?.textContent.trim() === 'Learn', null, { timeout: 8000 });
     if (!(await fp.locator('#welcome').count())) errs.push(`${label}: al primo avvio manca l'introduzione`);
     if (await fp.locator('#resume').count()) errs.push(`${label}: «Riprendi» mostrato senza progressi`);
     for (let i = 0; i < 3; i++) {
