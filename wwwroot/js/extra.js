@@ -1,4 +1,4 @@
-import { S, h, T, isPro, levelInfo, toast } from './core.js';
+import { S, h, T, isPro, levelInfo, toast, save } from './core.js';
 
 export function glossario(app, { id } = {}) {
   const terms = S.data.glossary.terms;
@@ -269,39 +269,76 @@ export function importProgress(file, done) {
 /* ---------- SOSTIENI ---------- */
 // Donazione libera e facoltativa: collegamento a PayPal (si apre nel browser) e codice QR da inquadrare col telefono.
 export const DONATE_URL = 'https://www.paypal.com/qrcodes/p2pqrc/TGBLFXU4FFULL';
-export function sostieni(app) {
-  app.append(
-    h('h1', {}, '♥ Sostieni FunBus'),
+// Contenuto comune alla pagina «Sostieni» e al riquadro che compare dopo 15 minuti di utilizzo.
+function donateBody() {
+  return [
+    h(
+      'p',
+      {},
+      'FunBus è gratuito e lo resterà: nessuna pubblicità, nessun abbonamento, tutte le funzioni disponibili per tutti. Se ti è stato utile per studiare o per insegnare, puoi sostenerne lo sviluppo con una donazione libera.',
+    ),
     h(
       'div',
-      { class: 'card donate' },
+      { class: 'donaterow' },
       h(
-        'p',
-        {},
-        'FunBus è gratuito e lo resterà: nessuna pubblicità, nessun abbonamento, tutte le funzioni disponibili per tutti. Se ti è stato utile per studiare o per insegnare, puoi sostenerne lo sviluppo con una donazione libera.',
+        'figure',
+        { class: 'donateqr' },
+        h('img', { src: 'img/paypal-qr.png', alt: 'Codice QR per donare con PayPal', width: 220, height: 220 }),
+        h('figcaption', { class: 'muted small' }, 'Inquadra il codice con la fotocamera del telefono.'),
       ),
       h(
         'div',
-        { class: 'donaterow' },
+        { class: 'donateact' },
+        h('a', { class: 'btn primary', href: DONATE_URL, target: '_blank', rel: 'noopener noreferrer' }, 'Dona con PayPal'),
         h(
-          'figure',
-          { class: 'donateqr' },
-          h('img', { src: 'img/paypal-qr.png', alt: 'Codice QR per donare con PayPal', width: 220, height: 220 }),
-          h('figcaption', { class: 'muted small' }, 'Inquadra il codice con la fotocamera del telefono.'),
+          'p',
+          { class: 'muted small' },
+          "Si apre la pagina di PayPal: l'importo lo scegli tu e il pagamento avviene sul sito di PayPal. FunBus non riceve né conserva dati di pagamento.",
         ),
-        h(
-          'div',
-          { class: 'donateact' },
-          h('a', { class: 'btn primary', href: DONATE_URL, target: '_blank', rel: 'noopener noreferrer' }, 'Dona con PayPal'),
-          h(
-            'p',
-            { class: 'muted small' },
-            "Si apre la pagina di PayPal: l'importo lo scegli tu e il pagamento avviene sul sito di PayPal. FunBus non riceve né conserva dati di pagamento.",
-          ),
-          h('p', { class: 'muted small' }, "Serve una connessione a internet; il resto dell'app funziona anche senza."),
-        ),
+        h('p', { class: 'muted small' }, "Serve una connessione a internet; il resto dell'app funziona anche senza."),
       ),
     ),
+  ];
+}
+export function sostieni(app) {
+  S.progress.donateShown = true; // chi apre la pagina da sé non riceve anche il riquadro
+  save();
+  app.append(
+    h('h1', {}, '♥ Sostieni FunBus'),
+    h('div', { class: 'card donate' }, donateBody()),
     h('p', {}, 'Grazie! Anche segnalare un errore nei contenuti o consigliare FunBus a qualcuno è un ottimo modo per aiutare.'),
   );
+}
+
+// Riquadro mostrato una sola volta, dopo 15 minuti di utilizzo effettivo (somma dei tempi con l'app in primo piano).
+export function donatePopup() {
+  if (document.getElementById('donatePop')) return;
+  S.progress.donateShown = true;
+  save();
+  const back = document.activeElement;
+  const close = () => {
+    wrap.remove();
+    document.removeEventListener('keydown', onKey);
+    back?.focus?.({ preventScroll: true });
+  };
+  const onKey = e => {
+    if (e.key === 'Escape') close();
+  };
+  const closeBtn = h('button', { class: 'cclose', 'aria-label': 'Chiudi', onclick: close }, '✕');
+  const wrap = h(
+    'div',
+    { class: 'modalbg', id: 'donatePop', onclick: e => e.target === wrap && close() },
+    h(
+      'div',
+      { class: 'modal card donate', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'donateTitle' },
+      closeBtn,
+      h('h2', { id: 'donateTitle' }, '♥ Ti piace FunBus?'),
+      donateBody(),
+      h('div', { class: 'row', style: 'justify-content:flex-end;margin-top:.6rem' }, h('button', { onclick: close }, 'Non ora')),
+      h('p', { class: 'muted small' }, 'Questo messaggio non comparirà di nuovo. Trovi la pagina in Esplora → Sostieni FunBus.'),
+    ),
+  );
+  document.body.append(wrap);
+  document.addEventListener('keydown', onKey);
+  closeBtn.focus({ preventScroll: true });
 }

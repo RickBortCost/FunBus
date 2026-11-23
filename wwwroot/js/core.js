@@ -21,6 +21,8 @@ export const defProgress = () => ({
   lastProto: null,
   predicted: {},
   review: {},
+  usedMs: 0,
+  donateShown: false,
 });
 
 export const L = () => (S.level === 'beginner' ? 'b' : 'p');

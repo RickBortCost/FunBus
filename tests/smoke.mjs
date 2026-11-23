@@ -552,6 +552,43 @@ for (const [label, vp] of [
       await fp.waitForTimeout(150);
       await checkEnglish(fp, 'ripasso: domanda imparata');
     }
+    // donazioni: dopo 15 minuti di utilizzo compare una sola volta il riquadro con il codice QR
+    {
+      const setUse = (ms, shown) =>
+        fp.evaluate(
+          ([ms, shown]) => {
+            const st = JSON.parse(localStorage.getItem('ipl'));
+            st.lang = 'en';
+            Object.assign(st.progress, { usedMs: ms, donateShown: shown });
+            localStorage.setItem('ipl', JSON.stringify(st));
+          },
+          [ms, shown],
+        );
+      const reopen = async () => {
+        await fp.reload();
+        await fp.waitForSelector('#splash', { state: 'detached', timeout: 8000 });
+        await fp.waitForTimeout(150);
+      };
+      await fp.waitForTimeout(400); // il salvataggio dei progressi è differito
+      await setUse(14 * 60 * 1000, false);
+      await reopen();
+      if (await fp.locator('#donatePop').count()) errs.push(`${label}: riquadro donazioni prima dei 15 minuti`);
+      await setUse(15 * 60 * 1000, false);
+      await reopen();
+      if (!(await fp.locator('#donatePop [role=dialog] img[src="img/paypal-qr.png"]').count()))
+        errs.push(`${label}: riquadro donazioni non mostrato a 15 minuti`);
+      else {
+        const box = await fp.locator('#donatePop .modal').boundingBox();
+        if (box.x < 0 || box.x + box.width > vp.width) errs.push(`${label}: riquadro donazioni fuori dallo schermo`);
+        if ((await overflow()) > 0) errs.push(`${label}: riquadro donazioni con overflow orizzontale`);
+        await checkEnglish(fp, 'riquadro donazioni');
+        await fp.keyboard.press('Escape');
+        if (await fp.locator('#donatePop').count()) errs.push(`${label}: Esc non chiude il riquadro donazioni`);
+        await fp.waitForTimeout(350);
+        await reopen();
+        if (await fp.locator('#donatePop').count()) errs.push(`${label}: riquadro donazioni mostrato di nuovo`);
+      }
+    }
     await fp.close();
   }
   // animazione di ogni protocollo
