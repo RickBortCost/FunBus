@@ -100,7 +100,7 @@ table.cmp tr.diff td:not(:first-child){background:var(--diff)}
 .skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--accent-t);padding:.5rem 1rem;z-index:200}.skip:focus{left:0}
 #app:focus{outline:none}
 @media(max-width:560px){main{padding:.6rem}.topbar{padding:.4rem .6rem}.tools{width:100%;justify-content:space-between}table.cmp th:first-child,table.cmp td:first-child{width:92px}}
-@media print{.topbar,#ver,.no-print,.skip{display:none!important}body{background:#fff;color:#000}#cert{box-shadow:none;margin-top:2rem}}
+@media print{.topbar,footer,.no-print,.skip{display:none!important}body{background:#fff;color:#000}#cert{box-shadow:none;margin-top:2rem}}
 .hex{font-family:ui-monospace,Consolas,monospace;background:var(--surface2);padding:.6rem .8rem;border-radius:8px;overflow-x:auto;white-space:pre-wrap}
 
 /* Aspetto morbido: angoli arrotondati, ombre leggere, pulsanti a pillola */
@@ -460,3 +460,12 @@ mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;bor
 .pask .row{justify-content:space-between;gap:.5rem}.popts{margin:.6rem 0 0}.popts button{overflow-wrap:anywhere}
 .predict .fb{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:0}
 .again{display:block;margin-top:.35rem;font-weight:600}
+/* Piè di pagina e donazioni */
+.foot{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem 1.2rem;padding:1rem;font-size:.85rem;text-align:center}
+.donatelink{color:var(--accent);font-weight:600}
+.donaterow{display:flex;flex-wrap:wrap;gap:1.2rem;align-items:center;margin-top:.6rem}
+.donateqr{margin:0;display:grid;justify-items:center;gap:.3rem;flex:none}
+.donateqr img{display:block;width:220px;height:220px;max-width:100%;border-radius:var(--r-sm);background:#fff}
+.donateact{flex:1 1 15rem;min-width:0}.donateact .btn{display:inline-block;font-size:1.05rem;padding:.6rem 1.2rem;text-decoration:none}
+.donateact .btn.primary{background:var(--accent);color:var(--accent-t);border-color:var(--accent);font-weight:600;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 35%,transparent)}
+[data-theme=hc] .donateact .btn.primary{box-shadow:none}

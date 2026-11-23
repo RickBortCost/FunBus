@@ -265,3 +265,43 @@ export function importProgress(file, done) {
   };
   r.readAsText(file);
 }
+
+/* ---------- SOSTIENI ---------- */
+// Donazione libera e facoltativa: collegamento a PayPal (si apre nel browser) e codice QR da inquadrare col telefono.
+export const DONATE_URL = 'https://www.paypal.com/qrcodes/p2pqrc/TGBLFXU4FFULL';
+export function sostieni(app) {
+  app.append(
+    h('h1', {}, '♥ Sostieni FunBus'),
+    h(
+      'div',
+      { class: 'card donate' },
+      h(
+        'p',
+        {},
+        'FunBus è gratuito e lo resterà: nessuna pubblicità, nessun abbonamento, tutte le funzioni disponibili per tutti. Se ti è stato utile per studiare o per insegnare, puoi sostenerne lo sviluppo con una donazione libera.',
+      ),
+      h(
+        'div',
+        { class: 'donaterow' },
+        h(
+          'figure',
+          { class: 'donateqr' },
+          h('img', { src: 'img/paypal-qr.png', alt: 'Codice QR per donare con PayPal', width: 220, height: 220 }),
+          h('figcaption', { class: 'muted small' }, 'Inquadra il codice con la fotocamera del telefono.'),
+        ),
+        h(
+          'div',
+          { class: 'donateact' },
+          h('a', { class: 'btn primary', href: DONATE_URL, target: '_blank', rel: 'noopener noreferrer' }, 'Dona con PayPal'),
+          h(
+            'p',
+            { class: 'muted small' },
+            "Si apre la pagina di PayPal: l'importo lo scegli tu e il pagamento avviene sul sito di PayPal. FunBus non riceve né conserva dati di pagamento.",
+          ),
+          h('p', { class: 'muted small' }, "Serve una connessione a internet; il resto dell'app funziona anche senza."),
+        ),
+      ),
+    ),
+    h('p', {}, 'Grazie! Anche segnalare un errore nei contenuti o consigliare FunBus a qualcuno è un ottimo modo per aiutare.'),
+  );
+}

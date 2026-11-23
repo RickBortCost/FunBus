@@ -2,6 +2,9 @@
 
 App didattica sui bus di campo e protocolli industriali (19 protocolli: PROFINET, PROFIBUS, S7, EtherCAT, ADS, MQTT, OPC UA client/server, OPC UA PubSub, OPC UA FX, EtherNet/IP, CIP, Modbus TCP/RTU, CANopen, IO-Link, AS-Interface, BACnet/IP, KNX, HART). Livelli Beginner e Professional, italiano e inglese; animazioni con diagramma a sequenza e guasti simulati, topologie interattive, confronto in tabella e grafici, test a punti e gioco «Costruisci la rete». Tutto simulato, nessun hardware.
 
+## Sostieni FunBus
+FunBus è gratuito. Chi vuole può sostenerne lo sviluppo con una donazione libera su PayPal: <https://www.paypal.com/qrcodes/p2pqrc/TGBLFXU4FFULL> (anche dalla pagina *♥ Sostieni FunBus* dell'app).
+
 ## Test
 ```
 node tests/validate.mjs                           # contenuti JSON, traduzioni, contrasti

@@ -7,7 +7,14 @@ import path from 'node:path';
 import { IT_RE, NOT_ITALIAN } from './italian.mjs';
 
 const root = path.resolve('wwwroot');
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
+const types = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+};
 const server = http
   .createServer((q, r) => {
     const f = path.join(root, q.url.split('?')[0] === '/' ? 'index.html' : decodeURIComponent(q.url.split('?')[0]));
@@ -40,6 +47,7 @@ const routes = [
   '/approfondimenti',
   '/normative',
   '/certificato',
+  '/sostieni',
   '/cerca',
   '/cerca/token',
   '/percorso',

@@ -49,6 +49,7 @@ function render(scroll = false) {
     else if (root === 'approfondimenti') extra.approfondimenti(app, ctx);
     else if (root === 'strumenti') extra.strumenti(app, ctx);
     else if (root === 'certificato') extra.certificato(app, ctx);
+    else if (root === 'sostieni') extra.sostieni(app, ctx);
     else pages.home(app, ctx);
   } catch (e) {
     app.append(h('pre', {}, 'Errore: ' + e.message));
