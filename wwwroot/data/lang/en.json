@@ -3497,7 +3497,15 @@
 "Prossimo ripasso: ": "Next review: ",
 "Prossimo ripasso:": "Next review:",
 "Ripassa in anticipo": "Review early",
-"Per oggi hai finito: nessuna domanda in scadenza.": "You are done for today: no questions due."
+"Per oggi hai finito: nessuna domanda in scadenza.": "You are done for today: no questions due.",
+"♥ Sostieni FunBus": "♥ Support FunBus",
+"FunBus è gratuito e lo resterà: nessuna pubblicità, nessun abbonamento, tutte le funzioni disponibili per tutti. Se ti è stato utile per studiare o per insegnare, puoi sostenerne lo sviluppo con una donazione libera.": "FunBus is free and will stay free: no ads, no subscriptions, every feature available to everyone. If it has helped you study or teach, you can support its development with a donation of any amount.",
+"Codice QR per donare con PayPal": "QR code to donate with PayPal",
+"Inquadra il codice con la fotocamera del telefono.": "Scan the code with your phone camera.",
+"Dona con PayPal": "Donate with PayPal",
+"Si apre la pagina di PayPal: l'importo lo scegli tu e il pagamento avviene sul sito di PayPal. FunBus non riceve né conserva dati di pagamento.": "The PayPal page opens: you choose the amount and the payment takes place on the PayPal site. FunBus does not receive or store any payment data.",
+"Serve una connessione a internet; il resto dell'app funziona anche senza.": "An internet connection is needed; the rest of the app works without one.",
+"Grazie! Anche segnalare un errore nei contenuti o consigliare FunBus a qualcuno è un ottimo modo per aiutare.": "Thank you! Reporting a mistake in the content or recommending FunBus to someone is also a great way to help."
 },
 "patterns": [
 [
