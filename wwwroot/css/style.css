@@ -469,3 +469,10 @@ mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;bor
 .donateact{flex:1 1 15rem;min-width:0}.donateact .btn{display:inline-block;font-size:1.05rem;padding:.6rem 1.2rem;text-decoration:none}
 .donateact .btn.primary{background:var(--accent);color:var(--accent-t);border-color:var(--accent);font-weight:600;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 35%,transparent)}
 [data-theme=hc] .donateact .btn.primary{box-shadow:none}
+/* Riquadro modale (donazioni) */
+.modalbg{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:.8rem;background:rgba(0,0,0,.55);overflow-y:auto}
+.modal{position:relative;width:min(40rem,100%);margin:0;max-height:calc(100vh - 1.6rem);overflow-y:auto;animation:cpop2 .3s ease-out}
+.modal h2{margin:0 2rem .4rem 0}
+@keyframes cpop2{from{opacity:0;transform:translateY(16px)}}
+@media(prefers-reduced-motion:reduce){.modal{animation:none}}
+@media print{.modalbg{display:none!important}}

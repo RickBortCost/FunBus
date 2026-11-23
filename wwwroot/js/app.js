@@ -118,6 +118,22 @@ function initMenus() {
   });
 }
 
+// Tempo di utilizzo: conta solo con la pagina in primo piano; a 15 minuti compare (una volta) il riquadro delle donazioni.
+const DONATE_AFTER_MS = 15 * 60 * 1000,
+  USE_TICK_MS = 10 * 1000;
+function trackUsage() {
+  const check = () => {
+    if (!S.progress.donateShown && S.progress.usedMs >= DONATE_AFTER_MS && !document.querySelector('.modalbg')) extra.donatePopup();
+  };
+  setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    S.progress.usedMs = (S.progress.usedMs || 0) + USE_TICK_MS;
+    save();
+    check();
+  }, USE_TICK_MS);
+  check();
+}
+
 const THEMES = { light: ['◐', 'chiaro'], dark: ['◑', 'scuro'], hc: ['◉', 'alto contrasto'] };
 function applyTheme() {
   const t = THEMES[S.theme]
@@ -209,6 +225,7 @@ async function init() {
   await wait(Math.max(300, 1500 - (Date.now() - t0)));
   document.getElementById('splash').classList.add('hide');
   setTimeout(() => document.getElementById('splash').remove(), 600);
+  trackUsage();
   const footer = v => (document.getElementById('ver').textContent = `FunBus v${v} · Autore: Riccardo Bortolussi`);
   if (WEB) {
     // versione web: nessun server locale; il service worker rende l'app usabile senza rete dopo la prima visita
